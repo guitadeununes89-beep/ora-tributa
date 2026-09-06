@@ -67,20 +67,45 @@ Lendo o texto compilado local da LC nº 214/2025 já ingerido pela plataforma
   geográfico do DL nº 288/1967 (e de eventual decreto que o tenha alterado), separado da questão de
   habilitação registral.
 
+### Atualização — perímetro atual e Resolução CGIBS nº 6/2026 (2026-09-06, continuação)
+
+- **O perímetro geográfico de 1967 continua sendo o vigente.** Encontrei uma proposta legislativa em
+  tramitação — "Comissão aprova inclusão das 12 cidades da Grande Manaus na Zona Franca"
+  (camara.leg.br/noticias/626048) — que **alteraria** o DL nº 288/1967 para ampliar a ZFM à Região
+  Metropolitana de Manaus. Confirmei que **esse texto ainda está em tramitação legislativa
+  (aguardando análise de outras comissões), não é lei em vigor**. Isso responde, por ora, a
+  pergunta "o Executivo já alterou a configuração por decreto?": não localizei essa alteração —
+  a mudança que existe é uma proposta de **lei complementar/ordinária em tramitação**, ainda não
+  vigente, distinta do mecanismo do art. 2º, § 3º (que é por decreto do Executivo, não por lei).
+  **Isso não é uma confirmação definitiva** de que nenhum decreto jamais alterou o perímetro —
+  apenas que não localizei nenhum nesta pesquisa.
+- Uma fonte secundária (resultado de busca, não verificada na fonte primária) descreve o perímetro
+  atual como abrangendo "parte da Capital, Manaus, parte do município de Rio Preto da Eva, e parte
+  do município de Itacoatiara". **Não confirmei essa tripartição em nenhuma norma primária** —
+  pode ser uma tradução administrativa (Suframa/IBGE) do critério de distância dos rios do DL
+  288/1967, não uma redefinição legal municipal. Não deve ser tratada como fato governado sem
+  confirmar a fonte primária.
+- **Resolução CGIBS nº 6/2026** (regulamento do IBS, publicada em 30/04/2026,
+  <https://www.cgibs.gov.br/upload/arquivos/202604/30084927-res-cgibs-n-6-30-abr-2026-regulamenta-o-ibs.pdf>):
+  confirmei a existência de disposições sobre internamento — o processo envolve integração
+  eletrônica de documentos fiscais com as administrações tributárias, formalização do internamento
+  perante a Suframa, e comprovação efetiva de entrada. **Não li o PDF completo nem confirmei os
+  números exatos de artigo** (as especificações `RT-IBSCBS-0007` já citam arts. 516, 551 a 553 —
+  não os conferi contra o texto oficial nesta pesquisa).
+- Também localizei duas notas técnicas da própria Suframa sobre a atualização do marco regulatório
+  da ZFM/ALC com a reforma tributária (Nota Técnica nº 6/2025 e nº 14/2025, CGSAE/Suframa) e um
+  "Marco Regulatório dos Incentivos Fiscais da ZFM e ALCs" consolidado — fontes secundárias oficiais
+  úteis para a próxima leitura, mas ainda não lidas na íntegra.
+
 ### Incertezas explícitas (ainda não resolvidas)
 
-- Não confirmei se o Poder Executivo exerceu o poder do art. 2º, § 3º do DL 288/1967 para alterar a
-  configuração original da área desde 1967, nem localizei um decreto consolidado que defina o
-  perímetro atual em termos de município(s) ou coordenadas — a definição de 1967 é territorial
-  (raio/distância de rios), não municipal, o que não é diretamente utilizável como "município
-  abrangido" sem uma conversão documentada. **Isso ainda é necessário** para os fatos de
-  internamento físico (`operation.zfm_entry_proof_status`), mesmo após a confirmação acima.
 - Não obtive o texto integral e atualizado (redação compilada) do DL nº 288/1967 — apenas os
   artigos 1º, 2º e 42, via busca externa (o DL 288/1967 em si não está entre os artefatos normativos
   já ingeridos pela plataforma; apenas a LC nº 214/2025, a LC nº 187/2021 e a LC nº 227/2026 estão).
-  Ainda não li a Resolução CGIBS nº 6/2026 (regulamento citado pelo art. 442) para confirmar como
-  ela define, na prática, os "controles específicos para verificação da entrada" citados no art.
-  445, § 3º.
+- Não li o texto completo da Resolução CGIBS nº 6/2026 nem confirmei os artigos exatos de
+  internamento citados pelas especificações `RT-IBSCBS-0007`/`0008` (arts. 516, 551 a 553).
+- Não confirmei em fonte primária a tripartição municipal (Manaus/Rio Preto da Eva/Itacoatiara)
+  mencionada por fonte secundária.
 
 ## Áreas de Livre Comércio (ALC)
 
