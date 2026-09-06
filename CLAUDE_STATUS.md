@@ -375,3 +375,44 @@ decidir):
 Nenhum dado foi carregado no banco. O próximo passo (não executado) seria ler cada fonte na
 íntegra, resolver essas incertezas, e só então redigir uma especificação territorial formal para
 sua aprovação — nos mesmos moldes de uma `RT-IBSCBS`.
+
+## Etapa 7 — leitura integral da Resolução CGIBS nº 6/2026 e primeiro rascunho de especificação territorial
+
+**Data:** 2026-09-06
+
+Você escolheu a opção 1 (continuar lendo fontes primárias completas) e explicou o objetivo maior:
+ter uma base sólida para que, quando o usuário tiver NCM, descrição de produto, dados da operação
+ou até o XML, a plataforma dê uma análise confiável e completa do que ele deve fazer. Segui com
+isso.
+
+Baixei o PDF oficial da **Resolução CGIBS nº 6/2026** (252 páginas) e extraí o texto com `pypdf`
+(dependência efêmera via `uv run --with pypdf`, sem instalar nada no projeto ou no sistema) para
+ler os artigos 432 a 438 e 516 a 555 **na íntegra**, não por resumo de busca. Isso resolveu as três
+incertezas que ficaram em aberto na Etapa 6:
+
+- **Achado principal:** o art. 433, I da Resolução (= art. 440, I da LC nº 214/2025) é a definição
+  oficial e vigente da Zona Franca de Manaus para fins de IBS/CBS: "a área definida e demarcada nos
+  termos do art. 2º do Decreto-Lei nº 288/1967... **compreendendo parte dos Municípios de Manaus,
+  Rio Preto da Eva e Itacoatiara**." Fonte primária direta, resolve a incerteza municipal.
+- A proposta de ampliar a ZFM a 12/13 cidades da Grande Manaus é **projeto em tramitação, não lei
+  em vigor** — confirmado.
+- A lista oficial das 5 ALC (art. 437 da Resolução) traz lei de criação **e** decreto
+  regulamentador de cada uma — inclusive dados que eu não tinha antes (ex.: Decreto nº 6.614/2008
+  para Boa Vista/Bonfim, Decreto nº 1.357/1994 para Brasiléia/Cruzeiro do Sul). Confirma que as
+  listas ampliadas de municípios do Acre (Acrelândia, Assis Brasil etc.) não constam da norma
+  oficial vigente.
+- Bônus: li o desenho completo de alíquota zero (art. 516/527, prazos de 120/210 dias),
+  internamento (arts. 551-553) e **desinternamento** (art. 554, um conceito que eu não tinha
+  encontrado antes e que será relevante para regras futuras).
+
+Reescrevi `docs/tax/territory/ZFM_ALC_RESEARCH_MEMO.md` de forma consolidada (em vez de continuar
+só empilhando patches) e criei o **primeiro rascunho de especificação territorial**,
+`docs/tax/territory/specifications/TJA-ZFM.json`, com `status: DRAFT` e todos os campos de
+aprovação nulos — espelhando exatamente o formato das especificações `RT-IBSCBS`, incluindo quatro
+ressalvas documentadas em `known_conflicts` (a proposta de ampliação ainda não vigente; o DL
+288/1967 não foi lido no texto consolidado original; se `effective_to` deveria ser fixado em 2073;
+e que habilitação/registro Suframa é um fato separado, fora do escopo deste documento).
+
+**Nenhum dado foi carregado em `tax_jurisdiction_areas`/`tax_jurisdiction_area_versions`.** Essa
+especificação precisa da sua revisão e aprovação (mesmo processo de uma `RT-IBSCBS`) antes de
+qualquer carga real.
