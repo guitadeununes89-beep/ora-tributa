@@ -1,0 +1,75 @@
+{
+  "area_id": "TJA-ZFM",
+  "specification_version": 1,
+  "is_synthetic": false,
+  "title": "Zona Franca de Manaus — território governado para incentivos fiscais do IBS/CBS",
+  "area_type": "ZFM",
+  "jurisdiction": "BR",
+  "status": "DRAFT",
+  "objective": "Especificar, sem produzir dado governado executável, a área conhecida como Zona Franca de Manaus, conforme demarcada pelo Decreto-Lei nº 288/1967 e confirmada operacionalmente pela Resolução CGIBS nº 6/2026, para servir de referência territorial ao resolvedor de RT-IBSCBS-0007 e RT-IBSCBS-0008.",
+  "legal_foundation": [
+    {
+      "legal_source_id": null,
+      "source_title": "Decreto-Lei nº 288, de 28 de fevereiro de 1967",
+      "specific_device": "Arts. 1º e 2º, caput e §§ 1º e 3º",
+      "official_url": "https://www.planalto.gov.br/ccivil_03/decreto-lei/del0288.htm",
+      "verifiable_reference": "Cria a Zona Franca de Manaus: área contínua com superfície mínima de 10.000 km², à margem esquerda dos rios Negro e Amazonas, incluindo a cidade de Manaus, até 50 km a jusante e 70 km a montante desta cidade. O § 3º autoriza o Poder Executivo a aumentar a área originalmente estabelecida ou alterar sua configuração, por decreto, dentro dos limites do § 1º.",
+      "ingested_by_platform": false
+    },
+    {
+      "legal_source_id": null,
+      "source_title": "Decreto nº 61.244, de 28 de agosto de 1967",
+      "specific_device": "Art. 2º",
+      "official_url": "https://www.planalto.gov.br/ccivil_03/atos/decretos/1967/d61244.html",
+      "verifiable_reference": "Regulamenta a demarcação da área prevista no art. 2º do Decreto-Lei nº 288/1967.",
+      "ingested_by_platform": false
+    },
+    {
+      "legal_source_id": "23302183-6c92-4b34-a26d-cd272e2c1b1e",
+      "source_title": "Lei Complementar nº 214, de 16 de janeiro de 2025 — texto vigente compilado",
+      "specific_device": "Arts. 439 (caput) e 67, § 3º, II",
+      "official_url": "https://www.planalto.gov.br/ccivil_03/leis/lcp/lcp214compilado.htm",
+      "verifiable_reference": "Não redefine a Zona Franca de Manaus; incorpora o conceito do Decreto-Lei nº 288/1967 e limita os benefícios à vigência do art. 92-A do ADCT (EC nº 83/2014, até 2073). Confirmado por leitura direta do artefato normativo já ingerido pela plataforma.",
+      "ingested_by_platform": true
+    },
+    {
+      "legal_source_id": null,
+      "source_title": "Ato das Disposições Constitucionais Transitórias (ADCT)",
+      "specific_device": "Art. 92-A, inserido pela Emenda Constitucional nº 83, de 5 de agosto de 2014",
+      "official_url": "https://www.planalto.gov.br/ccivil_03/constituicao/constituicao.htm",
+      "verifiable_reference": "Estende os benefícios da Zona Franca de Manaus até 2073.",
+      "ingested_by_platform": false
+    },
+    {
+      "legal_source_id": null,
+      "source_title": "Resolução CGIBS nº 6, de 30 de abril de 2026 (Regulamento do IBS)",
+      "specific_device": "Art. 433, I (= art. 440, I, da LC nº 214/2025)",
+      "official_url": "https://www.cgibs.gov.br/upload/arquivos/202604/30084927-res-cgibs-n-6-30-abr-2026-regulamenta-o-ibs.pdf",
+      "verifiable_reference": "\"Zona Franca de Manaus: a área definida e demarcada nos termos do art. 2º do Decreto-Lei nº 288, de 28 de fevereiro de 1967, regulamentado pelo art. 2º do Decreto nº 61.244, de 28 de agosto de 1967, compreendendo parte dos Municípios de Manaus, Rio Preto da Eva e Itacoatiara.\" Citação literal extraída do PDF oficial (texto convertido nesta sessão via pypdf).",
+      "ingested_by_platform": false
+    }
+  ],
+  "criteria": {
+    "tipo_definicao": "territorial_por_norma_originaria_com_confirmacao_municipal_operacional",
+    "municipios_parcialmente_abrangidos": ["Manaus", "Rio Preto da Eva", "Itacoatiara"],
+    "definicao_original_dl288_1967": "Área contínua com superfície mínima de 10.000 km², à margem esquerda dos rios Negro e Amazonas, incluindo a cidade de Manaus; até 50 km a jusante e 70 km a montante de Manaus.",
+    "observacao": "A confirmação municipal (Manaus, Rio Preto da Eva, Itacoatiara) vem da Resolução CGIBS nº 6/2026, não de leitura direta e integral do texto consolidado do DL nº 288/1967 (não obtido nesta pesquisa). Não representa geometria nem lista de CEPs; qualquer resolução de endereço específico dentro desses municípios ainda exige evidência adicional (arts. 516, §§ 5º-7º, e 551-553 da Resolução CGIBS nº 6/2026), não uma simples verificação de município."
+  },
+  "effective_from": "2026-01-01",
+  "effective_to": null,
+  "known_conflicts": [
+    "NAO_BLOQUEANTE_PROPOSTA_LEGISLATIVA_12_CIDADES: há projeto em tramitação na Câmara dos Deputados para ampliar a ZFM às cidades da Região Metropolitana de Manaus, alterando o DL nº 288/1967. Não é lei em vigor nesta data; não deve ser antecipado nesta especificação.",
+    "PENDENTE_LEITURA_INTEGRAL_DL288_1967: o texto consolidado do Decreto-Lei nº 288/1967 não foi lido na íntegra nesta pesquisa (apenas arts. 1º, 2º e 42, via busca externa); a Resolução CGIBS nº 6/2026 supre a definição operacional para fins de IBS/CBS, mas uma leitura completa do DL 288/1967 é recomendável antes da aprovação final.",
+    "PENDENTE_DECISAO_EFFECTIVE_TO: o art. 92-A do ADCT fixa 2073 como termo dos benefícios da ZFM. Esta especificação deixou `effective_to` como null; considerar se deve ser fixado como 2073-12-31 (ou a data exata prevista no ADCT) na aprovação final.",
+    "TERRITORIO_NAO_E_HABILITACAO: esta especificação cobre apenas a existência/demarcação da área. A habilitação aos incentivos (fato `buyer.art_442_habilitation_status` em RT-IBSCBS-0007/0008) é um registro Suframa separado (art. 435 da Resolução CGIBS nº 6/2026), não coberto por este documento."
+  ],
+  "approval": {
+    "prepared_by": "Claude (Codex) — pesquisa preparatória com leitura de fonte primária (Resolução CGIBS nº 6/2026); requer revisão jurídica humana",
+    "reviewed_by": null,
+    "approved_by": null,
+    "approval_date": null,
+    "approval_evidence": null
+  },
+  "implementation": null,
+  "superseded_by_specification_id": null
+}
