@@ -1,6 +1,6 @@
 # ADR-0024 — Implementação do modelo de áreas territoriais tributárias governadas
 
-- **Status:** Proposta
+- **Status:** Aceita
 - **Data:** 2026-09-06
 - **Responsáveis:** Guilherme Nunes (responsável tributário e jurídico do projeto)
 - **Relacionados:** ADR-0002, ADR-0007, ADR-0009, ADR-0013, ADR-0019, ADR-0020, ADR-0021

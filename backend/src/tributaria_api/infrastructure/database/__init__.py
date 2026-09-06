@@ -13,6 +13,13 @@ from tributaria_api.infrastructure.database import (
     models,
     product_models,
     taxonomy_models,
+    territory_models,
 )
 
-__all__ = ["identity_models", "models", "product_models", "taxonomy_models"]
+__all__ = [
+    "identity_models",
+    "models",
+    "product_models",
+    "taxonomy_models",
+    "territory_models",
+]

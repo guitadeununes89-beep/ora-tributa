@@ -242,11 +242,62 @@ projeto no GitHub.
 - Repositório local (`C:\Users\gtnunes\ora-tributa`) sincronizado com
   `https://github.com/guitadeununes89-beep/ora-tributa` (branch `main`).
 
-### Pendências reais agora
+### Pendências reais agora (na época da Etapa 3)
 
 - [ ] Decidir se quer proteção de branch (exige plano pago ou tornar o repo público) — nenhuma
-      ação meua sem sua decisão.
-- [ ] Nova autorização específica para avaliar implementação técnica de `RT-IBSCBS-0007`/`0008`
-      (inclui modelar o território governado da ZFM antes de qualquer código executável).
+      ação minha sem sua decisão.
+- [x] Nova autorização específica para avaliar implementação técnica de `RT-IBSCBS-0007`/`0008`
+      — dada e executada parcialmente na Etapa 4, abaixo (só o esquema; sem dados reais).
 - [ ] Monitorar fonte oficial para resolver o conflito de `RT-IBSCBS-0009` (nenhuma ação possível
       além de acompanhar).
+
+## Etapa 4 — ADR-0024 e esquema governado de território (sem dados reais)
+
+**Data:** 2026-09-06
+
+Você aprovou seguir. Como implementar `RT-IBSCBS-0007`/`0008` de verdade depende do modelo de
+território da ZFM (ADR-0021, ainda sem esquema), e como esse é o único item hoje verdadeiramente
+acionável em direção à cobertura executável, fiz o seguinte, nessa ordem:
+
+1. Redigi o **ADR-0024** (`docs/adr/0024-implementacao-de-areas-territoriais-governadas.md`) —
+   desenho técnico do cadastro governado `TaxJurisdictionArea`/`TaxJurisdictionAreaVersion`,
+   bitemporal e imutável, seguindo exatamente os mesmos padrões já usados para regras (ADR-0002,
+   ADR-0009) e catálogo (ADR-0013). Você aprovou; status marcado `Aceita`.
+2. Implementei **somente o esquema**, sem nenhum dado territorial real:
+   - migração `0007_tax_jurisdiction_areas` (tabelas `tax_jurisdiction_areas`,
+     `tax_jurisdiction_area_versions`, `tax_jurisdiction_area_lifecycle_events`, com os mesmos
+     triggers de imutabilidade/append-only já usados em regras e catálogo — testei manualmente e
+     nem eu consegui apagar ou alterar uma versão publicada, confirmando que o trigger funciona);
+   - modelos SQLAlchemy em `infrastructure/database/territory_models.py`;
+   - o **contrato do resolvedor** (porta) em `application/territory.py`
+     (`TaxJurisdictionAreaResolver`), com uma implementação `NullTaxJurisdictionAreaResolver` que
+     sempre retorna `UNKNOWN` — uma resposta honesta, já que nenhum dado governado existe ainda.
+   - **Nenhum endpoint HTTP, nenhum CLI de carga e nenhum dado real de ZFM/ALC foi criado.**
+   - Testes novos: `backend/tests/test_jurisdiction_area_invariants.py` (invariantes reais contra
+     Postgres) e `backend/tests/test_territory.py` (resolvedor nulo). Ruff, mypy e os 120 testes
+     Python (122 com os dois novos) continuam passando; migração aplicada com sucesso.
+
+### O que isso NÃO faz
+
+- **Não implementa `RT-IBSCBS-0007` nem `0008` como regra executável.** A cobertura continua
+  `1/164` (0,61%). Isso ainda exige, no mínimo: carga governada de dados territoriais reais da
+  ZFM/ALC (pesquisa jurídica própria — Decreto-Lei nº 288/1967, atos da Suframa e leis de cada Área
+  de Livre Comércio — com o mesmo rigor de uma especificação `RT-IBSCBS`), um resolvedor real (não
+  o `Null`), e então `TaxRuleVersion` + testes + publicação de ruleset.
+- Não inventei nem inferi nenhum município, perímetro ou critério administrativo real.
+
+### Nota operacional (sem impacto real)
+
+Ao rodar a suíte com `POSTGRES_TESTS=1` várias vezes manualmente nesta sessão, o teste
+`test_postgresql_invariants.py` original ficou com linhas sintéticas de teste (`PG-TEST-*`) presas
+no banco local — e ficaram presas **porque o trigger de append-only realmente as protege**, nem eu
+consegui apagá-las manualmente. Isso só afeta reexecuções manuais repetidas contra este Postgres
+local de desenvolvimento; o CI sempre sobe um Postgres efêmero e novo, então não é afetado.
+
+### Pendências reais agora
+
+- [ ] Decidir se quer proteção de branch no GitHub (exige plano pago ou repo público).
+- [ ] Pesquisa jurídica dedicada para carregar território real da ZFM/ALC (fonte oficial, com
+      revisão e aprovação sua) — pré-requisito para qualquer resolvedor real e para publicar
+      `RT-IBSCBS-0007`/`0008`.
+- [ ] Monitorar fonte oficial para resolver o conflito de `RT-IBSCBS-0009`.
