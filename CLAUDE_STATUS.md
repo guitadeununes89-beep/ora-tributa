@@ -437,3 +437,26 @@ Cada especificação de ALC tem confiança menor que a da ZFM (só confirmei lei
 437; não li cada lei/decreto individual na íntegra) — isso está documentado em `known_conflicts`
 de cada arquivo. Nenhuma delas desbloqueia uma regra hoje aprovada (só `RT-IBSCBS-0009`, que segue
 bloqueada por outro motivo). Nenhum dado foi carregado no banco.
+
+## Etapa 9 — aprovação jurídica das 6 especificações territoriais
+
+**Data:** 2026-09-06
+
+Você revisou e aprovou as 6 especificações territoriais (ZFM + 5 ALC). Registrei a aprovação
+formal, na mesma capacidade e no mesmo formato usado para `RT-IBSCBS-0003`/`0007`/`0008`: um
+arquivo de evidência por área em `docs/tax/territory/approvals/`, cada um **restatando
+explicitamente** as ressalvas específicas daquela área (já documentadas em `known_conflicts`) como
+limitações conhecidas, **não resolvidas pela aprovação** — em particular:
+
+- Pacaraima **não** está incluído no escopo aprovado da ALC de Boa Vista (ausente do texto da
+  Resolução CGIBS nº 6/2026, apesar da Lei nº 15.273/2025);
+- os municípios adicionais do Acre citados por reportagens **não** estão incluídos no escopo
+  aprovado da ALC de Brasiléia/Cruzeiro do Sul.
+
+Todas as 6 especificações passaram de `DRAFT` para `APPROVED`, com `reviewed_by`, `approved_by`,
+`approval_date` e `approval_evidence` preenchidos.
+
+**O que isso não faz:** nenhuma `TaxJurisdictionAreaVersion` foi criada, nenhum dado foi carregado
+em `tax_jurisdiction_areas`/`tax_jurisdiction_area_versions`, e nenhum comportamento do resolvedor
+ou do motor mudou. Ainda não existe um CLI/seed governado para território — construí-lo e carregar
+dados reais continuam exigindo autorização própria e específica, conforme o ADR-0024.
