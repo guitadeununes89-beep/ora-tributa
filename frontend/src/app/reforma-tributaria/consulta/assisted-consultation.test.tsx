@@ -12,25 +12,42 @@ vi.mock("@/lib/api", () => ({
   apiFetch: (...args: unknown[]) => apiFetch(...args),
 }));
 
+function jsonResponse(body: unknown): Response {
+  return new Response(JSON.stringify(body), {
+    status: 200,
+    headers: { "Content-Type": "application/json" },
+  });
+}
+
 describe("AssistedConsultation", () => {
   beforeEach(() => {
     apiFetch.mockReset();
-    apiFetch.mockImplementation(() => Promise.resolve(
-      new Response(JSON.stringify([]), {
-        status: 200,
-        headers: { "Content-Type": "application/json" },
-      }),
-    ));
+    apiFetch.mockImplementation((path: string) =>
+      Promise.resolve(
+        path === "/products"
+          ? jsonResponse([
+              {
+                id: "prod-1",
+                internal_code: "PROD-1",
+                description: "Produto sintético de teste",
+                current_version: 1,
+              },
+            ])
+          : jsonResponse([]),
+      ));
   });
 
   it("presents the governed journey from product to reproducible history", async () => {
     render(<AssistedConsultation />);
 
-    // The initial useEffect fetches products/catalogs; wait for it to settle so the
-    // mocked promises resolve (and any resulting state update flushes) before the test
-    // tears down jsdom — otherwise the update lands on a torn-down environment and
-    // throws "window is not defined" intermittently (timing-dependent, not a real bug).
-    const journey = await screen.findByRole("navigation", { name: "Fluxo da consulta tributária" });
+    // The initial useEffect fetches products/catalogs and only then updates state; wait
+    // for that real, observable consequence (the fetched product's option appearing)
+    // instead of guessing at a microtask count. Without this, the update can land after
+    // Vitest tears down this file's jsdom environment and throw "window is not defined"
+    // — intermittent because it is a real race, not a flaky assertion.
+    await screen.findByRole("option", { name: /PROD-1/ });
+
+    const journey = screen.getByRole("navigation", { name: "Fluxo da consulta tributária" });
     for (const step of [
       "Produto",
       "Consulta IBS/CBS",
