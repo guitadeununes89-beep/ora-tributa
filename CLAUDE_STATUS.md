@@ -193,9 +193,60 @@ ficara pendente:
   (ANALYST), organização `governanca-tecnica-dev`, senha em `DEV_SEED_PASSWORD` (`.env` local).
 - Nenhum conteúdo tributário foi tocado nesta etapa.
 
-### Ainda pendente
+### Ainda pendente (na época da Etapa 2)
 
-- [ ] Sua decisão sobre aprovar `RT-IBSCBS-0007` v3 e `RT-IBSCBS-0008` v3 (ver Etapa 1 acima e a
-      mensagem completa no chat) — é o próximo item de maior impacto na cobertura.
-- [ ] GitHub: ainda não configurei remoto nem ative o CI — só farei isso com sua autorização
-      explícita, pois envolve publicar código fora desta máquina.
+- [x] Sua decisão sobre aprovar `RT-IBSCBS-0007` v3 e `RT-IBSCBS-0008` v3 — respondida e executada
+      na Etapa 3, abaixo.
+- [x] GitHub — autorizado e executado na Etapa 3, abaixo.
+
+## Etapa 3 — aprovação jurídica registrada e publicação no GitHub
+
+**Data:** 2026-09-06
+
+Você confirmou explicitamente as duas autorizações pendentes: (1) aprovar `RT-IBSCBS-0007` v3 e
+`0008` v3 como delimitado, na sua capacidade de responsável tributário/jurídico; (2) publicar o
+projeto no GitHub.
+
+### Aprovação jurídica
+
+- `RT-IBSCBS-0007` e `RT-IBSCBS-0008` passaram de `DRAFT` para `APPROVED`, com `reviewed_by`,
+  `approved_by`, `approval_date` (2026-09-06) e `approval_evidence` preenchidos nas especificações
+  JSON. Evidência em `docs/tax/rules/approvals/RT-IBSCBS-0007-v3.md` e `...-0008-v3.md`, seguindo
+  exatamente o formato já usado para `RT-IBSCBS-0003`. Resumo completo em
+  `docs/tax/ETAPA_9_3_LEGAL_APPROVAL_P1.md` e no `README.md`.
+- `RT-IBSCBS-0009` **não foi aprovada** — permanece `DRAFT`/`BLOCKED_LEGAL_REFERENCE_CONFLICT`.
+- **Nenhum conteúdo jurídico foi alterado.** Nenhuma `TaxRuleVersion` foi criada, nenhum ruleset foi
+  publicado. A cobertura executável **continua `1/164` (0,61%)** — aprovação documental não é
+  implementação. Avaliar a implementação real de 0007/0008 exige nova autorização específica sua
+  **e** a carga governada do território da Zona Franca de Manaus (`TaxJurisdictionArea`, decidido
+  no ADR-0021 mas ainda sem tabela, migração ou dado real — é um pré-requisito técnico, não apenas
+  jurídico).
+
+### GitHub
+
+- Instalado o GitHub CLI (`gh`) e autenticado via dispositivo (você aprovou o código no
+  navegador duas vezes: uma para login, outra para conceder o escopo `workflow`, necessário para
+  publicar `.github/workflows/ci.yml`).
+- Criado o repositório **privado** `guitadeununes89-beep/ora-tributa` e feito o push de todo o
+  histórico local (7 commits).
+- O workflow de CI (`.github/workflows/ci.yml`, jobs `python` e `frontend`) disparou automaticamente
+  e **passou** na primeira execução.
+- **Não configurei proteção da branch `main`** (exigir CI e revisão antes de merge): o GitHub
+  recusou com `403 — Upgrade to GitHub Pro or make this repository public to enable this feature`.
+  Proteção de branch em repositório privado exige um plano pago (GitHub Team/Pro) ou tornar o
+  repositório público. Fica pendente essa decisão sua, se quiser esse controle agora.
+
+### Estado local nesta máquina
+
+- Postgres, API (`:8000`) e frontend (`:3000`) continuam rodando em background desta sessão.
+- Repositório local (`C:\Users\gtnunes\ora-tributa`) sincronizado com
+  `https://github.com/guitadeununes89-beep/ora-tributa` (branch `main`).
+
+### Pendências reais agora
+
+- [ ] Decidir se quer proteção de branch (exige plano pago ou tornar o repo público) — nenhuma
+      ação meua sem sua decisão.
+- [ ] Nova autorização específica para avaliar implementação técnica de `RT-IBSCBS-0007`/`0008`
+      (inclui modelar o território governado da ZFM antes de qualquer código executável).
+- [ ] Monitorar fonte oficial para resolver o conflito de `RT-IBSCBS-0009` (nenhuma ação possível
+      além de acompanhar).
