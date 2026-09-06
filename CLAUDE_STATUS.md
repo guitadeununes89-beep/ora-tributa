@@ -97,3 +97,53 @@ tributário. Algumas continuações possíveis, dependendo do que você quer pri
 
 Aguardo sua orientação sobre qual dessas frentes seguir (ou aprove o Docker Desktop para eu
 continuar a etapa de infraestrutura).
+
+## Etapa 1 — diagnóstico do Docker/WSL2 e preparação da decisão jurídica pendente
+
+**Data:** 2026-09-06
+
+### Docker Desktop / PostgreSQL
+
+O instalador do Docker Desktop concluiu (winget), mas o Docker Desktop **não consegue iniciar o
+motor** nesta máquina porque o **WSL2 não está instalado** (`wsl --status` confirma "Subsistema do
+Windows para Linux não está instalado"). Instalar o WSL2 exige privilégio de administrador, que
+esta sessão não tem, e normalmente exige **reiniciar o Windows**.
+
+**Ação sua, fora desta sessão:**
+
+```powershell
+wsl --install
+```
+
+Rode isso em um **PowerShell como Administrador**, reinicie o computador quando pedir, abra o
+Docker Desktop uma vez (aceite os termos de licença) e aguarde o ícone da baleia ficar estável na
+bandeja do sistema. Depois disso, `docker compose up -d postgres` volta a ser possível e eu
+consigo concluir a etapa de infraestrutura (migrações, seeds, `test_postgresql_invariants`, subir
+API + frontend).
+
+### Priorização adotada (a seu pedido)
+
+Como a infraestrutura ficou bloqueada por uma ação que só você pode fazer (elevação +
+reinício), priorizei o item de **maior alavancagem que já estava desbloqueado**: organizar a
+decisão jurídica pendente de `RT-IBSCBS-0007` e `RT-IBSCBS-0008`, que são as duas únicas
+especificações hoje marcadas `READY_FOR_HUMAN_APPROVAL` sem nenhum bloqueador jurídico
+remanescente. Aprová-las (se você concordar com o recorte) é o único caminho realista para sair de
+**1/164 (0,61%)** para **3/164 (1,83%)** de cobertura executável, antes mesmo de qualquer nova
+infraestrutura.
+
+Não inventei, alterei ou reinterpretei nenhum conteúdo jurídico — apenas consolidei o que já
+estava em `ETAPA_9_1_FINAL_APPROVAL_MATRIX.md`, nas especificações v3 e no relatório de
+divergência da 0009, para você decidir com menos leitura espalhada. Percebi também que você já
+está registrado como o aprovador jurídico/tributário do projeto (ator
+`legal-approver-guilherme-nunes`, evidência em
+`docs/tax/rules/approvals/RT-IBSCBS-0003-v2.md`), então essa decisão é sua a fazer, não algo que eu
+deva ou possa substituir.
+
+O texto completo da decisão foi enviado a você no chat desta sessão (não duplicado aqui para evitar
+divergência entre as duas fontes). Resultado desta etapa:
+
+- [ ] Aguardando sua decisão sobre `RT-IBSCBS-0007` v3 (cClassTrib `200022`).
+- [ ] Aguardando sua decisão sobre `RT-IBSCBS-0008` v3 (cClassTrib `200023`).
+- Nada a decidir em `RT-IBSCBS-0009` agora — permanece `BLOCKED_LEGAL_REFERENCE_CONFLICT`; a única
+  ação possível é monitorar o Portal NF-e e o índice de resoluções do CGIBS por uma retificação
+  oficial, o que não depende de aprovação humana.
