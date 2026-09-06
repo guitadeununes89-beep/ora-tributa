@@ -5,7 +5,7 @@
   "title": "Áreas de Livre Comércio de Brasiléia (com extensão a Epitaciolândia) e Cruzeiro do Sul — território governado para incentivos fiscais do IBS/CBS",
   "area_type": "ALC",
   "jurisdiction": "BR",
-  "status": "DRAFT",
+  "status": "APPROVED",
   "objective": "Especificar, sem produzir dado governado executável, as Áreas de Livre Comércio de Brasiléia (com extensão a Epitaciolândia) e Cruzeiro do Sul (AC), conforme criadas pela Lei nº 8.857/1994, regulamentadas pelo Decreto nº 1.357/1994, e confirmadas operacionalmente pela Resolução CGIBS nº 6/2026, art. 437, V.",
   "legal_foundation": [
     {
@@ -50,10 +50,10 @@
   ],
   "approval": {
     "prepared_by": "Claude (Codex) — pesquisa preparatória; requer revisão jurídica humana",
-    "reviewed_by": null,
-    "approved_by": null,
-    "approval_date": null,
-    "approval_evidence": null
+    "reviewed_by": "legal-approver-guilherme-nunes",
+    "approved_by": "legal-approver-guilherme-nunes",
+    "approval_date": "2026-09-06",
+    "approval_evidence": "docs/tax/territory/approvals/TJA-ALC-BRASILEIA-CRUZEIRO-DO-SUL-v1.md#sha256=2b369c08f5a2626e3817610ada9603122a89cf97100a11d96a04ab83ac4290ac"
   },
   "implementation": null,
   "superseded_by_specification_id": null

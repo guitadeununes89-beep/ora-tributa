@@ -5,7 +5,7 @@
   "title": "Zona Franca de Manaus — território governado para incentivos fiscais do IBS/CBS",
   "area_type": "ZFM",
   "jurisdiction": "BR",
-  "status": "DRAFT",
+  "status": "APPROVED",
   "objective": "Especificar, sem produzir dado governado executável, a área conhecida como Zona Franca de Manaus, conforme demarcada pelo Decreto-Lei nº 288/1967 e confirmada operacionalmente pela Resolução CGIBS nº 6/2026, para servir de referência territorial ao resolvedor de RT-IBSCBS-0007 e RT-IBSCBS-0008.",
   "legal_foundation": [
     {
@@ -65,10 +65,10 @@
   ],
   "approval": {
     "prepared_by": "Claude (Codex) — pesquisa preparatória com leitura de fonte primária (Resolução CGIBS nº 6/2026); requer revisão jurídica humana",
-    "reviewed_by": null,
-    "approved_by": null,
-    "approval_date": null,
-    "approval_evidence": null
+    "reviewed_by": "legal-approver-guilherme-nunes",
+    "approved_by": "legal-approver-guilherme-nunes",
+    "approval_date": "2026-09-06",
+    "approval_evidence": "docs/tax/territory/approvals/TJA-ZFM-v1.md#sha256=de7af7b77f31be763298e5223e03dac7fd09e66a757230cc8e248bf8bb5aae60"
   },
   "implementation": null,
   "superseded_by_specification_id": null
