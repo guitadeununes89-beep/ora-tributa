@@ -147,3 +147,55 @@ divergência entre as duas fontes). Resultado desta etapa:
 - Nada a decidir em `RT-IBSCBS-0009` agora — permanece `BLOCKED_LEGAL_REFERENCE_CONFLICT`; a única
   ação possível é monitorar o Portal NF-e e o índice de resoluções do CGIBS por uma retificação
   oficial, o que não depende de aprovação humana.
+
+## Etapa 2 — infraestrutura completa e stack local validada de ponta a ponta
+
+**Data:** 2026-09-06
+
+Você instalou o WSL2 e abriu o Docker Desktop; confirmei e conclui a etapa de infraestrutura que
+ficara pendente:
+
+1. `docker compose up -d postgres` — PostgreSQL 17 (imagem `postgres:17-alpine`) rodando em
+   `localhost:5432`.
+2. Criado `.env` local a partir de `.env.example`, com `DEV_SEED_PASSWORD` gerada aleatoriamente
+   (24 caracteres, apenas local, fora do Git — nunca commitada).
+3. `uv run alembic upgrade head` — as 6 migrações aplicaram sem erro (`0001` a `0006`).
+4. **Dois bugs reais encontrados e corrigidos** ao rodar os seeds documentados pela primeira vez
+   contra um Postgres real (nenhum dos dois é conteúdo tributário — são bugs de infraestrutura de
+   dados; commit `04453bb`):
+   - `database/seeds/development_synthetic.py` falhava com `NoReferencedTableError` porque
+     `infrastructure/database/__init__.py` não importava os módulos de modelos irmãos
+     (`identity_models`, `product_models`, `taxonomy_models`); qualquer script que importasse só
+     `models.py` via metadados incompletos. Corrigido centralizando a importação no `__init__.py`
+     do pacote.
+   - `database/seeds/development_identity.py` falhava com `ForeignKeyViolation` (tentava inserir
+     `companies` antes de `organizations` existir): as duas tabelas só têm coluna `ForeignKey`
+     simples, sem `relationship()` ORM, e o SQLAlchemy não infere ordem de insert nesse caso.
+     Corrigido replicando o padrão de `flush()` incremental já usado em
+     `development_governance.py`.
+5. Todos os seeds rodaram com sucesso: `development_governance.py`, `development_identity.py`,
+   `development_synthetic.py`.
+6. `uv run pytest` com `POSTGRES_TESTS=1`: **120 testes passaram** (o teste antes pulado,
+   `test_postgresql_invariants`, agora roda e passa). Ruff e mypy continuam limpos.
+7. Subi a API (`uvicorn`, porta 8000) e o frontend (`next dev`, porta 3000) em background e validei
+   pelo navegador: dashboard carrega com os números reais documentados (164 cClassTrib, 163/164
+   fundamentos, 1 regra publicada, cobertura 0,61%) e a tela `/login` também renderiza
+   corretamente. Isso também resolve, na prática, o bloqueio de captura visual citado em
+   `docs/screenshots/README.md` (o navegador seguro conseguiu abrir a aplicação nesta máquina) —
+   ainda não gerei os 11 PNGs finais listados lá porque não tenho uma forma de persistir a imagem
+   capturada como arquivo binário no repositório a partir desta sessão; isso pode ser feito depois
+   com uma ferramenta de captura local, se você quiser fechar esse item.
+
+### Estado local agora
+
+- Postgres, API e frontend **rodando** nesta máquina (processos em background desta sessão).
+- Acessos de desenvolvimento: `demo@example.invalid` (ADMIN) / `analyst@example.invalid`
+  (ANALYST), organização `governanca-tecnica-dev`, senha em `DEV_SEED_PASSWORD` (`.env` local).
+- Nenhum conteúdo tributário foi tocado nesta etapa.
+
+### Ainda pendente
+
+- [ ] Sua decisão sobre aprovar `RT-IBSCBS-0007` v3 e `RT-IBSCBS-0008` v3 (ver Etapa 1 acima e a
+      mensagem completa no chat) — é o próximo item de maior impacto na cobertura.
+- [ ] GitHub: ainda não configurei remoto nem ative o CI — só farei isso com sua autorização
+      explícita, pois envolve publicar código fora desta máquina.
