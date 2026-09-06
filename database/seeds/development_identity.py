@@ -28,6 +28,11 @@ def seed() -> None:
     with Session(get_engine()) as session:
         if session.get(OrganizationRecord, "dev-org") is not None:
             return
+        # Inserted and flushed one dependency level at a time: these records only carry
+        # plain ForeignKey columns (no ORM relationship()), so the unit of work does not
+        # infer cross-table insert order automatically and would otherwise attempt
+        # "companies" before "organizations" exists, as `development_governance.py`
+        # already handles for its own actors.
         organization = OrganizationRecord(
             id="dev-org",
             name="Organização Fictícia de Desenvolvimento",
@@ -36,6 +41,9 @@ def seed() -> None:
             created_at=now,
             updated_at=now,
         )
+        session.add(organization)
+        session.flush()
+
         user = UserRecord(
             id="dev-admin",
             email="admin@example.invalid",
@@ -44,10 +52,11 @@ def seed() -> None:
             created_at=now,
             last_login_at=None,
         )
+        session.add(user)
+        session.flush()
+
         session.add_all(
             [
-                organization,
-                user,
                 UserCredentialRecord(
                     user_id=user.id,
                     password_hash=PasswordHasher().hash(password),
