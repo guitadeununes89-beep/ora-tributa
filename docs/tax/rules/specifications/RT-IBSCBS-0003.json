@@ -1,0 +1,313 @@
+{
+  "rule_id": "RT-IBSCBS-0003",
+  "specification_version": 2,
+  "is_synthetic": false,
+  "title": "Fornecimento de medicamento registrado na Anvisa adquirido pela administração pública direta, autarquia ou fundação pública com alíquota zero",
+  "tax_domain": "IBS_CBS",
+  "objective": "Especificar, sem produzir regra executável, a alíquota zero do IBS e da CBS para fornecimento de medicamento registrado na Anvisa adquirido por órgão da administração pública direta, autarquia ou fundação pública, com natureza jurídica comprovada por fonte competente.",
+  "jurisdiction": "BR",
+  "status": "APPROVED",
+  "legal_foundation": {
+    "legal_source_id": "23302183-6c92-4b34-a26d-cd272e2c1b1e",
+    "source_title": "Lei Complementar nº 214, de 16 de janeiro de 2025 — texto vigente compilado",
+    "specific_device": "Art. 146, § 1º, I; art. 133, caput; art. 544, VI; LC nº 227/2026, arts. 174 e 182, III",
+    "official_url": "https://www2.camara.leg.br/legin/fed/leicom/2025/leicomplementar-214-16-janeiro-2025-796905-normaatualizada-pl.html",
+    "verifiable_reference": "O art. 146, § 1º, I, reduz a zero as alíquotas do IBS e da CBS no fornecimento de medicamentos registrados na Anvisa quando adquiridos por órgãos da administração pública direta, autarquias ou fundações públicas. A hipótese já existia na redação original eficaz em 01/01/2026 e foi mantida na redação dada pelo art. 174 da LC nº 227/2026."
+  },
+  "effective_from": "2026-01-01",
+  "effective_to": null,
+  "catalog": {
+    "catalog_version_id": "2295b90f-2f92-4fa4-8181-3007f02b1679",
+    "cst": "200",
+    "cclasstrib": "200010"
+  },
+  "required_facts": [
+    {
+      "name": "operation.date",
+      "legal_meaning": "Data da operação, necessária para selecionar a versão legal aplicável.",
+      "value_type": "DATE",
+      "allowed_values": null,
+      "source": "Documento fiscal e fatos da operação"
+    },
+    {
+      "name": "product.kind",
+      "legal_meaning": "Confirmação de que o bem fornecido é medicamento; NCM e descrição isolados não bastam.",
+      "value_type": "ENUM",
+      "allowed_values": [
+        "MEDICINE",
+        "OTHER",
+        "UNKNOWN"
+      ],
+      "source": "Cadastro sanitário e documentação técnica do produto"
+    },
+    {
+      "name": "product.anvisa_registration_status",
+      "legal_meaning": "Situação verificável do registro do medicamento perante a Anvisa.",
+      "value_type": "ENUM",
+      "allowed_values": [
+        "REGISTERED",
+        "NOT_REGISTERED",
+        "UNKNOWN"
+      ],
+      "source": "Base ou documento oficial da Anvisa com evidência temporal"
+    },
+    {
+      "name": "buyer.legal_nature",
+      "legal_meaning": "Natureza jurídica comprovada do adquirente, sem inferência a partir apenas de CNPJ, nome empresarial ou aparência institucional.",
+      "value_type": "ENUM",
+      "allowed_values": [
+        "DIRECT_PUBLIC_ADMINISTRATION_BODY",
+        "AUTARCHY",
+        "PUBLIC_FOUNDATION",
+        "PUBLIC_COMPANY",
+        "MIXED_CAPITAL_COMPANY",
+        "PRIVATE_ENTITY",
+        "OTHER",
+        "UNKNOWN"
+      ],
+      "source": "Ato constitutivo, cadastro público competente e documentação oficial do adquirente"
+    },
+    {
+      "name": "operation.buyer_is_acquirer",
+      "legal_meaning": "Confirma que a pessoa de natureza jurídica qualificada é efetivamente a adquirente do medicamento na operação analisada.",
+      "value_type": "ENUM",
+      "allowed_values": [
+        "YES",
+        "NO",
+        "UNKNOWN"
+      ],
+      "source": "Documento fiscal, contrato e documentos oficiais da aquisição"
+    }
+  ],
+  "optional_facts": [
+    {
+      "name": "buyer.cnpj",
+      "legal_meaning": "Identificador auxiliar do adquirente; não comprova isoladamente a natureza jurídica nem o enquadramento.",
+      "value_type": "STRING",
+      "allowed_values": null,
+      "source": "Documento fiscal e cadastro oficial"
+    },
+    {
+      "name": "product.ncm",
+      "legal_meaning": "Classificação NCM auxiliar; não determina isoladamente a aplicação desta especificação.",
+      "value_type": "STRING",
+      "allowed_values": null,
+      "source": "Documento fiscal e cadastro do produto"
+    }
+  ],
+  "deterministic_conditions": [
+    {
+      "condition_id": "RT-IBSCBS-0003-C01",
+      "description": "A operação deve estar dentro da vigência da hipótese legal.",
+      "required_fact_names": [
+        "operation.date"
+      ]
+    },
+    {
+      "condition_id": "RT-IBSCBS-0003-C02",
+      "description": "O produto deve ser medicamento com registro Anvisa confirmado.",
+      "required_fact_names": [
+        "product.kind",
+        "product.anvisa_registration_status"
+      ]
+    },
+    {
+      "condition_id": "RT-IBSCBS-0003-C03",
+      "description": "O adquirente efetivo deve ser órgão da administração pública direta, autarquia ou fundação pública, com natureza jurídica comprovada.",
+      "required_fact_names": [
+        "buyer.legal_nature",
+        "operation.buyer_is_acquirer"
+      ]
+    }
+  ],
+  "result": {
+    "classification_status": "CONCLUSIVO",
+    "cst": "200",
+    "cclasstrib": "200010",
+    "explanation": "Com registro Anvisa, identidade do adquirente e natureza jurídica elegível comprovados, o fornecimento recebe alíquota zero do IBS e da CBS. CNPJ ou nome do adquirente, isoladamente, não autorizam a conclusão."
+  },
+  "exclusion_hypotheses": [
+    "Produto que não seja medicamento registrado na Anvisa.",
+    "Adquirente que não seja órgão da administração pública direta, autarquia ou fundação pública.",
+    "Empresa pública, sociedade de economia mista ou entidade privada apenas por integrar ou se relacionar com a administração pública.",
+    "Operação em que o ente qualificado não seja o efetivo adquirente.",
+    "Entidades de saúde imunes com CEBAS do art. 146, § 1º, II, hipótese autônoma fora do escopo deste rascunho."
+  ],
+  "known_conflicts": [
+    "A redação original do art. 146, § 1º, I, eficaz em 2026-01-01, já contemplava os três tipos de adquirente. A LC nº 227/2026 reestruturou todo o art. 146 com efeitos desde 2026-01-14, mantendo a hipótese pública no § 1º, I; as duas redações devem permanecer rastreáveis.",
+    "O catálogo oficial cClassTrib 200010 reúne, na descrição, tanto os adquirentes públicos do inciso I quanto as entidades imunes do inciso II. Este DRAFT limita a regra ao inciso I; a revisão humana deve confirmar se a mesma cClassTrib é adequada sem ampliar o escopo jurídico.",
+    "A construção jurídica do inciso I foi aceita na revisão humana, mas permanece DRAFT até a resolução dos vínculos governados e dos metadados de autoria, revisão e aprovação.",
+    "A mesma classificação oficial pode resultar de regras jurídicas distintas; RT-IBSCBS-0003 e a regra do inciso II devem preservar fundamentos e DecisionTrace separados.",
+    "A fonte legal oficial foi persistida e vinculada por seu identificador governado.",
+    "O CST 200 e a cClassTrib 200010 foram confirmados no artefato oficial local de 2026-06-23, SHA-256 1448cb63a41bdb67ea30b4e11f4dc200d9568542c6b9335b6cff87a4fd664654, e o ID persistido do snapshot PUBLISHED foi vinculado."
+  ],
+  "precedence": {
+    "precedes_rule_ids": [
+      "RT-IBSCBS-0001"
+    ],
+    "legal_basis": "O art. 133, caput, ressalva expressamente os medicamentos sujeitos à alíquota zero do art. 146 da redução de 60%."
+  },
+  "tests": {
+    "positive_cases": [
+      {
+        "case_id": "RT-IBSCBS-0003-POS-001",
+        "description": "Medicamento abstrato registrado adquirido efetivamente por órgão da administração pública direta.",
+        "input": {
+          "operation.date": "2026-02-01",
+          "product.kind": "MEDICINE",
+          "product.anvisa_registration_status": "REGISTERED",
+          "buyer.legal_nature": "DIRECT_PUBLIC_ADMINISTRATION_BODY",
+          "operation.buyer_is_acquirer": "YES"
+        },
+        "expected": {
+          "status": "CONCLUSIVO",
+          "cst": "200",
+          "cclasstrib": "200010",
+          "missing_facts": []
+        }
+      },
+      {
+        "case_id": "RT-IBSCBS-0003-POS-002",
+        "description": "Medicamento abstrato registrado adquirido efetivamente por autarquia.",
+        "input": {
+          "operation.date": "2026-06-01",
+          "product.kind": "MEDICINE",
+          "product.anvisa_registration_status": "REGISTERED",
+          "buyer.legal_nature": "AUTARCHY",
+          "operation.buyer_is_acquirer": "YES"
+        },
+        "expected": {
+          "status": "CONCLUSIVO",
+          "cst": "200",
+          "cclasstrib": "200010",
+          "missing_facts": []
+        }
+      }
+    ],
+    "negative_cases": [
+      {
+        "case_id": "RT-IBSCBS-0003-NEG-001",
+        "description": "Medicamento sem registro Anvisa confirmado não satisfaz a hipótese.",
+        "input": {
+          "operation.date": "2026-02-01",
+          "product.kind": "MEDICINE",
+          "product.anvisa_registration_status": "NOT_REGISTERED",
+          "buyer.legal_nature": "PUBLIC_FOUNDATION",
+          "operation.buyer_is_acquirer": "YES"
+        },
+        "expected": {
+          "status": "SEM_CLASSIFICACAO",
+          "cst": null,
+          "cclasstrib": null,
+          "missing_facts": []
+        }
+      },
+      {
+        "case_id": "RT-IBSCBS-0003-NEG-002",
+        "description": "Empresa pública não integra a enumeração específica deste inciso apenas por ser pública.",
+        "input": {
+          "operation.date": "2026-02-01",
+          "product.kind": "MEDICINE",
+          "product.anvisa_registration_status": "REGISTERED",
+          "buyer.legal_nature": "PUBLIC_COMPANY",
+          "operation.buyer_is_acquirer": "YES"
+        },
+        "expected": {
+          "status": "SEM_CLASSIFICACAO",
+          "cst": null,
+          "cclasstrib": null,
+          "missing_facts": []
+        }
+      }
+    ],
+    "insufficient_fact_cases": [
+      {
+        "case_id": "RT-IBSCBS-0003-INC-001",
+        "description": "Nome ou CNPJ com aparência pública sem natureza jurídica comprovada não permite conclusão.",
+        "input": {
+          "operation.date": "2026-02-01",
+          "product.kind": "MEDICINE",
+          "product.anvisa_registration_status": "REGISTERED",
+          "buyer.legal_nature": "UNKNOWN",
+          "operation.buyer_is_acquirer": "YES"
+        },
+        "expected": {
+          "status": "NECESSITA_VALIDACAO",
+          "cst": null,
+          "cclasstrib": null,
+          "missing_facts": [
+            "buyer.legal_nature"
+          ]
+        }
+      },
+      {
+        "case_id": "RT-IBSCBS-0003-INC-002",
+        "description": "Natureza pública comprovada sem confirmação de que o ente é o adquirente efetivo não permite conclusão.",
+        "input": {
+          "operation.date": "2026-02-01",
+          "product.kind": "MEDICINE",
+          "product.anvisa_registration_status": "REGISTERED",
+          "buyer.legal_nature": "PUBLIC_FOUNDATION",
+          "operation.buyer_is_acquirer": "UNKNOWN"
+        },
+        "expected": {
+          "status": "NECESSITA_VALIDACAO",
+          "cst": null,
+          "cclasstrib": null,
+          "missing_facts": [
+            "operation.buyer_is_acquirer"
+          ]
+        }
+      }
+    ],
+    "boundary_date_cases": [
+      {
+        "case_id": "RT-IBSCBS-0003-DATE-001",
+        "description": "Primeiro dia de efeitos da hipótese na redação original do art. 146, § 1º, I.",
+        "input": {
+          "operation.date": "2026-01-01",
+          "product.kind": "MEDICINE",
+          "product.anvisa_registration_status": "REGISTERED",
+          "buyer.legal_nature": "PUBLIC_FOUNDATION",
+          "operation.buyer_is_acquirer": "YES"
+        },
+        "expected": {
+          "status": "CONCLUSIVO",
+          "cst": "200",
+          "cclasstrib": "200010",
+          "missing_facts": []
+        }
+      },
+      {
+        "case_id": "RT-IBSCBS-0003-DATE-002",
+        "description": "Primeiro dia de efeitos da redação reestruturada pela LC nº 227/2026, que manteve o inciso público.",
+        "input": {
+          "operation.date": "2026-01-14",
+          "product.kind": "MEDICINE",
+          "product.anvisa_registration_status": "REGISTERED",
+          "buyer.legal_nature": "AUTARCHY",
+          "operation.buyer_is_acquirer": "YES"
+        },
+        "expected": {
+          "status": "CONCLUSIVO",
+          "cst": "200",
+          "cclasstrib": "200010",
+          "missing_facts": []
+        }
+      }
+    ]
+  },
+  "approval": {
+    "prepared_by": "Codex — pesquisa preparatória; requer autoria jurídica humana",
+    "reviewed_by": "legal-approver-guilherme-nunes",
+    "approved_by": "legal-approver-guilherme-nunes",
+    "approval_date": "2026-08-31",
+    "approval_evidence": "docs/tax/rules/approvals/RT-IBSCBS-0003-v2.md#sha256=fb53804622dd94a5a753c9b3d308a65192e277068df5be170bd50b33d6e0a7f6"
+  },
+  "implementation": {
+    "tax_rule_identity_id": "7e0c67f5-0a8c-46c4-94ea-c9f258ef2e67",
+    "tax_rule_version_id": "56322ae2-aa2a-4d7d-8af0-d8b348953c0e",
+    "implemented_at": "2026-08-31"
+  },
+  "superseded_by_specification_id": null
+}

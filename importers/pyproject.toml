@@ -1,0 +1,14 @@
+[project]
+name = "tributaria-importers"
+version = "0.1.0"
+description = "Input adapters for fiscal documents"
+requires-python = ">=3.12,<3.14"
+dependencies = [
+  "lxml>=5.4,<7",
+  "openpyxl>=3.1,<4",
+]
+
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+

@@ -1,0 +1,55 @@
+{
+  "rule_id": "",
+  "specification_version": 1,
+  "is_synthetic": false,
+  "title": "",
+  "tax_domain": "IBS_CBS",
+  "objective": "",
+  "jurisdiction": "BR",
+  "status": "DRAFT",
+  "legal_foundation": {
+    "legal_source_id": "",
+    "source_title": "",
+    "specific_device": "",
+    "official_url": "",
+    "verifiable_reference": ""
+  },
+  "effective_from": "",
+  "effective_to": null,
+  "catalog": {
+    "catalog_version_id": "",
+    "cst": "",
+    "cclasstrib": null
+  },
+  "required_facts": [],
+  "optional_facts": [],
+  "deterministic_conditions": [],
+  "result": {
+    "classification_status": "NECESSITA_VALIDACAO",
+    "cst": "",
+    "cclasstrib": null,
+    "explanation": ""
+  },
+  "exclusion_hypotheses": [],
+  "known_conflicts": [],
+  "precedence": {
+    "precedes_rule_ids": [],
+    "legal_basis": null
+  },
+  "tests": {
+    "positive_cases": [],
+    "negative_cases": [],
+    "insufficient_fact_cases": [],
+    "boundary_date_cases": []
+  },
+  "approval": {
+    "prepared_by": "",
+    "reviewed_by": null,
+    "approved_by": null,
+    "approval_date": null,
+    "approval_evidence": null
+  },
+  "implementation": null,
+  "superseded_by_specification_id": null
+}
+

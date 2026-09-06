@@ -1,0 +1,120 @@
+{
+  "rule_id": "TEST-IBSCBS-0001",
+  "specification_version": 1,
+  "is_synthetic": true,
+  "title": "Fixture sintética de prontidão estrutural",
+  "tax_domain": "IBS_CBS",
+  "objective": "Validar exclusivamente o workflow técnico com dados fictícios.",
+  "jurisdiction": "SYNTHETIC",
+  "status": "APPROVED",
+  "legal_foundation": {
+    "legal_source_id": "TEST-SOURCE-001",
+    "source_title": "Fonte sintética sem valor normativo",
+    "specific_device": "DISPOSITIVO SINTÉTICO",
+    "official_url": "https://example.invalid/test-source",
+    "verifiable_reference": "TEST-REFERENCE-001"
+  },
+  "effective_from": "2040-01-01",
+  "effective_to": "2041-01-01",
+  "catalog": {
+    "catalog_version_id": "TEST-CATALOG-V1",
+    "cst": "999",
+    "cclasstrib": "999999"
+  },
+  "required_facts": [
+    {
+      "name": "product_attributes.synthetic.required",
+      "legal_meaning": "Atributo fictício usado somente pelo teste.",
+      "value_type": "STRING",
+      "allowed_values": ["YES", "NO"],
+      "source": "UNIT_TEST"
+    }
+  ],
+  "optional_facts": [],
+  "deterministic_conditions": [
+    {
+      "condition_id": "TEST-CONDITION-001",
+      "description": "O atributo sintético deve ser YES.",
+      "required_fact_names": ["product_attributes.synthetic.required"]
+    }
+  ],
+  "result": {
+    "classification_status": "CONCLUSIVO",
+    "cst": "999",
+    "cclasstrib": "999999",
+    "explanation": "Resultado fictício sem correspondência tributária."
+  },
+  "exclusion_hypotheses": ["Valor sintético diferente de YES."],
+  "known_conflicts": [],
+  "precedence": {
+    "precedes_rule_ids": [],
+    "legal_basis": null
+  },
+  "tests": {
+    "positive_cases": [
+      {
+        "case_id": "TEST-POSITIVE-001",
+        "description": "Fato sintético completo.",
+        "input": {"product_attributes.synthetic.required": "YES"},
+        "expected": {
+          "status": "CONCLUSIVO",
+          "cst": "999",
+          "cclasstrib": "999999",
+          "missing_facts": []
+        }
+      }
+    ],
+    "negative_cases": [
+      {
+        "case_id": "TEST-NEGATIVE-001",
+        "description": "Fato sintético não satisfaz a condição.",
+        "input": {"product_attributes.synthetic.required": "NO"},
+        "expected": {
+          "status": "SEM_CLASSIFICACAO",
+          "cst": null,
+          "cclasstrib": null,
+          "missing_facts": []
+        }
+      }
+    ],
+    "insufficient_fact_cases": [
+      {
+        "case_id": "TEST-INSUFFICIENT-001",
+        "description": "Fato obrigatório ausente.",
+        "input": {},
+        "expected": {
+          "status": "NECESSITA_VALIDACAO",
+          "cst": null,
+          "cclasstrib": null,
+          "missing_facts": ["product_attributes.synthetic.required"]
+        }
+      }
+    ],
+    "boundary_date_cases": [
+      {
+        "case_id": "TEST-BOUNDARY-001",
+        "description": "Primeiro dia de vigência sintética.",
+        "input": {
+          "operation_date": "2040-01-01",
+          "product_attributes.synthetic.required": "YES"
+        },
+        "expected": {
+          "status": "CONCLUSIVO",
+          "cst": "999",
+          "cclasstrib": "999999",
+          "missing_facts": []
+        }
+      }
+    ]
+  },
+  "approval": {
+    "prepared_by": "synthetic-author",
+    "reviewed_by": "synthetic-reviewer",
+    "approved_by": "synthetic-approver",
+    "approval_date": "2039-12-01",
+    "approval_evidence": "TEST-APPROVAL-001"
+  },
+  "implementation": null,
+  "superseded_by_specification_id": null
+}
+

@@ -1,0 +1,16 @@
+{
+  "catalog_code": "IBSCBS-CCLASSTRIB",
+  "version": "2025-12-15",
+  "official_title": "Tabela de Classificação Tributária do IBS e CBS",
+  "official_file_name": "cClassTrib-2025-12-15.xlsx",
+  "artifact_path": "database/normative-artifacts/original/cClassTrib-2025-12-15.xlsx",
+  "source_url": "https://www.nfe.fazenda.gov.br/portal/exibirArquivo.aspx?conteudo=LeNQXfyYngg%3D",
+  "issuing_authority": "Coordenação Técnica do ENCAT — Portal Nacional da NF-e",
+  "publication_date": "2025-12-15",
+  "consulted_at": "2026-08-30T00:00:00-03:00",
+  "technical_document": "Tabela cClassTrib publicada em 15/12/2025",
+  "artifact_sha256": "15ce63cbbe53b5b00fc5e61e775221984a910dcdab547fd130d2ad0c478c7e46",
+  "cst_count": 18,
+  "cclasstrib_count": 145,
+  "staging_row_count": 166
+}

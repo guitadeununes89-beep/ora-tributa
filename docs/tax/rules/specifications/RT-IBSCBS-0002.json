@@ -1,0 +1,199 @@
+{
+  "rule_id": "RT-IBSCBS-0002",
+  "specification_version": 2,
+  "is_synthetic": false,
+  "title": "Fornecimento de medicamento registrado na Anvisa com alíquota zero por destinação sanitária legal",
+  "tax_domain": "IBS_CBS",
+  "objective": "Especificar, sem produzir regra executável, a alíquota zero do IBS e da CBS para medicamento registrado na Anvisa destinado, de acordo com o registro sanitário, a uma das finalidades enumeradas no art. 146, caput e incisos I a VII, na redação dada pela LC nº 227/2026.",
+  "jurisdiction": "BR",
+  "status": "DRAFT",
+  "legal_foundation": {
+    "legal_source_id": "23302183-6c92-4b34-a26d-cd272e2c1b1e",
+    "source_title": "Lei Complementar nº 214, de 16 de janeiro de 2025 — texto vigente compilado",
+    "specific_device": "Art. 146, caput, incisos I a VII e §§ 3º e 4º; art. 133, caput; LC nº 227/2026, arts. 174 e 182, III",
+    "official_url": "https://www2.camara.leg.br/legin/fed/leicom/2025/leicomplementar-214-16-janeiro-2025-796905-normaatualizada-pl.html",
+    "verifiable_reference": "Redação do art. 146 dada pelo art. 174 da LC nº 227/2026: medicamento registrado na Anvisa, destinado conforme o registro sanitário a doenças raras, doenças negligenciadas, oncologia, diabetes, HIV/aids e outras IST, doenças cardiovasculares ou Programa Farmácia Popular do Brasil ou equivalente. O § 3º prevê lista divulgada a cada 120 dias."
+  },
+  "effective_from": "2026-01-14",
+  "effective_to": null,
+  "catalog": {
+    "catalog_version_id": "2295b90f-2f92-4fa4-8181-3007f02b1679",
+    "cst": "200",
+    "cclasstrib": "200009"
+  },
+  "required_facts": [
+    {
+      "name": "operation.date",
+      "legal_meaning": "Data da operação, necessária para selecionar a redação do art. 146 vigente.",
+      "value_type": "DATE",
+      "allowed_values": null,
+      "source": "Documento fiscal e fatos da operação"
+    },
+    {
+      "name": "product.kind",
+      "legal_meaning": "Confirmação de que o bem fornecido é medicamento, sem depender isoladamente de NCM ou descrição.",
+      "value_type": "ENUM",
+      "allowed_values": ["MEDICINE", "OTHER", "UNKNOWN"],
+      "source": "Cadastro sanitário e documentação técnica do produto"
+    },
+    {
+      "name": "product.anvisa_registration_status",
+      "legal_meaning": "Situação verificável do registro do medicamento perante a Anvisa.",
+      "value_type": "ENUM",
+      "allowed_values": ["REGISTERED", "NOT_REGISTERED", "UNKNOWN"],
+      "source": "Base ou documento oficial da Anvisa com evidência temporal"
+    },
+    {
+      "name": "product.sanitary_destination",
+      "legal_meaning": "Destinação sanitária expressamente enumerada nos incisos I a VII do art. 146; os identificadores são apenas representação técnica dos termos legais e dependem de revisão humana antes de virar vocabulário canônico.",
+      "value_type": "ENUM",
+      "allowed_values": ["RARE_DISEASES", "NEGLECTED_DISEASES", "ONCOLOGY", "DIABETES", "HIV_AIDS_OR_OTHER_STI", "CARDIOVASCULAR_DISEASES", "POPULAR_PHARMACY_PROGRAM_OR_EQUIVALENT", "OTHER", "UNKNOWN"],
+      "source": "Registro sanitário oficial do medicamento"
+    },
+    {
+      "name": "product.destination_matches_sanitary_registration",
+      "legal_meaning": "Confirma que a destinação informada corresponde ao registro sanitário, como exige o caput do art. 146.",
+      "value_type": "ENUM",
+      "allowed_values": ["YES", "NO", "UNKNOWN"],
+      "source": "Registro sanitário oficial do medicamento e documentação da destinação"
+    },
+    {
+      "name": "product.art_146_current_list_status",
+      "legal_meaning": "Situação do medicamento na lista temporal divulgada por ato conjunto nos termos do art. 146, § 3º.",
+      "value_type": "ENUM",
+      "allowed_values": ["LISTED", "NOT_LISTED", "UNKNOWN"],
+      "source": "Ato conjunto oficial vigente do Ministério da Fazenda e do CGIBS, ouvido o Ministério da Saúde"
+    }
+  ],
+  "optional_facts": [
+    {
+      "name": "product.ncm",
+      "legal_meaning": "Classificação NCM auxiliar; não substitui registro Anvisa, destinação sanitária nem lista oficial.",
+      "value_type": "STRING",
+      "allowed_values": null,
+      "source": "Documento fiscal e cadastro do produto"
+    },
+    {
+      "name": "operation.public_health_emergency_act",
+      "legal_meaning": "Ato temporário do art. 146, § 4º; mantido fora do resultado deste rascunho e sujeito a especificação temporal própria.",
+      "value_type": "STRING",
+      "allowed_values": null,
+      "source": "Ato conjunto oficial vigente e reconhecimento legislativo da emergência"
+    }
+  ],
+  "deterministic_conditions": [
+    {
+      "condition_id": "RT-IBSCBS-0002-C01",
+      "description": "A operação deve ocorrer a partir de 14/01/2026, início dos efeitos da redação usada.",
+      "required_fact_names": ["operation.date"]
+    },
+    {
+      "condition_id": "RT-IBSCBS-0002-C02",
+      "description": "O produto deve ser medicamento com registro Anvisa confirmado.",
+      "required_fact_names": ["product.kind", "product.anvisa_registration_status"]
+    },
+    {
+      "condition_id": "RT-IBSCBS-0002-C03",
+      "description": "A destinação deve corresponder a uma das sete hipóteses legais e estar de acordo com o registro sanitário.",
+      "required_fact_names": ["product.sanitary_destination", "product.destination_matches_sanitary_registration"]
+    },
+    {
+      "condition_id": "RT-IBSCBS-0002-C04",
+      "description": "O medicamento deve constar da lista temporal oficial prevista no art. 146, § 3º, conforme modelagem conservadora sujeita a validação jurídica.",
+      "required_fact_names": ["product.art_146_current_list_status"]
+    }
+  ],
+  "result": {
+    "classification_status": "CONCLUSIVO",
+    "cst": "200",
+    "cclasstrib": "200009",
+    "explanation": "Com todos os fatos confirmados, o fornecimento recebe alíquota zero do IBS e da CBS pela destinação sanitária legal. A especificação não presume destinação pela descrição do produto e não abrange atos temporários de emergência."
+  },
+  "exclusion_hypotheses": [
+    "Produto que não seja medicamento registrado na Anvisa.",
+    "Destinação sanitária fora dos incisos I a VII do art. 146.",
+    "Destinação que não esteja de acordo com o registro sanitário.",
+    "Medicamento não incluído na lista temporal prevista no art. 146, § 3º, enquanto mantida a modelagem conservadora deste DRAFT.",
+    "Hipóteses autônomas do art. 146, § 1º, inclusive aquisição pública, entidades imunes e soros ou vacinas.",
+    "Inclusão temporária por emergência de saúde pública do art. 146, § 4º, que requer especificação própria."
+  ],
+  "known_conflicts": [
+    "Entre 2026-01-01 e 2026-01-13, o caput original do art. 146 vinculava a alíquota zero aos medicamentos do Anexo XIV por NCM/SH. A LC nº 227/2026 substituiu o caput e revogou o Anexo XIV com efeitos desde 2026-01-14; a redação anterior permanece documentada e não é coberta por esta versão.",
+    "A função jurídica da lista do § 3º — requisito constitutivo do benefício ou instrumento de divulgação — deve ser confirmada por revisão jurídica; este DRAFT exige LISTED para impedir conclusão silenciosa.",
+    "NEEDS_ART146_PAR3_OFFICIAL_LIST: a pesquisa em fontes oficiais não localizou com segurança ato conjunto vigente contendo a lista; o requisito não pode ser removido nem inferido.",
+    "A fonte legal oficial foi persistida e vinculada por seu identificador governado.",
+    "O CST 200 e a cClassTrib 200009 foram confirmados no artefato oficial local de 2026-06-23, SHA-256 1448cb63a41bdb67ea30b4e11f4dc200d9568542c6b9335b6cff87a4fd664654, e o ID persistido do snapshot PUBLISHED foi vinculado.",
+    "Os identificadores técnicos das sete destinações espelham os termos legais, mas ainda precisam de validação humana antes de compor vocabulário canônico."
+  ],
+  "precedence": {
+    "precedes_rule_ids": ["RT-IBSCBS-0001"],
+    "legal_basis": "O art. 133, caput, ressalva expressamente os medicamentos sujeitos à alíquota zero do art. 146 da redução de 60%."
+  },
+  "tests": {
+    "positive_cases": [
+      {
+        "case_id": "RT-IBSCBS-0002-POS-001",
+        "description": "Medicamento abstrato registrado, listado e destinado à oncologia conforme o registro sanitário.",
+        "input": {"operation.date": "2026-02-01", "product.kind": "MEDICINE", "product.anvisa_registration_status": "REGISTERED", "product.sanitary_destination": "ONCOLOGY", "product.destination_matches_sanitary_registration": "YES", "product.art_146_current_list_status": "LISTED"},
+        "expected": {"status": "CONCLUSIVO", "cst": "200", "cclasstrib": "200009", "missing_facts": []}
+      },
+      {
+        "case_id": "RT-IBSCBS-0002-POS-002",
+        "description": "Medicamento abstrato registrado, listado e destinado a doenças raras conforme o registro sanitário.",
+        "input": {"operation.date": "2026-06-01", "product.kind": "MEDICINE", "product.anvisa_registration_status": "REGISTERED", "product.sanitary_destination": "RARE_DISEASES", "product.destination_matches_sanitary_registration": "YES", "product.art_146_current_list_status": "LISTED"},
+        "expected": {"status": "CONCLUSIVO", "cst": "200", "cclasstrib": "200009", "missing_facts": []}
+      }
+    ],
+    "negative_cases": [
+      {
+        "case_id": "RT-IBSCBS-0002-NEG-001",
+        "description": "Medicamento sem registro Anvisa confirmado não satisfaz o caput.",
+        "input": {"operation.date": "2026-02-01", "product.kind": "MEDICINE", "product.anvisa_registration_status": "NOT_REGISTERED", "product.sanitary_destination": "ONCOLOGY", "product.destination_matches_sanitary_registration": "YES", "product.art_146_current_list_status": "LISTED"},
+        "expected": {"status": "SEM_CLASSIFICACAO", "cst": null, "cclasstrib": null, "missing_facts": []}
+      },
+      {
+        "case_id": "RT-IBSCBS-0002-NEG-002",
+        "description": "Finalidade sanitária fora da enumeração legal não satisfaz este rascunho.",
+        "input": {"operation.date": "2026-02-01", "product.kind": "MEDICINE", "product.anvisa_registration_status": "REGISTERED", "product.sanitary_destination": "OTHER", "product.destination_matches_sanitary_registration": "YES", "product.art_146_current_list_status": "NOT_LISTED"},
+        "expected": {"status": "SEM_CLASSIFICACAO", "cst": null, "cclasstrib": null, "missing_facts": []}
+      }
+    ],
+    "insufficient_fact_cases": [
+      {
+        "case_id": "RT-IBSCBS-0002-INC-001",
+        "description": "Registro confirmado sem informação de destinação sanitária não permite conclusão.",
+        "input": {"operation.date": "2026-02-01", "product.kind": "MEDICINE", "product.anvisa_registration_status": "REGISTERED", "product.sanitary_destination": "UNKNOWN", "product.destination_matches_sanitary_registration": "UNKNOWN", "product.art_146_current_list_status": "LISTED"},
+        "expected": {"status": "NECESSITA_VALIDACAO", "cst": null, "cclasstrib": null, "missing_facts": ["product.sanitary_destination", "product.destination_matches_sanitary_registration"]}
+      },
+      {
+        "case_id": "RT-IBSCBS-0002-INC-002",
+        "description": "Destinação compatível sem confirmação da lista temporal oficial não permite conclusão.",
+        "input": {"operation.date": "2026-02-01", "product.kind": "MEDICINE", "product.anvisa_registration_status": "REGISTERED", "product.sanitary_destination": "DIABETES", "product.destination_matches_sanitary_registration": "YES", "product.art_146_current_list_status": "UNKNOWN"},
+        "expected": {"status": "NECESSITA_VALIDACAO", "cst": null, "cclasstrib": null, "missing_facts": ["product.art_146_current_list_status"]}
+      }
+    ],
+    "boundary_date_cases": [
+      {
+        "case_id": "RT-IBSCBS-0002-DATE-001",
+        "description": "Dia anterior à produção de efeitos da nova redação não é coberto por esta especificação.",
+        "input": {"operation.date": "2026-01-13", "product.kind": "MEDICINE", "product.anvisa_registration_status": "REGISTERED", "product.sanitary_destination": "ONCOLOGY", "product.destination_matches_sanitary_registration": "YES", "product.art_146_current_list_status": "LISTED"},
+        "expected": {"status": "SEM_CLASSIFICACAO", "cst": null, "cclasstrib": null, "missing_facts": []}
+      },
+      {
+        "case_id": "RT-IBSCBS-0002-DATE-002",
+        "description": "Primeiro dia de produção de efeitos da redação dada pela LC nº 227/2026.",
+        "input": {"operation.date": "2026-01-14", "product.kind": "MEDICINE", "product.anvisa_registration_status": "REGISTERED", "product.sanitary_destination": "ONCOLOGY", "product.destination_matches_sanitary_registration": "YES", "product.art_146_current_list_status": "LISTED"},
+        "expected": {"status": "CONCLUSIVO", "cst": "200", "cclasstrib": "200009", "missing_facts": []}
+      }
+    ]
+  },
+  "approval": {
+    "prepared_by": "Codex — pesquisa preparatória; requer autoria jurídica humana",
+    "reviewed_by": null,
+    "approved_by": null,
+    "approval_date": null,
+    "approval_evidence": null
+  },
+  "implementation": null,
+  "superseded_by_specification_id": null
+}

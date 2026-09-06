@@ -1,0 +1,28 @@
+[project]
+name = "tributaria-api"
+version = "0.1.0"
+description = "API da Plataforma de Inteligencia Tributaria"
+requires-python = ">=3.12,<3.14"
+dependencies = [
+  "alembic>=1.16,<2",
+  "argon2-cffi>=25.1,<26",
+  "fastapi>=0.116,<1",
+  "psycopg[binary]>=3.2,<4",
+  "pydantic-settings>=2.9,<3",
+  "sqlalchemy>=2.0.41,<3",
+  "tax-engine",
+  "tributaria-importers",
+  "uvicorn[standard]>=0.34,<1",
+]
+
+[tool.uv.sources]
+tax-engine = { workspace = true }
+tributaria-importers = { workspace = true }
+
+[project.scripts]
+validate-tax-rule-spec = "tributaria_api.tax_rule_spec_cli:main"
+
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+

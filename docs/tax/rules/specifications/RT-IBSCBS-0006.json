@@ -1,0 +1,71 @@
+{
+  "rule_id": "RT-IBSCBS-0006",
+  "specification_version": 1,
+  "is_synthetic": false,
+  "title": "Medicamento registrado na Anvisa classificado como soro ou vacina conforme regulamentação sanitária específica",
+  "tax_domain": "IBS_CBS",
+  "objective": "Especificar separadamente a hipótese do art. 146, § 1º, III, sem permitir implementação enquanto a regulamentação sanitária oficial necessária não estiver identificada e governada.",
+  "jurisdiction": "BR",
+  "status": "DRAFT",
+  "legal_foundation": {
+    "legal_source_id": "23302183-6c92-4b34-a26d-cd272e2c1b1e",
+    "source_title": "Lei Complementar nº 214, de 16 de janeiro de 2025 — texto vigente compilado",
+    "specific_device": "Art. 146, § 1º, III e § 3º; LC nº 227/2026, arts. 174 e 182, III",
+    "official_url": "https://www2.camara.leg.br/legin/fed/leicom/2025/leicomplementar-214-16-janeiro-2025-796905-normaatualizada-pl.html",
+    "verifiable_reference": "A LC nº 227/2026 incluiu a hipótese de medicamento registrado na Anvisa classificado como soro ou vacina conforme regulamentação sanitária específica."
+  },
+  "effective_from": "2026-01-14",
+  "effective_to": null,
+  "catalog": {"catalog_version_id": "2295b90f-2f92-4fa4-8181-3007f02b1679", "cst": "200", "cclasstrib": "200053"},
+  "required_facts": [
+    {"name": "operation.date", "legal_meaning": "Data da operação, a partir de 14/01/2026.", "value_type": "DATE", "allowed_values": null, "source": "Documento fiscal"},
+    {"name": "product.kind", "legal_meaning": "Confirmação de que o bem é medicamento.", "value_type": "ENUM", "allowed_values": ["MEDICINE", "OTHER", "UNKNOWN"], "source": "Cadastro sanitário e documentação técnica"},
+    {"name": "product.anvisa_registration_status", "legal_meaning": "Situação temporal do registro na Anvisa.", "value_type": "ENUM", "allowed_values": ["REGISTERED", "NOT_REGISTERED", "UNKNOWN"], "source": "Fonte oficial da Anvisa"},
+    {"name": "product.serum_or_vaccine_status", "legal_meaning": "Classificação do medicamento como soro ou vacina, sujeita à regulamentação sanitária específica.", "value_type": "ENUM", "allowed_values": ["SERUM", "VACCINE", "NEITHER", "UNKNOWN"], "source": "Regulamentação sanitária oficial e registro Anvisa"},
+    {"name": "sanitary.specific_regulation_status", "legal_meaning": "Confirma se a regulamentação sanitária específica foi identificada, está vigente e é aplicável.", "value_type": "ENUM", "allowed_values": ["OFFICIAL_REGULATION_IDENTIFIED_AND_APPLICABLE", "NOT_APPLICABLE", "NEEDS_OFFICIAL_SANITARY_REGULATION"], "source": "Ato normativo sanitário oficial governado"},
+    {"name": "product.art_146_current_list_status", "legal_meaning": "Situação na lista oficial do art. 146, § 3º, conforme modelagem conservadora.", "value_type": "ENUM", "allowed_values": ["LISTED", "NOT_LISTED", "UNKNOWN"], "source": "Ato conjunto oficial vigente do art. 146, § 3º"}
+  ],
+  "optional_facts": [
+    {"name": "sanitary.specific_regulation_reference", "legal_meaning": "Identificador governado da regulamentação sanitária específica, ainda não localizado.", "value_type": "STRING", "allowed_values": null, "source": "Repositório governado de fontes oficiais"}
+  ],
+  "deterministic_conditions": [
+    {"condition_id": "RT-IBSCBS-0006-C01", "description": "A operação deve ocorrer a partir de 14/01/2026.", "required_fact_names": ["operation.date"]},
+    {"condition_id": "RT-IBSCBS-0006-C02", "description": "O produto deve ser medicamento registrado na Anvisa.", "required_fact_names": ["product.kind", "product.anvisa_registration_status"]},
+    {"condition_id": "RT-IBSCBS-0006-C03", "description": "A classificação como soro ou vacina depende da regulamentação sanitária específica oficial.", "required_fact_names": ["product.serum_or_vaccine_status", "sanitary.specific_regulation_status"]},
+    {"condition_id": "RT-IBSCBS-0006-C04", "description": "A modelagem conservadora mantém a exigência da lista oficial do § 3º.", "required_fact_names": ["product.art_146_current_list_status"]}
+  ],
+  "result": {"classification_status": "CONCLUSIVO", "cst": "200", "cclasstrib": "200053", "explanation": "O resultado futuro exige registro Anvisa, enquadramento oficial como soro ou vacina, regulamentação sanitária específica aplicável e confirmação na lista do § 3º. Nenhum desses requisitos é inferido."},
+  "exclusion_hypotheses": [
+    "Produto não registrado na Anvisa.",
+    "Produto que não seja classificado oficialmente como soro ou vacina.",
+    "Regulamentação sanitária específica não identificada ou não aplicável.",
+    "Medicamento não confirmado na lista do art. 146, § 3º, enquanto mantida a modelagem conservadora."
+  ],
+  "known_conflicts": [
+    "NEEDS_OFFICIAL_SANITARY_REGULATION: não foi identificada com segurança a regulamentação sanitária específica necessária.",
+    "NEEDS_ART146_PAR3_OFFICIAL_LIST: não foi localizado com segurança ato conjunto vigente contendo a lista do § 3º.",
+    "O catálogo oficial confirma CST 200 e cClassTrib 200053, mas os identificadores governados de fonte e catálogo ainda não puderam ser consultados."
+  ],
+  "precedence": {"precedes_rule_ids": ["RT-IBSCBS-0001"], "legal_basis": "A alíquota zero do art. 146 é expressamente ressalvada pelo art. 133."},
+  "tests": {
+    "positive_cases": [
+      {"case_id": "RT-IBSCBS-0006-POS-001", "description": "Cenário futuro de soro com todos os vínculos oficiais confirmados.", "input": {"operation.date": "2026-02-01", "product.kind": "MEDICINE", "product.anvisa_registration_status": "REGISTERED", "product.serum_or_vaccine_status": "SERUM", "sanitary.specific_regulation_status": "OFFICIAL_REGULATION_IDENTIFIED_AND_APPLICABLE", "product.art_146_current_list_status": "LISTED"}, "expected": {"status": "CONCLUSIVO", "cst": "200", "cclasstrib": "200053", "missing_facts": []}},
+      {"case_id": "RT-IBSCBS-0006-POS-002", "description": "Cenário futuro de vacina com todos os vínculos oficiais confirmados.", "input": {"operation.date": "2026-06-01", "product.kind": "MEDICINE", "product.anvisa_registration_status": "REGISTERED", "product.serum_or_vaccine_status": "VACCINE", "sanitary.specific_regulation_status": "OFFICIAL_REGULATION_IDENTIFIED_AND_APPLICABLE", "product.art_146_current_list_status": "LISTED"}, "expected": {"status": "CONCLUSIVO", "cst": "200", "cclasstrib": "200053", "missing_facts": []}}
+    ],
+    "negative_cases": [
+      {"case_id": "RT-IBSCBS-0006-NEG-001", "description": "Produto não classificado como soro ou vacina.", "input": {"operation.date": "2026-02-01", "product.kind": "MEDICINE", "product.anvisa_registration_status": "REGISTERED", "product.serum_or_vaccine_status": "NEITHER", "sanitary.specific_regulation_status": "NOT_APPLICABLE", "product.art_146_current_list_status": "NOT_LISTED"}, "expected": {"status": "SEM_CLASSIFICACAO", "cst": null, "cclasstrib": null, "missing_facts": []}},
+      {"case_id": "RT-IBSCBS-0006-NEG-002", "description": "Produto sem registro Anvisa.", "input": {"operation.date": "2026-02-01", "product.kind": "MEDICINE", "product.anvisa_registration_status": "NOT_REGISTERED"}, "expected": {"status": "SEM_CLASSIFICACAO", "cst": null, "cclasstrib": null, "missing_facts": []}}
+    ],
+    "insufficient_fact_cases": [
+      {"case_id": "RT-IBSCBS-0006-INC-001", "description": "Regulamentação sanitária específica ainda não identificada.", "input": {"operation.date": "2026-02-01", "product.serum_or_vaccine_status": "UNKNOWN", "sanitary.specific_regulation_status": "NEEDS_OFFICIAL_SANITARY_REGULATION"}, "expected": {"status": "NECESSITA_VALIDACAO", "cst": null, "cclasstrib": null, "missing_facts": ["sanitary.specific_regulation_status"]}},
+      {"case_id": "RT-IBSCBS-0006-INC-002", "description": "Lista do § 3º não confirmada.", "input": {"operation.date": "2026-02-01", "product.serum_or_vaccine_status": "VACCINE", "sanitary.specific_regulation_status": "NEEDS_OFFICIAL_SANITARY_REGULATION", "product.art_146_current_list_status": "UNKNOWN"}, "expected": {"status": "NECESSITA_VALIDACAO", "cst": null, "cclasstrib": null, "missing_facts": ["sanitary.specific_regulation_status", "product.art_146_current_list_status"]}}
+    ],
+    "boundary_date_cases": [
+      {"case_id": "RT-IBSCBS-0006-DATE-001", "description": "Dia anterior à vigência da hipótese.", "input": {"operation.date": "2026-01-13"}, "expected": {"status": "SEM_CLASSIFICACAO", "cst": null, "cclasstrib": null, "missing_facts": []}},
+      {"case_id": "RT-IBSCBS-0006-DATE-002", "description": "Primeiro dia da vigência, ainda bloqueado por regulamentação e lista.", "input": {"operation.date": "2026-01-14", "product.kind": "MEDICINE", "product.anvisa_registration_status": "REGISTERED", "product.serum_or_vaccine_status": "UNKNOWN", "sanitary.specific_regulation_status": "NEEDS_OFFICIAL_SANITARY_REGULATION", "product.art_146_current_list_status": "UNKNOWN"}, "expected": {"status": "NECESSITA_VALIDACAO", "cst": null, "cclasstrib": null, "missing_facts": ["sanitary.specific_regulation_status", "product.art_146_current_list_status"]}}
+    ]
+  },
+  "approval": {"prepared_by": "Codex — pesquisa preparatória; requer autoria jurídica humana", "reviewed_by": null, "approved_by": null, "approval_date": null, "approval_evidence": null},
+  "implementation": null,
+  "superseded_by_specification_id": null
+}

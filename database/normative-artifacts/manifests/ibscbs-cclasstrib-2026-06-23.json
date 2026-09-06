@@ -1,0 +1,23 @@
+{
+  "catalog_code": "IBSCBS-CCLASSTRIB",
+  "official_title": "Tabela de Classificação Tributária do IBS e CBS",
+  "official_file_name": "cClassTrib 2026-06-22.xlsx",
+  "artifact_path": "database/normative-artifacts/original/cClassTrib-2026-06-22.xlsx",
+  "source_url": "https://www.nfe.fazenda.gov.br/portal/exibirArquivo.aspx?conteudo=D5b4Ov84WDg%3D",
+  "source_listing_url": "https://www.nfe.fazenda.gov.br/portal/listaConteudo.aspx?tipoConteudo=%2FNJarYc9nus%3D",
+  "issuing_authority": "Coordenação Técnica do ENCAT — Portal Nacional da NF-e",
+  "publication_date": "2026-06-23",
+  "consulted_at": "2026-08-29T14:27:49-03:00",
+  "technical_document": "Informe Técnico 2025.002 v1.60",
+  "artifact_sha256": "1448cb63a41bdb67ea30b4e11f4dc200d9568542c6b9335b6cff87a4fd664654",
+  "normalized_sha256": "9b65c977cdd37b30f0146b10f8addd7175f11389fc08196a9dfebfd5258b2008",
+  "schema_signature": "fb87c22952135fe428a552f32d330d2cdd132bd5aae6dfc0a33747c58a6135c6",
+  "cst_count": 18,
+  "cclasstrib_count": 164,
+  "warnings": [
+    "O nome interno das abas indica 2026-06-01; o arquivo se chama 2026-06-22 e a publicação do portal é 2026-06-23.",
+    "Três linhas de legenda da aba CST são preservadas no staging e não contam como CST.",
+    "Indicadores e percentuais são dados de catálogo; esta etapa não os transforma em regra executável."
+  ]
+}
+

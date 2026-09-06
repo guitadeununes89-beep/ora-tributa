@@ -1,0 +1,237 @@
+{
+  "rule_id": "RT-IBSCBS-0001",
+  "specification_version": 2,
+  "is_synthetic": false,
+  "title": "Fornecimento de medicamento registrado na Anvisa com redução de 60% das alíquotas do IBS e da CBS",
+  "tax_domain": "IBS_CBS",
+  "objective": "Especificar, sem produzir regra executável, a redução de 60% no fornecimento de medicamento registrado na Anvisa, mantendo bloqueadas a definição da pessoa jurídica responsável pelo art. 133, § 2º, e a conclusão de ausência de alíquota zero enquanto a cobertura temporal do art. 146 não estiver completa.",
+  "jurisdiction": "BR",
+  "status": "DRAFT",
+  "legal_foundation": {
+    "legal_source_id": "23302183-6c92-4b34-a26d-cd272e2c1b1e",
+    "source_title": "Lei Complementar nº 214, de 16 de janeiro de 2025 — texto vigente compilado",
+    "specific_device": "Arts. 128, V, 133, caput e §§ 1º e 2º, 146 e 544, VI; LC nº 227/2026, arts. 174 e 182, III",
+    "official_url": "https://www2.camara.leg.br/legin/fed/leicom/2025/leicomplementar-214-16-janeiro-2025-796905-normaatualizada-pl.html",
+    "verifiable_reference": "O art. 133 prevê redução de 60%, ressalva as hipóteses do art. 146 e, no § 2º, refere-se aos medicamentos industrializados ou importados pelas pessoas jurídicas que firmaram compromisso de ajustamento ou cumprem a sistemática CMED. Esta especificação não presume qual entidade da cadeia é essa pessoa jurídica."
+  },
+  "effective_from": "2026-01-01",
+  "effective_to": null,
+  "catalog": {
+    "catalog_version_id": "2295b90f-2f92-4fa4-8181-3007f02b1679",
+    "cst": "200",
+    "cclasstrib": "200032"
+  },
+  "required_facts": [
+    {
+      "name": "operation.date",
+      "legal_meaning": "Data da operação para seleção da redação normativa temporalmente aplicável.",
+      "value_type": "DATE",
+      "allowed_values": null,
+      "source": "Documento fiscal e fatos da operação"
+    },
+    {
+      "name": "product.kind",
+      "legal_meaning": "Confirmação de que o bem fornecido é medicamento; NCM ou descrição isolados não bastam.",
+      "value_type": "ENUM",
+      "allowed_values": ["MEDICINE", "OTHER", "UNKNOWN"],
+      "source": "Cadastro sanitário e documentação técnica do produto"
+    },
+    {
+      "name": "product.anvisa_registration_status",
+      "legal_meaning": "Situação verificável do registro do medicamento perante a Anvisa na data relevante.",
+      "value_type": "ENUM",
+      "allowed_values": ["REGISTERED", "NOT_REGISTERED", "UNKNOWN"],
+      "source": "Base ou documento oficial da Anvisa com evidência temporal"
+    },
+    {
+      "name": "product.supply_form",
+      "legal_meaning": "Distingue medicamento industrializado, importado, manipulado ou outra forma relevante.",
+      "value_type": "ENUM",
+      "allowed_values": ["INDUSTRIALIZED", "IMPORTED", "COMPOUNDED_BY_PHARMACY", "OTHER", "UNKNOWN"],
+      "source": "Registro sanitário e documentos de fabricação ou importação"
+    },
+    {
+      "name": "operation.supplier_identity",
+      "legal_meaning": "Identidade do fornecedor da operação analisada, preservada separadamente das demais entidades da cadeia.",
+      "value_type": "STRING",
+      "allowed_values": null,
+      "source": "Documento fiscal e cadastro do fornecedor"
+    },
+    {
+      "name": "product.manufacturer_identity",
+      "legal_meaning": "Identidade do fabricante do medicamento, sem presumir que seja a pessoa jurídica do art. 133, § 2º.",
+      "value_type": "STRING",
+      "allowed_values": null,
+      "source": "Registro sanitário e documentação oficial de fabricação"
+    },
+    {
+      "name": "product.responsible_importer_identity",
+      "legal_meaning": "Identidade do importador responsável, quando aplicável, sem presumir que seja o fornecedor da operação.",
+      "value_type": "STRING",
+      "allowed_values": null,
+      "source": "Registro sanitário e documentação oficial de importação"
+    },
+    {
+      "name": "art_133.responsible_legal_entity_role",
+      "legal_meaning": "Relação da pessoa jurídica à qual se atribuiria o requisito do art. 133, § 2º; a seleção depende de definição jurídica humana.",
+      "value_type": "ENUM",
+      "allowed_values": ["OPERATION_SUPPLIER", "MANUFACTURER", "RESPONSIBLE_IMPORTER", "OTHER", "UNDETERMINED"],
+      "source": "Interpretação jurídica aprovada e evidências oficiais da cadeia"
+    },
+    {
+      "name": "art_133.responsible_entity_validation_status",
+      "legal_meaning": "Bloqueia conclusão enquanto não houver definição jurídica da entidade responsável pelo requisito do § 2º.",
+      "value_type": "ENUM",
+      "allowed_values": ["LEGALLY_VALIDATED", "NEEDS_LEGAL_VALIDATION_ART133_RESPONSIBLE_ENTITY"],
+      "source": "Revisão jurídica humana documentada"
+    },
+    {
+      "name": "art_133.responsible_entity_price_condition",
+      "legal_meaning": "Condição de compromisso de ajustamento ou sistemática CMED atribuída somente à entidade juridicamente validada.",
+      "value_type": "ENUM",
+      "allowed_values": ["CONDUCT_COMMITMENT", "CMED_SYSTEM_COMPLIANCE", "NOT_SATISFIED", "UNKNOWN"],
+      "source": "Evidência oficial da entidade juridicamente validada"
+    },
+    {
+      "name": "operation.art_146_coverage_status",
+      "legal_meaning": "Confirma que todas as hipóteses relevantes do art. 146, na redação vigente, foram avaliadas por especificações próprias.",
+      "value_type": "ENUM",
+      "allowed_values": ["COMPLETE", "INCOMPLETE", "UNKNOWN"],
+      "source": "Matriz de cobertura e DecisionTrace das especificações do art. 146"
+    },
+    {
+      "name": "operation.art_146_zero_rate_status",
+      "legal_meaning": "Resultado agregado da avaliação completa e temporal das hipóteses aplicáveis do art. 146.",
+      "value_type": "ENUM",
+      "allowed_values": ["ELIGIBLE", "NOT_ELIGIBLE", "UNDETERMINED"],
+      "source": "DecisionTrace das especificações do art. 146 aplicáveis à data"
+    }
+  ],
+  "optional_facts": [
+    {
+      "name": "product.ncm",
+      "legal_meaning": "Classificação NCM auxiliar; não determina isoladamente o tratamento.",
+      "value_type": "STRING",
+      "allowed_values": null,
+      "source": "Documento fiscal e cadastro do produto"
+    }
+  ],
+  "deterministic_conditions": [
+    {
+      "condition_id": "RT-IBSCBS-0001-C01",
+      "description": "A operação deve estar dentro da vigência aplicável.",
+      "required_fact_names": ["operation.date"]
+    },
+    {
+      "condition_id": "RT-IBSCBS-0001-C02",
+      "description": "O produto deve ser medicamento com registro Anvisa confirmado.",
+      "required_fact_names": ["product.kind", "product.anvisa_registration_status"]
+    },
+    {
+      "condition_id": "RT-IBSCBS-0001-C03",
+      "description": "Fornecedor, fabricante, importador responsável e entidade do § 2º devem permanecer distinguíveis; nenhuma relação é presumida.",
+      "required_fact_names": ["operation.supplier_identity", "product.manufacturer_identity", "product.responsible_importer_identity", "art_133.responsible_legal_entity_role"]
+    },
+    {
+      "condition_id": "RT-IBSCBS-0001-C04",
+      "description": "A entidade responsável e sua condição somente podem ser usadas após validação jurídica humana.",
+      "required_fact_names": ["art_133.responsible_entity_validation_status", "art_133.responsible_entity_price_condition"]
+    },
+    {
+      "condition_id": "RT-IBSCBS-0001-C05",
+      "description": "A ausência de alíquota zero só pode ser concluída quando a cobertura do art. 146 estiver completa e o resultado agregado for NOT_ELIGIBLE.",
+      "required_fact_names": ["operation.art_146_coverage_status", "operation.art_146_zero_rate_status"]
+    }
+  ],
+  "result": {
+    "classification_status": "CONCLUSIVO",
+    "cst": "200",
+    "cclasstrib": "200032",
+    "explanation": "O resultado futuro somente poderá ser conclusivo depois da definição jurídica da entidade do art. 133, § 2º, da comprovação de sua condição e da avaliação completa de todas as hipóteses temporais do art. 146. Este DRAFT não satisfaz esses pré-requisitos."
+  },
+  "exclusion_hypotheses": [
+    "Qualquer hipótese aplicável de alíquota zero do art. 146.",
+    "Cobertura incompleta ou indeterminada do art. 146.",
+    "Ausência de definição jurídica da pessoa jurídica responsável pelo art. 133, § 2º.",
+    "Ausência de comprovação da condição do § 2º pela entidade juridicamente validada.",
+    "Produto que não seja medicamento ou cujo registro Anvisa não esteja confirmado.",
+    "Medicamento produzido por farmácia de manipulação, fora do escopo deste DRAFT."
+  ],
+  "known_conflicts": [
+    "NEEDS_LEGAL_VALIDATION_ART133_RESPONSIBLE_ENTITY: a redação não autoriza presumir que a pessoa jurídica do art. 133, § 2º, seja necessariamente o fornecedor da operação.",
+    "A cobertura do art. 146 está incompleta enquanto as hipóteses indicadas em ART146_COVERAGE_MATRIX.md não tiverem especificações avaliáveis.",
+    "A fonte legal oficial foi persistida e vinculada por seu identificador governado.",
+    "O snapshot governado PUBLISHED do catálogo ainda não foi vinculado; o marcador deve causar NOT_READY."
+  ],
+  "precedence": {
+    "precedes_rule_ids": [],
+    "legal_basis": "O art. 133 contém ressalva expressa às hipóteses do art. 146; todas as regras de alíquota zero temporalmente aplicáveis devem ser avaliadas antes desta especificação."
+  },
+  "tests": {
+    "positive_cases": [
+      {
+        "case_id": "RT-IBSCBS-0001-POS-001",
+        "description": "Cenário materialmente elegível, mas ainda bloqueado pela definição jurídica da entidade do § 2º.",
+        "input": {"operation.date": "2026-02-01", "product.kind": "MEDICINE", "product.anvisa_registration_status": "REGISTERED", "product.supply_form": "INDUSTRIALIZED", "operation.supplier_identity": "SUPPLIER-EVIDENCE", "product.manufacturer_identity": "MANUFACTURER-EVIDENCE", "product.responsible_importer_identity": "NOT_APPLICABLE", "art_133.responsible_legal_entity_role": "UNDETERMINED", "art_133.responsible_entity_validation_status": "NEEDS_LEGAL_VALIDATION_ART133_RESPONSIBLE_ENTITY", "art_133.responsible_entity_price_condition": "CMED_SYSTEM_COMPLIANCE", "operation.art_146_coverage_status": "INCOMPLETE", "operation.art_146_zero_rate_status": "UNDETERMINED"},
+        "expected": {"status": "NECESSITA_VALIDACAO", "cst": null, "cclasstrib": null, "missing_facts": ["art_133.responsible_entity_validation_status", "operation.art_146_coverage_status"]}
+      },
+      {
+        "case_id": "RT-IBSCBS-0001-POS-002",
+        "description": "Medicamento importado com entidades distintas preservadas e sem seleção automática da responsável.",
+        "input": {"operation.date": "2026-06-01", "product.kind": "MEDICINE", "product.anvisa_registration_status": "REGISTERED", "product.supply_form": "IMPORTED", "operation.supplier_identity": "SUPPLIER-EVIDENCE", "product.manufacturer_identity": "FOREIGN-MANUFACTURER-EVIDENCE", "product.responsible_importer_identity": "IMPORTER-EVIDENCE", "art_133.responsible_legal_entity_role": "UNDETERMINED", "art_133.responsible_entity_validation_status": "NEEDS_LEGAL_VALIDATION_ART133_RESPONSIBLE_ENTITY", "art_133.responsible_entity_price_condition": "UNKNOWN", "operation.art_146_coverage_status": "INCOMPLETE", "operation.art_146_zero_rate_status": "UNDETERMINED"},
+        "expected": {"status": "NECESSITA_VALIDACAO", "cst": null, "cclasstrib": null, "missing_facts": ["art_133.responsible_entity_validation_status", "art_133.responsible_entity_price_condition", "operation.art_146_coverage_status"]}
+      }
+    ],
+    "negative_cases": [
+      {
+        "case_id": "RT-IBSCBS-0001-NEG-001",
+        "description": "Produto sem registro Anvisa confirmado não satisfaz a hipótese.",
+        "input": {"operation.date": "2026-02-01", "product.kind": "MEDICINE", "product.anvisa_registration_status": "NOT_REGISTERED"},
+        "expected": {"status": "SEM_CLASSIFICACAO", "cst": null, "cclasstrib": null, "missing_facts": []}
+      },
+      {
+        "case_id": "RT-IBSCBS-0001-NEG-002",
+        "description": "Hipótese confirmada de alíquota zero afasta o tratamento do art. 133.",
+        "input": {"operation.date": "2026-02-01", "product.kind": "MEDICINE", "product.anvisa_registration_status": "REGISTERED", "operation.art_146_coverage_status": "COMPLETE", "operation.art_146_zero_rate_status": "ELIGIBLE"},
+        "expected": {"status": "SEM_CLASSIFICACAO", "cst": null, "cclasstrib": null, "missing_facts": []}
+      }
+    ],
+    "insufficient_fact_cases": [
+      {
+        "case_id": "RT-IBSCBS-0001-INC-001",
+        "description": "Cobertura incompleta do art. 146 impede NOT_ELIGIBLE.",
+        "input": {"operation.date": "2026-02-01", "operation.art_146_coverage_status": "INCOMPLETE", "operation.art_146_zero_rate_status": "UNDETERMINED"},
+        "expected": {"status": "NECESSITA_VALIDACAO", "cst": null, "cclasstrib": null, "missing_facts": ["operation.art_146_coverage_status", "operation.art_146_zero_rate_status"]}
+      },
+      {
+        "case_id": "RT-IBSCBS-0001-INC-002",
+        "description": "Entidade responsável não definida mantém o bloqueador jurídico.",
+        "input": {"operation.date": "2026-02-01", "art_133.responsible_legal_entity_role": "UNDETERMINED", "art_133.responsible_entity_validation_status": "NEEDS_LEGAL_VALIDATION_ART133_RESPONSIBLE_ENTITY"},
+        "expected": {"status": "NECESSITA_VALIDACAO", "cst": null, "cclasstrib": null, "missing_facts": ["art_133.responsible_entity_validation_status"]}
+      }
+    ],
+    "boundary_date_cases": [
+      {
+        "case_id": "RT-IBSCBS-0001-DATE-001",
+        "description": "Em 01/01/2026, a avaliação do art. 146 deve usar a redação histórica e a RT-IBSCBS-0004.",
+        "input": {"operation.date": "2026-01-01", "operation.art_146_coverage_status": "INCOMPLETE", "operation.art_146_zero_rate_status": "UNDETERMINED"},
+        "expected": {"status": "NECESSITA_VALIDACAO", "cst": null, "cclasstrib": null, "missing_facts": ["operation.art_146_coverage_status"]}
+      },
+      {
+        "case_id": "RT-IBSCBS-0001-DATE-002",
+        "description": "Em 14/01/2026, a avaliação deve usar a nova redação e todas as hipóteses correspondentes.",
+        "input": {"operation.date": "2026-01-14", "operation.art_146_coverage_status": "INCOMPLETE", "operation.art_146_zero_rate_status": "UNDETERMINED"},
+        "expected": {"status": "NECESSITA_VALIDACAO", "cst": null, "cclasstrib": null, "missing_facts": ["operation.art_146_coverage_status"]}
+      }
+    ]
+  },
+  "approval": {
+    "prepared_by": "Codex — saneamento documental sob orientação jurídica humana",
+    "reviewed_by": null,
+    "approved_by": null,
+    "approval_date": null,
+    "approval_evidence": null
+  },
+  "implementation": null,
+  "superseded_by_specification_id": null
+}

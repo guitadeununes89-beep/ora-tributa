@@ -1,0 +1,84 @@
+{
+  "rule_id": "RT-IBSCBS-0008",
+  "specification_version": 3,
+  "is_synthetic": false,
+  "title": "Operação entre indústrias incentivadas com bem material intermediário na Zona Franca de Manaus",
+  "tax_domain": "IBS_CBS",
+  "objective": "Especificar, sem produzir regra executável, a redução a zero do IBS e da CBS na operação entre indústrias incentivadas delimitada pelo art. 448 da LC nº 214/2025, exigindo prova da qualificação das partes, da natureza intermediária do bem, da entrega na ZFM e das exclusões legais.",
+  "jurisdiction": "BR",
+  "status": "DRAFT",
+  "legal_foundation": {
+    "legal_source_id": "23302183-6c92-4b34-a26d-cd272e2c1b1e",
+    "source_title": "Lei Complementar nº 214, de 16 de janeiro de 2025 — texto vigente compilado",
+    "specific_device": "Arts. 440, II e III; 442, II; 443, § 1º; 448, caput e §§ 1º a 3º; e 544, VI",
+    "official_url": "https://www.planalto.gov.br/ccivil_03/leis/lcp/lcp214compilado.htm",
+    "verifiable_reference": "O art. 448 reduz a zero IBS e CBS na operação realizada por indústria incentivada que destine bem material intermediário a outra indústria incentivada na ZFM, com entrega ou disponibilização dentro da área; o § 1º exclui os bens do art. 443, § 1º, e o § 3º limita a industrialização por encomenda ao valor adicionado. A Resolução CGIBS nº 6/2026, arts. 433, 435 e 519, reproduz esses elementos para o IBS."
+  },
+  "effective_from": "2026-01-01",
+  "effective_to": null,
+  "catalog": {
+    "catalog_version_id": "2295b90f-2f92-4fa4-8181-3007f02b1679",
+    "cst": "200",
+    "cclasstrib": "200023"
+  },
+  "required_facts": [
+    {"name": "operation.date", "legal_meaning": "Data da operação para seleção temporal da norma e do catálogo.", "value_type": "DATE", "allowed_values": null, "source": "Documento fiscal"},
+    {"name": "operation.zfm_area_version_id", "legal_meaning": "Versão governada do perímetro da ZFM usada em todas as relações territoriais.", "value_type": "STRING", "allowed_values": null, "source": "TaxJurisdictionArea futuro, conforme ADR-0021"},
+    {"name": "seller.establishment_zfm_relation", "legal_meaning": "Relação territorial do estabelecimento fornecedor com a ZFM na versão aplicável.", "value_type": "ENUM", "allowed_values": ["INSIDE", "OUTSIDE", "BOUNDARY", "UNKNOWN"], "source": "Cadastro territorial normativo e evidência do estabelecimento"},
+    {"name": "buyer.establishment_zfm_relation", "legal_meaning": "Relação territorial do estabelecimento adquirente com a ZFM na versão aplicável.", "value_type": "ENUM", "allowed_values": ["INSIDE", "OUTSIDE", "BOUNDARY", "UNKNOWN"], "source": "Cadastro territorial normativo e evidência do estabelecimento"},
+    {"name": "seller.zfm_incentivized_industry_status", "legal_meaning": "Qualificação válida do remetente como indústria incentivada na data da operação.", "value_type": "ENUM", "allowed_values": ["VALID", "INVALID", "UNKNOWN"], "source": "Cadastro e projeto oficial aprovados pela Suframa"},
+    {"name": "buyer.zfm_incentivized_industry_status", "legal_meaning": "Qualificação válida do destinatário como indústria incentivada na ZFM.", "value_type": "ENUM", "allowed_values": ["VALID", "INVALID", "UNKNOWN"], "source": "Cadastro e projeto oficial aprovados pela Suframa"},
+    {"name": "product.material_good_status", "legal_meaning": "Natureza do objeto como bem material.", "value_type": "ENUM", "allowed_values": ["MATERIAL_GOOD", "NOT_MATERIAL_GOOD", "UNKNOWN"], "source": "Cadastro e documentação do bem"},
+    {"name": "product.intermediate_good_status", "legal_meaning": "Qualificação do bem como intermediário para a operação analisada.", "value_type": "ENUM", "allowed_values": ["INTERMEDIATE_GOOD", "NOT_INTERMEDIATE_GOOD", "UNKNOWN"], "source": "Projeto produtivo, documentação técnica e fiscal"},
+    {"name": "operation.delivery_area_status", "legal_meaning": "Entrega ou disponibilização efetiva do bem dentro da Zona Franca de Manaus.", "value_type": "ENUM", "allowed_values": ["INSIDE_ZFM", "OUTSIDE_ZFM", "UNKNOWN"], "source": "Documento fiscal e prova logística de entrega"},
+    {"name": "operation.flow_type", "legal_meaning": "Natureza do fluxo para distinguir operação direta de industrialização por encomenda.", "value_type": "ENUM", "allowed_values": ["DIRECT", "TOLL_MANUFACTURING", "UNKNOWN"], "source": "Contrato, pedido e documentos fiscais"},
+    {"name": "operation.taxable_scope_status", "legal_meaning": "Na industrialização por encomenda, confirmação de que o enquadramento está limitado ao valor adicionado.", "value_type": "ENUM", "allowed_values": ["FULL_OPERATION", "VALUE_ADDED_ONLY", "UNKNOWN"], "source": "Art. 448, § 3º, e documentos da operação"},
+    {"name": "product.art_443_par1_exclusion_status", "legal_meaning": "Verificação de que o bem não integra as exclusões do art. 443, § 1º.", "value_type": "ENUM", "allowed_values": ["NOT_EXCLUDED", "EXCLUDED", "UNKNOWN"], "source": "LC nº 214/2025 e evidência de classificação do bem"}
+  ],
+  "optional_facts": [
+    {"name": "product.description", "legal_meaning": "Descrição auxiliar incapaz de determinar isoladamente a natureza intermediária ou a exclusão legal.", "value_type": "STRING", "allowed_values": null, "source": "Cadastro e documento fiscal"},
+    {"name": "seller.incentive_project_reference", "legal_meaning": "Referência auditável do projeto econômico aprovado do remetente.", "value_type": "STRING", "allowed_values": null, "source": "Suframa"},
+    {"name": "buyer.incentive_project_reference", "legal_meaning": "Referência auditável do projeto econômico aprovado do destinatário.", "value_type": "STRING", "allowed_values": null, "source": "Suframa"}
+  ],
+  "deterministic_conditions": [
+    {"condition_id": "RT-IBSCBS-0008-C01", "description": "A operação deve ocorrer no período normativo aplicável.", "required_fact_names": ["operation.date"]},
+    {"condition_id": "RT-IBSCBS-0008-C02", "description": "Fornecedor e adquirente devem estar na ZFM segundo a mesma versão territorial e possuir qualificação válida como indústrias incentivadas.", "required_fact_names": ["operation.zfm_area_version_id", "seller.establishment_zfm_relation", "buyer.establishment_zfm_relation", "seller.zfm_incentivized_industry_status", "buyer.zfm_incentivized_industry_status"]},
+    {"condition_id": "RT-IBSCBS-0008-C03", "description": "O objeto deve ser bem material intermediário para a operação.", "required_fact_names": ["product.material_good_status", "product.intermediate_good_status"]},
+    {"condition_id": "RT-IBSCBS-0008-C04", "description": "A entrega ou disponibilização deve ocorrer dentro da ZFM e o bem não pode estar excluído pelo art. 443, § 1º.", "required_fact_names": ["operation.delivery_area_status", "product.art_443_par1_exclusion_status"]},
+    {"condition_id": "RT-IBSCBS-0008-C05", "description": "Industrialização por encomenda exige aplicação restrita ao valor adicionado; operação direta alcança a operação completa.", "required_fact_names": ["operation.flow_type", "operation.taxable_scope_status"]}
+  ],
+  "result": {"classification_status": "CONCLUSIVO", "cst": "200", "cclasstrib": "200023", "explanation": "Somente com qualificação oficial das duas indústrias, natureza intermediária comprovada, entrega na ZFM e ausência de exclusão, a hipótese documental indica redução a zero do art. 448. Este DRAFT não autoriza execução."},
+  "exclusion_hypotheses": [
+    "Remetente ou destinatário sem qualificação válida como indústria incentivada.",
+    "Objeto que não seja bem material intermediário para a operação.",
+    "Entrega ou disponibilização ocorrida fora da Zona Franca de Manaus.",
+    "Bem abrangido pelo art. 443, § 1º."
+  ],
+  "known_conflicts": [],
+  "precedence": {"precedes_rule_ids": [], "legal_basis": "O art. 448, caput, determina expressamente alíquota zero para a hipótese especial e o art. 450 exclui as operações do art. 448 de seu crédito presumido. A relação com uma futura regra geral deverá ser declarada por ID apenas após essa regra existir."},
+  "tests": {
+    "positive_cases": [
+      {"case_id": "RT-IBSCBS-0008-POS-001", "description": "Bem intermediário consumido na industrialização e entregue dentro da ZFM entre indústrias válidas.", "input": {"operation.date": "2026-06-01", "operation.zfm_area_version_id": "GOVERNED-ZFM-VERSION", "seller.establishment_zfm_relation": "INSIDE", "buyer.establishment_zfm_relation": "INSIDE", "seller.zfm_incentivized_industry_status": "VALID", "buyer.zfm_incentivized_industry_status": "VALID", "product.material_good_status": "MATERIAL_GOOD", "product.intermediate_good_status": "INTERMEDIATE_GOOD", "operation.delivery_area_status": "INSIDE_ZFM", "operation.flow_type": "DIRECT", "operation.taxable_scope_status": "FULL_OPERATION", "product.art_443_par1_exclusion_status": "NOT_EXCLUDED"}, "expected": {"status": "CONCLUSIVO", "cst": "200", "cclasstrib": "200023", "missing_facts": []}},
+      {"case_id": "RT-IBSCBS-0008-POS-002", "description": "Material de embalagem qualificado como intermediário pelo art. 440, III, em fluxo direto.", "input": {"operation.date": "2026-06-01", "operation.zfm_area_version_id": "GOVERNED-ZFM-VERSION", "seller.establishment_zfm_relation": "INSIDE", "buyer.establishment_zfm_relation": "INSIDE", "seller.zfm_incentivized_industry_status": "VALID", "buyer.zfm_incentivized_industry_status": "VALID", "product.material_good_status": "MATERIAL_GOOD", "product.intermediate_good_status": "INTERMEDIATE_GOOD", "operation.delivery_area_status": "INSIDE_ZFM", "operation.flow_type": "DIRECT", "operation.taxable_scope_status": "FULL_OPERATION", "product.art_443_par1_exclusion_status": "NOT_EXCLUDED"}, "expected": {"status": "CONCLUSIVO", "cst": "200", "cclasstrib": "200023", "missing_facts": []}},
+      {"case_id": "RT-IBSCBS-0008-POS-003", "description": "Industrialização por encomenda limitada ao valor adicionado.", "input": {"operation.date": "2026-06-01", "operation.zfm_area_version_id": "GOVERNED-ZFM-VERSION", "seller.establishment_zfm_relation": "INSIDE", "buyer.establishment_zfm_relation": "INSIDE", "seller.zfm_incentivized_industry_status": "VALID", "buyer.zfm_incentivized_industry_status": "VALID", "product.material_good_status": "MATERIAL_GOOD", "product.intermediate_good_status": "INTERMEDIATE_GOOD", "operation.delivery_area_status": "INSIDE_ZFM", "operation.flow_type": "TOLL_MANUFACTURING", "operation.taxable_scope_status": "VALUE_ADDED_ONLY", "product.art_443_par1_exclusion_status": "NOT_EXCLUDED"}, "expected": {"status": "CONCLUSIVO", "cst": "200", "cclasstrib": "200023", "missing_facts": []}}
+    ],
+    "negative_cases": [
+      {"case_id": "RT-IBSCBS-0008-NEG-001", "description": "Entrega realizada fora da ZFM.", "input": {"operation.date": "2026-06-01", "operation.delivery_area_status": "OUTSIDE_ZFM"}, "expected": {"status": "SEM_CLASSIFICACAO", "cst": null, "cclasstrib": null, "missing_facts": []}},
+      {"case_id": "RT-IBSCBS-0008-NEG-002", "description": "Bem não caracterizado como intermediário.", "input": {"operation.date": "2026-06-01", "product.intermediate_good_status": "NOT_INTERMEDIATE_GOOD"}, "expected": {"status": "SEM_CLASSIFICACAO", "cst": null, "cclasstrib": null, "missing_facts": []}},
+      {"case_id": "RT-IBSCBS-0008-NEG-003", "description": "Fornecedor sem qualificação de indústria incentivada.", "input": {"operation.date": "2026-06-01", "seller.zfm_incentivized_industry_status": "INVALID"}, "expected": {"status": "SEM_CLASSIFICACAO", "cst": null, "cclasstrib": null, "missing_facts": []}}
+    ],
+    "insufficient_fact_cases": [
+      {"case_id": "RT-IBSCBS-0008-INC-001", "description": "Qualificação do destinatário e natureza intermediária não confirmadas.", "input": {"operation.date": "2026-06-01", "buyer.zfm_incentivized_industry_status": "UNKNOWN", "product.intermediate_good_status": "UNKNOWN"}, "expected": {"status": "NECESSITA_VALIDACAO", "cst": null, "cclasstrib": null, "missing_facts": ["buyer.zfm_incentivized_industry_status", "product.intermediate_good_status"]}},
+      {"case_id": "RT-IBSCBS-0008-INC-002", "description": "CEP e município informados, mas sem versão territorial governada.", "input": {"operation.date": "2026-06-01", "operation.zfm_area_version_id": "", "operation.delivery_area_status": "UNKNOWN"}, "expected": {"status": "NECESSITA_VALIDACAO", "cst": null, "cclasstrib": null, "missing_facts": ["operation.zfm_area_version_id", "operation.delivery_area_status"]}},
+      {"case_id": "RT-IBSCBS-0008-INC-003", "description": "Ponto sobre o limite territorial sem resolução normativa.", "input": {"operation.date": "2026-06-01", "seller.establishment_zfm_relation": "BOUNDARY", "buyer.establishment_zfm_relation": "INSIDE"}, "expected": {"status": "NECESSITA_VALIDACAO", "cst": null, "cclasstrib": null, "missing_facts": ["seller.establishment_zfm_relation"]}},
+      {"case_id": "RT-IBSCBS-0008-INC-004", "description": "Tratamento geral também candidato, mas a natureza intermediária não está comprovada; não há desempate automático.", "input": {"operation.date": "2026-06-01", "general_treatment.candidate_status": "CANDIDATE", "product.intermediate_good_status": "UNKNOWN"}, "expected": {"status": "NECESSITA_VALIDACAO", "cst": null, "cclasstrib": null, "missing_facts": ["product.intermediate_good_status"]}}
+    ],
+    "boundary_date_cases": [
+      {"case_id": "RT-IBSCBS-0008-DATE-001", "description": "Dia anterior à produção de efeitos do art. 448.", "input": {"operation.date": "2025-12-31"}, "expected": {"status": "SEM_CLASSIFICACAO", "cst": null, "cclasstrib": null, "missing_facts": []}},
+      {"case_id": "RT-IBSCBS-0008-DATE-002", "description": "Primeiro dia de produção de efeitos, com fatos materiais ainda incompletos.", "input": {"operation.date": "2026-01-01", "buyer.zfm_incentivized_industry_status": "UNKNOWN"}, "expected": {"status": "NECESSITA_VALIDACAO", "cst": null, "cclasstrib": null, "missing_facts": ["buyer.zfm_incentivized_industry_status"]}}
+    ]
+  },
+  "approval": {"prepared_by": "Codex — consolidação documental de fonte oficial; requer revisão jurídica humana", "reviewed_by": null, "approved_by": null, "approval_date": null, "approval_evidence": null},
+  "implementation": null,
+  "superseded_by_specification_id": null
+}

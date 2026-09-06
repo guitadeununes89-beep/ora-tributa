@@ -1,0 +1,93 @@
+{
+  "rule_id": "RT-IBSCBS-0009",
+  "specification_version": 3,
+  "is_synthetic": false,
+  "title": "Operação com bem nacional industrializado destinada a contribuinte habilitado em Área de Livre Comércio",
+  "tax_domain": "IBS_CBS",
+  "objective": "Especificar, sem produzir regra executável, a redução a zero do IBS e da CBS na hipótese delimitada pelo art. 463 da LC nº 214/2025, mantendo explícita a divergência de referência entre o catálogo oficial e o texto legal compilado.",
+  "jurisdiction": "BR",
+  "status": "DRAFT",
+  "legal_foundation": {
+    "legal_source_id": "23302183-6c92-4b34-a26d-cd272e2c1b1e",
+    "source_title": "Lei Complementar nº 214, de 16 de janeiro de 2025 — texto vigente compilado",
+    "specific_device": "Arts. 459, 460, 461, § 1º; 463, caput, I e II e §§ 1º, 3º e 4º; e 544, VI",
+    "official_url": "https://www.planalto.gov.br/ccivil_03/leis/lcp/lcp214compilado.htm",
+    "verifiable_reference": "O art. 463 reduz a zero IBS e CBS na operação originada fora da ALC que destine bem material industrializado de origem nacional a contribuinte estabelecido na ALC e remete literalmente ao art. 460. A Resolução CGIBS nº 6/2026, arts. 438, 527 e 551 a 553, reproduz essa cadeia para o IBS. O catálogo 200024, porém, menciona art. 456; o conflito permanece bloqueador."
+  },
+  "effective_from": "2026-01-01",
+  "effective_to": null,
+  "catalog": {
+    "catalog_version_id": "2295b90f-2f92-4fa4-8181-3007f02b1679",
+    "cst": "200",
+    "cclasstrib": "200024"
+  },
+  "required_facts": [
+    {"name": "operation.date", "legal_meaning": "Data da operação para seleção temporal da norma e do catálogo.", "value_type": "DATE", "allowed_values": null, "source": "Documento fiscal"},
+    {"name": "legal.catalog_reference_resolution_status", "legal_meaning": "Resultado governado da resolução do conflito literal entre art. 456 no catálogo e art. 460 na lei.", "value_type": "ENUM", "allowed_values": ["OFFICIALLY_CORRECTED", "CONFLICT_UNRESOLVED", "UNKNOWN"], "source": "Retificação ou nova versão oficial do catálogo, inexistente nesta revisão"},
+    {"name": "operation.alc_area_version_id", "legal_meaning": "Versão governada da ALC específica usada na origem, destino e estabelecimento.", "value_type": "STRING", "allowed_values": null, "source": "TaxJurisdictionArea futuro, conforme ADR-0021"},
+    {"name": "operation.origin_area_status", "legal_meaning": "Confirmação de que a operação se origina fora da Área de Livre Comércio de destino.", "value_type": "ENUM", "allowed_values": ["OUTSIDE_DESTINATION_ALC", "INSIDE_DESTINATION_ALC", "UNKNOWN"], "source": "Documento fiscal e evidência de origem"},
+    {"name": "operation.destination_alc_eligibility_status", "legal_meaning": "Confirmação da Área de Livre Comércio de destino no escopo territorial legal aplicável.", "value_type": "ENUM", "allowed_values": ["ELIGIBLE_ALC", "NOT_ELIGIBLE_ALC", "UNKNOWN"], "source": "Art. 459 e identificação oficial da área"},
+    {"name": "product.material_good_status", "legal_meaning": "Natureza do objeto como bem material.", "value_type": "ENUM", "allowed_values": ["MATERIAL_GOOD", "NOT_MATERIAL_GOOD", "UNKNOWN"], "source": "Cadastro e documentação do bem"},
+    {"name": "product.industrialization_status", "legal_meaning": "Condição do bem como industrializado.", "value_type": "ENUM", "allowed_values": ["INDUSTRIALIZED", "NOT_INDUSTRIALIZED", "UNKNOWN"], "source": "Documentação técnica e fiscal"},
+    {"name": "product.origin_status", "legal_meaning": "Origem nacional do bem.", "value_type": "ENUM", "allowed_values": ["NATIONAL", "FOREIGN", "UNKNOWN"], "source": "Documento fiscal e comprovação de origem"},
+    {"name": "buyer.establishment_alc_status", "legal_meaning": "Estabelecimento do contribuinte destinatário na Área de Livre Comércio elegível.", "value_type": "ENUM", "allowed_values": ["ESTABLISHED_IN_DESTINATION_ALC", "NOT_ESTABLISHED_IN_DESTINATION_ALC", "UNKNOWN"], "source": "Cadastro oficial e documentos do destinatário"},
+    {"name": "buyer.art_460_habilitation_status", "legal_meaning": "Habilitação válida nos termos do art. 460 na data da operação, sem adotar a referência divergente do catálogo como regra.", "value_type": "ENUM", "allowed_values": ["VALID", "INVALID", "UNKNOWN"], "source": "Evidência oficial da Suframa e regulamentação aplicável"},
+    {"name": "buyer.tax_regime_status", "legal_meaning": "Destinatário sujeito ao regime regular do IBS/CBS ou optante pelo Simples Nacional.", "value_type": "ENUM", "allowed_values": ["REGULAR_IBS_CBS", "SIMPLES_NACIONAL", "OTHER", "UNKNOWN"], "source": "Cadastro tributário oficial temporalmente válido"},
+    {"name": "buyer.taxpayer_status", "legal_meaning": "Condição do adquirente como contribuinte do IBS/CBS.", "value_type": "ENUM", "allowed_values": ["TAXPAYER", "NOT_TAXPAYER", "UNKNOWN"], "source": "Cadastro tributário oficial temporalmente válido"},
+    {"name": "operation.invoice_suframa_registration_status", "legal_meaning": "Documento fiscal contém inscrição específica Suframa do destinatário no campo próprio.", "value_type": "ENUM", "allowed_values": ["PRESENT_AND_MATCHING", "ABSENT_OR_MISMATCH", "UNKNOWN"], "source": "Resolução CGIBS nº 6/2026, art. 527, § 2º"},
+    {"name": "product.art_461_par1_exclusion_status", "legal_meaning": "Verificação de que o bem não integra as exclusões do art. 461, § 1º.", "value_type": "ENUM", "allowed_values": ["NOT_EXCLUDED", "EXCLUDED", "UNKNOWN"], "source": "LC nº 214/2025 e evidência de classificação do bem"},
+    {"name": "operation.alc_entry_proof_status", "legal_meaning": "Estado do evento fiscal de internamento e do desembaraço que comprovam ingresso físico.", "value_type": "ENUM", "allowed_values": ["CONFIRMED", "NOT_CONFIRMED_AFTER_DEADLINE", "PENDING_WITHIN_DEADLINE", "UNKNOWN"], "source": "Resolução CGIBS nº 6/2026, arts. 551 a 553"},
+    {"name": "operation.entry_deadline_status", "legal_meaning": "Situação do prazo de 120 dias ou da prorrogação deferida até 210 dias.", "value_type": "ENUM", "allowed_values": ["WITHIN_120_DAYS", "VALID_EXTENSION_WITHIN_210_DAYS", "EXPIRED", "UNKNOWN"], "source": "Resolução CGIBS nº 6/2026, art. 527, §§ 6º e 7º"}
+  ],
+  "optional_facts": [
+    {"name": "operation.destination_alc_identifier", "legal_meaning": "Identificador auditável da Área de Livre Comércio efetivamente analisada.", "value_type": "STRING", "allowed_values": null, "source": "Cadastro territorial oficial"},
+    {"name": "product.description", "legal_meaning": "Descrição auxiliar incapaz de substituir origem, industrialização, exclusões e prova de ingresso.", "value_type": "STRING", "allowed_values": null, "source": "Cadastro e documento fiscal"}
+  ],
+  "deterministic_conditions": [
+    {"condition_id": "RT-IBSCBS-0009-C00", "description": "Nenhum resultado conclusivo é permitido enquanto o conflito de referência não for corrigido oficialmente.", "required_fact_names": ["legal.catalog_reference_resolution_status"]},
+    {"condition_id": "RT-IBSCBS-0009-C01", "description": "A operação deve estar no período normativo, originar-se fora da ALC de destino e destinar-se a ALC elegível segundo versão territorial governada.", "required_fact_names": ["operation.date", "operation.alc_area_version_id", "operation.origin_area_status", "operation.destination_alc_eligibility_status"]},
+    {"condition_id": "RT-IBSCBS-0009-C02", "description": "O objeto deve ser bem material industrializado de origem nacional.", "required_fact_names": ["product.material_good_status", "product.industrialization_status", "product.origin_status"]},
+    {"condition_id": "RT-IBSCBS-0009-C03", "description": "O adquirente deve ser contribuinte estabelecido na ALC, habilitado pelo art. 460 e no regime admitido.", "required_fact_names": ["buyer.establishment_alc_status", "buyer.taxpayer_status", "buyer.art_460_habilitation_status", "buyer.tax_regime_status"]},
+    {"condition_id": "RT-IBSCBS-0009-C04", "description": "O bem não pode estar excluído e o documento deve conter inscrição Suframa compatível.", "required_fact_names": ["product.art_461_par1_exclusion_status", "operation.invoice_suframa_registration_status"]},
+    {"condition_id": "RT-IBSCBS-0009-C05", "description": "Internamento e prazo devem ser avaliados pelos eventos oficiais.", "required_fact_names": ["operation.alc_entry_proof_status", "operation.entry_deadline_status"]}
+  ],
+  "result": {"classification_status": "NECESSITA_VALIDACAO", "cst": "200", "cclasstrib": "200024", "explanation": "BLOCKED_LEGAL_REFERENCE_CONFLICT: CST e cClassTrib identificam apenas a linha oficial sob análise; enquanto não houver correção ou confirmação oficial da remissão, nenhum cenário pode produzir 200024 conclusivamente. Este DRAFT não autoriza execução."},
+  "exclusion_hypotheses": [
+    "Operação originada dentro da Área de Livre Comércio de destino.",
+    "Destino fora das Áreas de Livre Comércio legalmente elegíveis.",
+    "Objeto que não seja bem material industrializado de origem nacional.",
+    "Destinatário sem estabelecimento elegível, sem habilitação válida ou fora dos regimes admitidos.",
+    "Bem abrangido pelo art. 461, § 1º.",
+    "Ingresso na ALC não comprovado no prazo e pelos controles regulamentares."
+  ],
+  "known_conflicts": [
+    "NEEDS_OFFICIAL_CATALOG_CORRECTION_OR_CONFIRMATION: o catálogo 200024 menciona art. 456, enquanto LC 214/2025 art. 463, I, remete ao art. 460 e a Resolução CGIBS nº 6/2026 remete ao equivalente art. 438; não houve correção por inferência.",
+    "NEEDS_GOVERNED_ALC_TERRITORY_AND_OPERATIONAL_ACTS: implementar fonte territorial versionada e ingerir os atos conjuntos operacionais previstos nos arts. 550 a 553 antes da execução."
+  ],
+  "precedence": {"precedes_rule_ids": [], "legal_basis": "O art. 463, caput, prevê alíquota zero como hipótese especial, mas nenhuma precedência executável pode ser registrada enquanto persistir o conflito oficial de referência e enquanto a regra geral não possuir ID."},
+  "tests": {
+    "positive_cases": [
+      {"case_id": "RT-IBSCBS-0009-POS-001", "description": "Pré-condições materiais completas, mas conflito oficial ainda impede conclusão.", "input": {"operation.date": "2026-06-01", "legal.catalog_reference_resolution_status": "CONFLICT_UNRESOLVED", "operation.alc_area_version_id": "GOVERNED-ALC-VERSION", "operation.origin_area_status": "OUTSIDE_DESTINATION_ALC", "operation.destination_alc_eligibility_status": "ELIGIBLE_ALC", "product.material_good_status": "MATERIAL_GOOD", "product.industrialization_status": "INDUSTRIALIZED", "product.origin_status": "NATIONAL", "buyer.establishment_alc_status": "ESTABLISHED_IN_DESTINATION_ALC", "buyer.taxpayer_status": "TAXPAYER", "buyer.art_460_habilitation_status": "VALID", "buyer.tax_regime_status": "REGULAR_IBS_CBS", "operation.invoice_suframa_registration_status": "PRESENT_AND_MATCHING", "product.art_461_par1_exclusion_status": "NOT_EXCLUDED", "operation.alc_entry_proof_status": "CONFIRMED", "operation.entry_deadline_status": "WITHIN_120_DAYS"}, "expected": {"status": "NECESSITA_VALIDACAO", "cst": null, "cclasstrib": null, "missing_facts": ["legal.catalog_reference_resolution_status"]}},
+      {"case_id": "RT-IBSCBS-0009-POS-002", "description": "Destinatário do Simples e internamento confirmado; conflito permanece.", "input": {"operation.date": "2026-06-01", "legal.catalog_reference_resolution_status": "CONFLICT_UNRESOLVED", "buyer.tax_regime_status": "SIMPLES_NACIONAL", "operation.alc_entry_proof_status": "CONFIRMED"}, "expected": {"status": "NECESSITA_VALIDACAO", "cst": null, "cclasstrib": null, "missing_facts": ["legal.catalog_reference_resolution_status"]}},
+      {"case_id": "RT-IBSCBS-0009-POS-003", "description": "Internamento confirmado sob prorrogação válida; conflito permanece.", "input": {"operation.date": "2026-06-01", "legal.catalog_reference_resolution_status": "CONFLICT_UNRESOLVED", "operation.alc_entry_proof_status": "CONFIRMED", "operation.entry_deadline_status": "VALID_EXTENSION_WITHIN_210_DAYS"}, "expected": {"status": "NECESSITA_VALIDACAO", "cst": null, "cclasstrib": null, "missing_facts": ["legal.catalog_reference_resolution_status"]}}
+    ],
+    "negative_cases": [
+      {"case_id": "RT-IBSCBS-0009-NEG-001", "description": "Área de destino não elegível.", "input": {"operation.date": "2026-06-01", "operation.destination_alc_eligibility_status": "NOT_ELIGIBLE_ALC"}, "expected": {"status": "SEM_CLASSIFICACAO", "cst": null, "cclasstrib": null, "missing_facts": []}},
+      {"case_id": "RT-IBSCBS-0009-NEG-002", "description": "Bem abrangido pela exclusão do art. 461, § 1º.", "input": {"operation.date": "2026-06-01", "product.art_461_par1_exclusion_status": "EXCLUDED"}, "expected": {"status": "SEM_CLASSIFICACAO", "cst": null, "cclasstrib": null, "missing_facts": []}},
+      {"case_id": "RT-IBSCBS-0009-NEG-003", "description": "Adquirente não é contribuinte.", "input": {"operation.date": "2026-06-01", "buyer.taxpayer_status": "NOT_TAXPAYER"}, "expected": {"status": "SEM_CLASSIFICACAO", "cst": null, "cclasstrib": null, "missing_facts": []}}
+    ],
+    "insufficient_fact_cases": [
+      {"case_id": "RT-IBSCBS-0009-INC-001", "description": "Conflito, habilitação e ingresso não confirmados.", "input": {"operation.date": "2026-06-01", "legal.catalog_reference_resolution_status": "CONFLICT_UNRESOLVED", "buyer.art_460_habilitation_status": "UNKNOWN", "operation.alc_entry_proof_status": "UNKNOWN"}, "expected": {"status": "NECESSITA_VALIDACAO", "cst": null, "cclasstrib": null, "missing_facts": ["legal.catalog_reference_resolution_status", "buyer.art_460_habilitation_status", "operation.alc_entry_proof_status"]}},
+      {"case_id": "RT-IBSCBS-0009-INC-002", "description": "Município e CEP sem versão territorial da ALC.", "input": {"operation.date": "2026-06-01", "operation.alc_area_version_id": "", "operation.destination_alc_eligibility_status": "UNKNOWN"}, "expected": {"status": "NECESSITA_VALIDACAO", "cst": null, "cclasstrib": null, "missing_facts": ["operation.alc_area_version_id", "operation.destination_alc_eligibility_status"]}},
+      {"case_id": "RT-IBSCBS-0009-INC-003", "description": "Ponto territorial limítrofe e referência oficial sem solução.", "input": {"operation.date": "2026-06-01", "legal.catalog_reference_resolution_status": "UNKNOWN", "operation.destination_alc_eligibility_status": "UNKNOWN"}, "expected": {"status": "NECESSITA_VALIDACAO", "cst": null, "cclasstrib": null, "missing_facts": ["legal.catalog_reference_resolution_status", "operation.destination_alc_eligibility_status"]}},
+      {"case_id": "RT-IBSCBS-0009-INC-004", "description": "Tratamento geral também candidato, mas o conflito oficial do código especial permanece; nenhum enquadramento é selecionado arbitrariamente.", "input": {"operation.date": "2026-06-01", "general_treatment.candidate_status": "CANDIDATE", "legal.catalog_reference_resolution_status": "CONFLICT_UNRESOLVED"}, "expected": {"status": "NECESSITA_VALIDACAO", "cst": null, "cclasstrib": null, "missing_facts": ["legal.catalog_reference_resolution_status"]}}
+    ],
+    "boundary_date_cases": [
+      {"case_id": "RT-IBSCBS-0009-DATE-001", "description": "Dia anterior à produção de efeitos.", "input": {"operation.date": "2025-12-31"}, "expected": {"status": "SEM_CLASSIFICACAO", "cst": null, "cclasstrib": null, "missing_facts": []}},
+      {"case_id": "RT-IBSCBS-0009-DATE-002", "description": "Primeiro dia de efeitos, ainda bloqueado pelo conflito oficial.", "input": {"operation.date": "2026-01-01", "legal.catalog_reference_resolution_status": "CONFLICT_UNRESOLVED"}, "expected": {"status": "NECESSITA_VALIDACAO", "cst": null, "cclasstrib": null, "missing_facts": ["legal.catalog_reference_resolution_status"]}}
+    ]
+  },
+  "approval": {"prepared_by": "Codex — consolidação documental de fonte oficial; requer revisão jurídica humana", "reviewed_by": null, "approved_by": null, "approval_date": null, "approval_evidence": null},
+  "implementation": null,
+  "superseded_by_specification_id": null
+}
