@@ -35,7 +35,10 @@
   ],
   "criteria": {
     "tipo_definicao": "territorial_por_norma_originaria_sede_municipal",
-    "municipios_sede": ["Macapá", "Santana"],
+    "municipios_sede": [
+      "Macapá",
+      "Santana"
+    ],
     "uf": "AP",
     "observacao": "Confirmado o município-sede duplo e o decreto regulamentador via art. 437 da Resolução CGIBS nº 6/2026. Não li o texto integral da Lei nº 8.387/1991 (art. 11) nem do Decreto nº 517/1992 nesta pesquisa."
   },
@@ -53,6 +56,10 @@
     "approval_date": "2026-09-06",
     "approval_evidence": "docs/tax/territory/approvals/TJA-ALC-MACAPA-SANTANA-v1.md#sha256=862221071f8d506ffaa1781bef3a8041e1893b70fc70082d48e57d8c6e4a468f"
   },
-  "implementation": null,
+  "implementation": {
+    "tax_jurisdiction_area_id": "TJA-ALC-MACAPA-SANTANA",
+    "tax_jurisdiction_area_version_id": "TJA-ALC-MACAPA-SANTANA-V1",
+    "implemented_at": "2026-09-06"
+  },
   "superseded_by_specification_id": null
 }

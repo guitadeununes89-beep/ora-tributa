@@ -46,6 +46,10 @@
     "approval_date": "2026-09-06",
     "approval_evidence": "docs/tax/territory/approvals/TJA-ALC-TABATINGA-v1.md#sha256=13394ad0c6ada7eca8aaf44d899bfe615b4d37e64c0a76991039d6debb1a8094"
   },
-  "implementation": null,
+  "implementation": {
+    "tax_jurisdiction_area_id": "TJA-ALC-TABATINGA",
+    "tax_jurisdiction_area_version_id": "TJA-ALC-TABATINGA-V1",
+    "implemented_at": "2026-09-06"
+  },
   "superseded_by_specification_id": null
 }

@@ -35,7 +35,10 @@
   ],
   "criteria": {
     "tipo_definicao": "territorial_por_norma_originaria_sede_municipal_com_extensao",
-    "municipios_sede": ["Brasiléia", "Cruzeiro do Sul"],
+    "municipios_sede": [
+      "Brasiléia",
+      "Cruzeiro do Sul"
+    ],
     "municipio_incluido_por_extensao_confirmada": "Epitaciolândia",
     "uf": "AC",
     "observacao": "Confirmado o município-sede duplo, a extensão a Epitaciolândia e o decreto regulamentador via art. 437 da Resolução CGIBS nº 6/2026. Municípios adicionais citados por reportagens (Acrelândia, Assis Brasil, Capixaba, Plácido de Castro, Xapuri, Feijó, Jordão, Mâncio Lima e outros) NÃO constam do art. 437 e não devem ser tratados como território governado sem norma específica localizada."
@@ -55,6 +58,10 @@
     "approval_date": "2026-09-06",
     "approval_evidence": "docs/tax/territory/approvals/TJA-ALC-BRASILEIA-CRUZEIRO-DO-SUL-v1.md#sha256=2b369c08f5a2626e3817610ada9603122a89cf97100a11d96a04ab83ac4290ac"
   },
-  "implementation": null,
+  "implementation": {
+    "tax_jurisdiction_area_id": "TJA-ALC-BRASILEIA-CRUZEIRO-DO-SUL",
+    "tax_jurisdiction_area_version_id": "TJA-ALC-BRASILEIA-CRUZEIRO-DO-SUL-V1",
+    "implemented_at": "2026-09-06"
+  },
   "superseded_by_specification_id": null
 }

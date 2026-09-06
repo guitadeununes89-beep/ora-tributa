@@ -51,7 +51,11 @@
   ],
   "criteria": {
     "tipo_definicao": "territorial_por_norma_originaria_com_confirmacao_municipal_operacional",
-    "municipios_parcialmente_abrangidos": ["Manaus", "Rio Preto da Eva", "Itacoatiara"],
+    "municipios_parcialmente_abrangidos": [
+      "Manaus",
+      "Rio Preto da Eva",
+      "Itacoatiara"
+    ],
     "definicao_original_dl288_1967": "Área contínua com superfície mínima de 10.000 km², à margem esquerda dos rios Negro e Amazonas, incluindo a cidade de Manaus; até 50 km a jusante e 70 km a montante de Manaus.",
     "observacao": "A confirmação municipal (Manaus, Rio Preto da Eva, Itacoatiara) vem da Resolução CGIBS nº 6/2026, não de leitura direta e integral do texto consolidado do DL nº 288/1967 (não obtido nesta pesquisa). Não representa geometria nem lista de CEPs; qualquer resolução de endereço específico dentro desses municípios ainda exige evidência adicional (arts. 516, §§ 5º-7º, e 551-553 da Resolução CGIBS nº 6/2026), não uma simples verificação de município."
   },
@@ -70,6 +74,10 @@
     "approval_date": "2026-09-06",
     "approval_evidence": "docs/tax/territory/approvals/TJA-ZFM-v1.md#sha256=de7af7b77f31be763298e5223e03dac7fd09e66a757230cc8e248bf8bb5aae60"
   },
-  "implementation": null,
+  "implementation": {
+    "tax_jurisdiction_area_id": "TJA-ZFM",
+    "tax_jurisdiction_area_version_id": "TJA-ZFM-V1",
+    "implemented_at": "2026-09-06"
+  },
   "superseded_by_specification_id": null
 }

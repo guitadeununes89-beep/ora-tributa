@@ -43,7 +43,10 @@
   ],
   "criteria": {
     "tipo_definicao": "territorial_por_norma_originaria_sede_municipal",
-    "municipios_sede": ["Boa Vista", "Bonfim"],
+    "municipios_sede": [
+      "Boa Vista",
+      "Bonfim"
+    ],
     "municipio_incluido_por_lei_posterior_nao_confirmado_no_regulamento": "Pacaraima",
     "uf": "RR",
     "observacao": "Confirmado o município-sede duplo e o decreto regulamentador via art. 437 da Resolução CGIBS nº 6/2026. A inclusão de Pacaraima pela Lei nº 15.273/2025 não foi confirmada no texto do art. 437 lido nesta pesquisa — precisa de verificação adicional antes de incluir Pacaraima como território governado."
@@ -63,6 +66,10 @@
     "approval_date": "2026-09-06",
     "approval_evidence": "docs/tax/territory/approvals/TJA-ALC-BOA-VISTA-BONFIM-v1.md#sha256=9c78a11bb3f12d11469c40284ccfb028b8bc43ac0f8e5701b406380a2c96b1d8"
   },
-  "implementation": null,
+  "implementation": {
+    "tax_jurisdiction_area_id": "TJA-ALC-BOA-VISTA-BONFIM",
+    "tax_jurisdiction_area_version_id": "TJA-ALC-BOA-VISTA-BONFIM-V1",
+    "implemented_at": "2026-09-06"
+  },
   "superseded_by_specification_id": null
 }

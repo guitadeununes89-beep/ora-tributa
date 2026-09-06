@@ -53,6 +53,10 @@
     "approval_date": "2026-09-06",
     "approval_evidence": "docs/tax/territory/approvals/TJA-ALC-GUAJARA-MIRIM-v1.md#sha256=e4e46e5295fd3f96271fe7f4c19f61b465d3a5b54858026f357991eb93081c11"
   },
-  "implementation": null,
+  "implementation": {
+    "tax_jurisdiction_area_id": "TJA-ALC-GUAJARA-MIRIM",
+    "tax_jurisdiction_area_version_id": "TJA-ALC-GUAJARA-MIRIM-V1",
+    "implemented_at": "2026-09-06"
+  },
   "superseded_by_specification_id": null
 }
