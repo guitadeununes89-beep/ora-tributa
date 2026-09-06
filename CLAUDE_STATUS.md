@@ -416,3 +416,24 @@ e que habilitação/registro Suframa é um fato separado, fora do escopo deste d
 **Nenhum dado foi carregado em `tax_jurisdiction_areas`/`tax_jurisdiction_area_versions`.** Essa
 especificação precisa da sua revisão e aprovação (mesmo processo de uma `RT-IBSCBS`) antes de
 qualquer carga real.
+
+## Etapa 8 — rascunho das 5 especificações territoriais de ALC
+
+**Data:** 2026-09-06
+
+Com a lista oficial do art. 437 da Resolução CGIBS nº 6/2026 confirmada (lei + decreto de cada
+ALC), redigi as cinco especificações territoriais das Áreas de Livre Comércio, todas `DRAFT`:
+Tabatinga, Guajará-Mirim, Boa Vista e Bonfim, Macapá e Santana, Brasiléia (com extensão a
+Epitaciolândia) e Cruzeiro do Sul — em `docs/tax/territory/specifications/`, com um `README.md`
+próprio explicando o fluxo de revisão (ainda manual; não existe pre-flight automatizado para
+território).
+
+Achado extra: verifiquei diretamente no texto completo já extraído da Resolução CGIBS nº 6/2026
+que **"Pacaraima" não aparece em nenhuma das 252 páginas** — ou seja, a inclusão desse município na
+ALC de Boa Vista pela Lei nº 15.273/2025 não está refletida no regulamento de 2026. Registrei isso
+como incerteza explícita em vez de presumir a inclusão.
+
+Cada especificação de ALC tem confiança menor que a da ZFM (só confirmei lei + decreto via art.
+437; não li cada lei/decreto individual na íntegra) — isso está documentado em `known_conflicts`
+de cada arquivo. Nenhuma delas desbloqueia uma regra hoje aprovada (só `RT-IBSCBS-0009`, que segue
+bloqueada por outro motivo). Nenhum dado foi carregado no banco.
