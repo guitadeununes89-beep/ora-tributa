@@ -286,6 +286,22 @@ acionável em direção à cobertura executável, fiz o seguinte, nessa ordem:
   o `Null`), e então `TaxRuleVersion` + testes + publicação de ruleset.
 - Não inventei nem inferi nenhum município, perímetro ou critério administrativo real.
 
+### Achado extra: CI estava instável (corrigido)
+
+Ao empurrar essas mudanças, o GitHub Actions revelou que `frontend: pnpm test` já falhava de forma
+intermitente **antes** desta etapa, por uma causa real (não flakiness aleatória): o teste de
+`assisted-consultation.test.tsx` renderizava o componente e verificava a tela sem esperar a
+`Promise` do `useEffect` inicial (busca de produtos/catálogo) resolver. Quando essa promise
+resolvia depois do arquivo de teste já ter sido finalizado, o Vitest já tinha destruído o ambiente
+jsdom daquele arquivo, e a atualização de estado do React explodia com `window is not defined`.
+Isso violava a própria regra do `AGENTS.md` (testes não devem depender de timing não controlado).
+
+Corrigido fazendo o mock devolver um produto real (antes devolvia array vazio, indistinguível do
+estado inicial) e esperando por uma consequência observável de verdade
+(`await screen.findByRole("option", ...)`) antes de prosseguir com as asserções. Validado com 8
+execuções locais seguidas sem erro, e confirmado verde no CI do GitHub (job `frontend` e `python`
+ambos passando). Isso não tem nenhuma relação com conteúdo tributário — é higiene de teste pura.
+
 ### Nota operacional (sem impacto real)
 
 Ao rodar a suíte com `POSTGRES_TESTS=1` várias vezes manualmente nesta sessão, o teste
