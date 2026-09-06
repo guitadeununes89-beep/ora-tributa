@@ -1,0 +1,68 @@
+{
+  "area_id": "TJA-ALC-BOA-VISTA-BONFIM",
+  "specification_version": 1,
+  "is_synthetic": false,
+  "title": "Áreas de Livre Comércio de Boa Vista e Bonfim — território governado para incentivos fiscais do IBS/CBS",
+  "area_type": "ALC",
+  "jurisdiction": "BR",
+  "status": "DRAFT",
+  "objective": "Especificar, sem produzir dado governado executável, as Áreas de Livre Comércio de Boa Vista e Bonfim (RR), conforme criadas pela Lei nº 8.256/1991, regulamentadas pelo Decreto nº 6.614/2008, e confirmadas operacionalmente pela Resolução CGIBS nº 6/2026, art. 437, III.",
+  "legal_foundation": [
+    {
+      "legal_source_id": null,
+      "source_title": "Lei nº 8.256, de 25 de novembro de 1991",
+      "specific_device": "Texto integral (não lido na íntegra nesta pesquisa; apenas ementa e resumo)",
+      "official_url": "https://www.planalto.gov.br/ccivil_03/leis/1989_1994/L8256.htm",
+      "verifiable_reference": "Cria as Áreas de Livre Comércio de Boa Vista e Bonfim, no Estado de Roraima, com a finalidade de promover o desenvolvimento das regiões de fronteira do extremo Norte. Resumo de busca indica implantação efetiva em 2008 e manutenção dos benefícios por 25 anos da publicação — não confirmado por leitura literal integral nesta pesquisa.",
+      "ingested_by_platform": false
+    },
+    {
+      "legal_source_id": null,
+      "source_title": "Decreto nº 6.614, de 23 de outubro de 2008",
+      "specific_device": "Texto integral não lido nesta pesquisa",
+      "official_url": null,
+      "verifiable_reference": "Regulamenta as Áreas de Livre Comércio de Boa Vista e Bonfim, conforme citado no art. 437, III, da Resolução CGIBS nº 6/2026.",
+      "ingested_by_platform": false
+    },
+    {
+      "legal_source_id": null,
+      "source_title": "Lei nº 15.273, de 26 de novembro de 2025",
+      "specific_device": "Texto integral não lido nesta pesquisa",
+      "official_url": "https://www.planalto.gov.br/ccivil_03/_ato2023-2026/2025/lei/l15273.htm",
+      "verifiable_reference": "Altera a Lei nº 8.256/1991 para incluir o Município de Pacaraima (RR) na Área de Livre Comércio de Boa Vista, conforme resumo de busca. NÃO citada no art. 437 da Resolução CGIBS nº 6/2026 (que é de abril de 2026, posterior a esta lei) — a ausência de menção explícita a Pacaraima no texto da Resolução é um ponto a esclarecer antes da aprovação: pode significar que o regulamento não distinguiu a inclusão, ou que ela ainda não estava refletida no regulamento.",
+      "ingested_by_platform": false
+    },
+    {
+      "legal_source_id": null,
+      "source_title": "Resolução CGIBS nº 6, de 30 de abril de 2026 (Regulamento do IBS)",
+      "specific_device": "Art. 437, III (= art. 459, III, da LC nº 214/2025)",
+      "official_url": "https://www.cgibs.gov.br/upload/arquivos/202604/30084927-res-cgibs-n-6-30-abr-2026-regulamenta-o-ibs.pdf",
+      "verifiable_reference": "Lista as ALC de Boa Vista e Bonfim, em Roraima, criadas pela Lei nº 8.256, de 25 de novembro de 1991, e regulamentadas pelo Decreto nº 6.614, de 23 de outubro de 2008. Não menciona Pacaraima explicitamente neste dispositivo. Citação literal extraída do PDF oficial (texto convertido via pypdf nesta sessão).",
+      "ingested_by_platform": false
+    }
+  ],
+  "criteria": {
+    "tipo_definicao": "territorial_por_norma_originaria_sede_municipal",
+    "municipios_sede": ["Boa Vista", "Bonfim"],
+    "municipio_incluido_por_lei_posterior_nao_confirmado_no_regulamento": "Pacaraima",
+    "uf": "RR",
+    "observacao": "Confirmado o município-sede duplo e o decreto regulamentador via art. 437 da Resolução CGIBS nº 6/2026. A inclusão de Pacaraima pela Lei nº 15.273/2025 não foi confirmada no texto do art. 437 lido nesta pesquisa — precisa de verificação adicional antes de incluir Pacaraima como território governado."
+  },
+  "effective_from": "2026-01-01",
+  "effective_to": null,
+  "known_conflicts": [
+    "PACARAIMA_NAO_CONFIRMADO_NO_REGULAMENTO_2026: a Lei nº 15.273/2025 amplia a ALC de Boa Vista para incluir Pacaraima, mas o art. 437 da Resolução CGIBS nº 6/2026 (posterior) não menciona esse município explicitamente nesta pesquisa. Não presumir a inclusão sem confirmação adicional.",
+    "PENDENTE_LEITURA_INTEGRAL: nem a Lei nº 8.256/1991, nem o Decreto nº 6.614/2008, nem a Lei nº 15.273/2025 foram lidos na íntegra nesta pesquisa.",
+    "TERRITORIO_NAO_E_HABILITACAO: habilitação aos incentivos (art. 438 da Resolução CGIBS nº 6/2026, registro Suframa) é um fato separado, não coberto por este documento.",
+    "NAO_DESBLOQUEIA_REGRA_APROVADA_HOJE: nenhuma especificação RT-IBSCBS aprovada depende diretamente desta ALC nomeada; relevante apenas para RT-IBSCBS-0009 (bloqueada por outro motivo) e cobertura futura."
+  ],
+  "approval": {
+    "prepared_by": "Claude (Codex) — pesquisa preparatória; requer revisão jurídica humana",
+    "reviewed_by": null,
+    "approved_by": null,
+    "approval_date": null,
+    "approval_evidence": null
+  },
+  "implementation": null,
+  "superseded_by_specification_id": null
+}

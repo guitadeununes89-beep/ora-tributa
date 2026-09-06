@@ -1,0 +1,58 @@
+{
+  "area_id": "TJA-ALC-MACAPA-SANTANA",
+  "specification_version": 1,
+  "is_synthetic": false,
+  "title": "Áreas de Livre Comércio de Macapá e Santana — território governado para incentivos fiscais do IBS/CBS",
+  "area_type": "ALC",
+  "jurisdiction": "BR",
+  "status": "DRAFT",
+  "objective": "Especificar, sem produzir dado governado executável, as Áreas de Livre Comércio de Macapá e Santana (AP), conforme criadas pelo art. 11 da Lei nº 8.387/1991, regulamentadas pelo Decreto nº 517/1992, e confirmadas operacionalmente pela Resolução CGIBS nº 6/2026, art. 437, IV.",
+  "legal_foundation": [
+    {
+      "legal_source_id": null,
+      "source_title": "Lei nº 8.387, de 30 de dezembro de 1991",
+      "specific_device": "Art. 11 (texto integral não lido na íntegra nesta pesquisa; apenas resumo)",
+      "official_url": "https://www2.camara.leg.br/legin/fed/lei/1991/lei-8387-30-dezembro-1991-365181-publicacaooriginal-1-pl.html",
+      "verifiable_reference": "O art. 11 autoriza a criação de área de livre comércio de importação e exportação nos municípios de Macapá e Santana, no Amapá. Resumo de busca indica implantação em março de 1993, ocupando 220 km², na fronteira com a Guiana Francesa — não confirmado por leitura literal integral nesta pesquisa.",
+      "ingested_by_platform": false
+    },
+    {
+      "legal_source_id": null,
+      "source_title": "Decreto nº 517, de 8 de maio de 1992",
+      "specific_device": "Texto integral não lido nesta pesquisa",
+      "official_url": "http://www.planalto.gov.br/ccivil_03/decreto/1990-1994/d0517.htm",
+      "verifiable_reference": "Regulamenta o art. 11 da Lei nº 8.387/1991 e a Área de Livre Comércio de Macapá e Santana.",
+      "ingested_by_platform": false
+    },
+    {
+      "legal_source_id": null,
+      "source_title": "Resolução CGIBS nº 6, de 30 de abril de 2026 (Regulamento do IBS)",
+      "specific_device": "Art. 437, IV (= art. 459, IV, da LC nº 214/2025)",
+      "official_url": "https://www.cgibs.gov.br/upload/arquivos/202604/30084927-res-cgibs-n-6-30-abr-2026-regulamenta-o-ibs.pdf",
+      "verifiable_reference": "Lista as ALC de Macapá e Santana, no Amapá, criadas pelo art. 11 da Lei nº 8.387, de 30 de dezembro de 1991, e regulamentadas pelo Decreto nº 517, de 8 de maio de 1992. Citação literal extraída do PDF oficial (texto convertido via pypdf nesta sessão).",
+      "ingested_by_platform": false
+    }
+  ],
+  "criteria": {
+    "tipo_definicao": "territorial_por_norma_originaria_sede_municipal",
+    "municipios_sede": ["Macapá", "Santana"],
+    "uf": "AP",
+    "observacao": "Confirmado o município-sede duplo e o decreto regulamentador via art. 437 da Resolução CGIBS nº 6/2026. Não li o texto integral da Lei nº 8.387/1991 (art. 11) nem do Decreto nº 517/1992 nesta pesquisa."
+  },
+  "effective_from": "2026-01-01",
+  "effective_to": null,
+  "known_conflicts": [
+    "PENDENTE_LEITURA_INTEGRAL: nem o art. 11 da Lei nº 8.387/1991 nem o Decreto nº 517/1992 foram lidos na íntegra nesta pesquisa.",
+    "TERRITORIO_NAO_E_HABILITACAO: habilitação aos incentivos (art. 438 da Resolução CGIBS nº 6/2026, registro Suframa) é um fato separado, não coberto por este documento.",
+    "NAO_DESBLOQUEIA_REGRA_APROVADA_HOJE: nenhuma especificação RT-IBSCBS aprovada depende diretamente desta ALC nomeada; relevante apenas para RT-IBSCBS-0009 (bloqueada por outro motivo) e cobertura futura."
+  ],
+  "approval": {
+    "prepared_by": "Claude (Codex) — pesquisa preparatória; requer revisão jurídica humana",
+    "reviewed_by": null,
+    "approved_by": null,
+    "approval_date": null,
+    "approval_evidence": null
+  },
+  "implementation": null,
+  "superseded_by_specification_id": null
+}

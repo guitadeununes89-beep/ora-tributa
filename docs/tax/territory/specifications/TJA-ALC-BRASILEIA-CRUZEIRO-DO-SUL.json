@@ -1,0 +1,60 @@
+{
+  "area_id": "TJA-ALC-BRASILEIA-CRUZEIRO-DO-SUL",
+  "specification_version": 1,
+  "is_synthetic": false,
+  "title": "Áreas de Livre Comércio de Brasiléia (com extensão a Epitaciolândia) e Cruzeiro do Sul — território governado para incentivos fiscais do IBS/CBS",
+  "area_type": "ALC",
+  "jurisdiction": "BR",
+  "status": "DRAFT",
+  "objective": "Especificar, sem produzir dado governado executável, as Áreas de Livre Comércio de Brasiléia (com extensão a Epitaciolândia) e Cruzeiro do Sul (AC), conforme criadas pela Lei nº 8.857/1994, regulamentadas pelo Decreto nº 1.357/1994, e confirmadas operacionalmente pela Resolução CGIBS nº 6/2026, art. 437, V.",
+  "legal_foundation": [
+    {
+      "legal_source_id": null,
+      "source_title": "Lei nº 8.857, de 8 de março de 1994",
+      "specific_device": "Texto integral (não lido na íntegra nesta pesquisa; apenas ementa e resumo)",
+      "official_url": "https://www.planalto.gov.br/ccivil_03/leis/1989_1994/l8857.htm",
+      "verifiable_reference": "Autoriza a criação de Áreas de Livre Comércio nos municípios de Brasiléia e Cruzeiro do Sul, no Estado do Acre. A ementa oficial (confirmada via camara.leg.br/legin nesta pesquisa) cita apenas esses dois municípios, sem mencionar Acrelândia, Assis Brasil, Capixaba, Plácido de Castro, Xapuri, Feijó, Jordão, Mâncio Lima ou outros citados por fontes de imprensa. Resumo de busca indica demarcação de 20 km² por área, perímetros urbanos dos respectivos municípios.",
+      "ingested_by_platform": false
+    },
+    {
+      "legal_source_id": null,
+      "source_title": "Decreto nº 1.357, de 30 de dezembro de 1994",
+      "specific_device": "Texto integral não lido nesta pesquisa",
+      "official_url": "https://www.planalto.gov.br/ccivil_03/decreto/1990-1994/d1357.htm",
+      "verifiable_reference": "Regulamenta a Lei nº 8.857/1994 e as Áreas de Livre Comércio de Brasiléia e Cruzeiro do Sul.",
+      "ingested_by_platform": false
+    },
+    {
+      "legal_source_id": null,
+      "source_title": "Resolução CGIBS nº 6, de 30 de abril de 2026 (Regulamento do IBS)",
+      "specific_device": "Art. 437, V (= art. 459, V, da LC nº 214/2025)",
+      "official_url": "https://www.cgibs.gov.br/upload/arquivos/202604/30084927-res-cgibs-n-6-30-abr-2026-regulamenta-o-ibs.pdf",
+      "verifiable_reference": "Lista a ALC de \"Brasiléia, com extensão a Epitaciolândia, e Cruzeiro do Sul, no Acre, criadas pela Lei nº 8.857, de 8 de março de 1994, e regulamentadas pelo Decreto nº 1.357, de 30 de dezembro de 1994.\" A menção explícita a Epitaciolândia confirma essa extensão para fins de IBS, mas não confirma nenhum dos demais municípios citados por fontes de imprensa. Citação literal extraída do PDF oficial (texto convertido via pypdf nesta sessão).",
+      "ingested_by_platform": false
+    }
+  ],
+  "criteria": {
+    "tipo_definicao": "territorial_por_norma_originaria_sede_municipal_com_extensao",
+    "municipios_sede": ["Brasiléia", "Cruzeiro do Sul"],
+    "municipio_incluido_por_extensao_confirmada": "Epitaciolândia",
+    "uf": "AC",
+    "observacao": "Confirmado o município-sede duplo, a extensão a Epitaciolândia e o decreto regulamentador via art. 437 da Resolução CGIBS nº 6/2026. Municípios adicionais citados por reportagens (Acrelândia, Assis Brasil, Capixaba, Plácido de Castro, Xapuri, Feijó, Jordão, Mâncio Lima e outros) NÃO constam do art. 437 e não devem ser tratados como território governado sem norma específica localizada."
+  },
+  "effective_from": "2026-01-01",
+  "effective_to": null,
+  "known_conflicts": [
+    "MUNICIPIOS_ADICIONAIS_NAO_CONFIRMADOS: reportagens mencionam uma lista bem mais ampla de municípios 'participantes' desta ALC; nenhum deles consta do art. 437 da Resolução CGIBS nº 6/2026 nem foi localizado em norma federal específica nesta pesquisa. Não incluir sem confirmação.",
+    "PENDENTE_LEITURA_INTEGRAL: nem a Lei nº 8.857/1994 nem o Decreto nº 1.357/1994 foram lidos na íntegra nesta pesquisa (apenas ementa oficial via camara.leg.br/legin).",
+    "TERRITORIO_NAO_E_HABILITACAO: habilitação aos incentivos (art. 438 da Resolução CGIBS nº 6/2026, registro Suframa, com critério adicional de preponderância de matéria-prima regional) é um fato separado, não coberto por este documento.",
+    "NAO_DESBLOQUEIA_REGRA_APROVADA_HOJE: nenhuma especificação RT-IBSCBS aprovada depende diretamente desta ALC nomeada; relevante apenas para RT-IBSCBS-0009 (bloqueada por outro motivo) e cobertura futura."
+  ],
+  "approval": {
+    "prepared_by": "Claude (Codex) — pesquisa preparatória; requer revisão jurídica humana",
+    "reviewed_by": null,
+    "approved_by": null,
+    "approval_date": null,
+    "approval_evidence": null
+  },
+  "implementation": null,
+  "superseded_by_specification_id": null
+}

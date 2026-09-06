@@ -1,0 +1,58 @@
+{
+  "area_id": "TJA-ALC-GUAJARA-MIRIM",
+  "specification_version": 1,
+  "is_synthetic": false,
+  "title": "Área de Livre Comércio de Guajará-Mirim — território governado para incentivos fiscais do IBS/CBS",
+  "area_type": "ALC",
+  "jurisdiction": "BR",
+  "status": "DRAFT",
+  "objective": "Especificar, sem produzir dado governado executável, a Área de Livre Comércio de Guajará-Mirim (RO), conforme criada pela Lei nº 8.210/1991, regulamentada pelo Decreto nº 843/1993, e confirmada operacionalmente pela Resolução CGIBS nº 6/2026, art. 437, II.",
+  "legal_foundation": [
+    {
+      "legal_source_id": null,
+      "source_title": "Lei nº 8.210, de 19 de julho de 1991",
+      "specific_device": "Texto integral (não lido na íntegra nesta pesquisa; apenas ementa e resumo)",
+      "official_url": "https://www.planalto.gov.br/ccivil_03/leis/1989_1994/l8210.htm",
+      "verifiable_reference": "Cria a Área de Livre Comércio de Guajará-Mirim, no Estado de Rondônia. Resumo de busca indica demarcação de 82,50 km² à margem direita do rio Mamoré, incluindo o perímetro urbano de Guajará-Mirim — não confirmado por leitura literal integral nesta pesquisa.",
+      "ingested_by_platform": false
+    },
+    {
+      "legal_source_id": null,
+      "source_title": "Decreto nº 843, de 23 de junho de 1993",
+      "specific_device": "Texto integral não lido nesta pesquisa",
+      "official_url": null,
+      "verifiable_reference": "Regulamenta a Área de Livre Comércio de Guajará-Mirim, fixando os limites da área dentro do município.",
+      "ingested_by_platform": false
+    },
+    {
+      "legal_source_id": null,
+      "source_title": "Resolução CGIBS nº 6, de 30 de abril de 2026 (Regulamento do IBS)",
+      "specific_device": "Art. 437, II (= art. 459, II, da LC nº 214/2025)",
+      "official_url": "https://www.cgibs.gov.br/upload/arquivos/202604/30084927-res-cgibs-n-6-30-abr-2026-regulamenta-o-ibs.pdf",
+      "verifiable_reference": "Lista a ALC de Guajará-Mirim, em Rondônia, criada pela Lei nº 8.210, de 19 de julho de 1991, e regulamentada pelo Decreto nº 843, de 23 de junho de 1993. Citação literal extraída do PDF oficial (texto convertido via pypdf nesta sessão).",
+      "ingested_by_platform": false
+    }
+  ],
+  "criteria": {
+    "tipo_definicao": "territorial_por_norma_originaria_sede_municipal",
+    "municipio_sede": "Guajará-Mirim",
+    "uf": "RO",
+    "observacao": "Confirmado apenas o município-sede e a existência do decreto regulamentador via art. 437 da Resolução CGIBS nº 6/2026. Não li o texto integral da Lei nº 8.210/1991 nem do Decreto nº 843/1993 nesta pesquisa."
+  },
+  "effective_from": "2026-01-01",
+  "effective_to": null,
+  "known_conflicts": [
+    "PENDENTE_LEITURA_INTEGRAL: nem a Lei nº 8.210/1991 nem o Decreto nº 843/1993 foram lidos na íntegra nesta pesquisa; recomendável antes da aprovação final.",
+    "TERRITORIO_NAO_E_HABILITACAO: habilitação aos incentivos (art. 438 da Resolução CGIBS nº 6/2026, registro Suframa) é um fato separado, não coberto por este documento.",
+    "NAO_DESBLOQUEIA_REGRA_APROVADA_HOJE: nenhuma especificação RT-IBSCBS aprovada depende diretamente desta ALC nomeada; relevante apenas para RT-IBSCBS-0009 (bloqueada por outro motivo) e cobertura futura."
+  ],
+  "approval": {
+    "prepared_by": "Claude (Codex) — pesquisa preparatória; requer revisão jurídica humana",
+    "reviewed_by": null,
+    "approved_by": null,
+    "approval_date": null,
+    "approval_evidence": null
+  },
+  "implementation": null,
+  "superseded_by_specification_id": null
+}
