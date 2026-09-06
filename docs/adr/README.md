@@ -39,4 +39,5 @@ Decisões arquiteturais relevantes devem ser registradas **antes** da implementa
 - [ADR-0021 — Áreas territoriais tributárias governadas](0021-areas-territoriais-tributarias-governadas.md)
 - [ADR-0022 — Projeção de prontidão jurídica na cobertura](0022-projecao-de-prontidao-juridica-na-cobertura.md)
 - [ADR-0023 — Motor de transição e interação tributária](0023-motor-de-transicao-e-interacao-tributaria.md)
+- [ADR-0024 — Implementação do modelo de áreas territoriais tributárias governadas (Proposta)](0024-implementacao-de-areas-territoriais-governadas.md)
 
