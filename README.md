@@ -375,3 +375,16 @@ O pre-flight real das três v3 validou schema e referências governadas e retorn
 `STATUS_NOT_APPROVED`, como esperado para DRAFT. Nenhuma `TaxRuleVersion` foi criada, nenhum ruleset
 foi alterado e a cobertura executável permanece `1/164` (`0,61%`). Consulte
 `docs/tax/ETAPA_9_1_FINAL_APPROVAL_MATRIX.md`.
+
+## Etapa 9.3 — aprovação jurídica humana de RT-IBSCBS-0007 e RT-IBSCBS-0008
+
+O responsável tributário e jurídico do projeto aprovou integralmente as especificações v3 de
+`RT-IBSCBS-0007` (cClassTrib `200022`) e `RT-IBSCBS-0008` (cClassTrib `200023`), sem alterar seu
+conteúdo jurídico. Ambas passaram de `DRAFT` para `APPROVED`, com evidência registrada em
+`docs/tax/rules/approvals/`. `RT-IBSCBS-0009` não foi aprovada e permanece bloqueada pelo conflito
+de referência entre o art. 456 do catálogo e o art. 460 exigido pela LC nº 214/2025.
+
+Aprovação jurídica isolada **não** cria regra executável: a cobertura permanece `1/164` (`0,61%`)
+e nenhuma `TaxRuleVersion` ou ruleset foi alterado. A implementação depende de nova autorização
+específica e da carga governada do território da Zona Franca de Manaus (ADR-0021). Consulte
+`docs/tax/ETAPA_9_3_LEGAL_APPROVAL_P1.md`.

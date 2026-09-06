@@ -6,7 +6,7 @@
   "tax_domain": "IBS_CBS",
   "objective": "Especificar, sem produzir regra executável, a redução a zero do IBS e da CBS na operação entre indústrias incentivadas delimitada pelo art. 448 da LC nº 214/2025, exigindo prova da qualificação das partes, da natureza intermediária do bem, da entrega na ZFM e das exclusões legais.",
   "jurisdiction": "BR",
-  "status": "DRAFT",
+  "status": "APPROVED",
   "legal_foundation": {
     "legal_source_id": "23302183-6c92-4b34-a26d-cd272e2c1b1e",
     "source_title": "Lei Complementar nº 214, de 16 de janeiro de 2025 — texto vigente compilado",
@@ -78,7 +78,7 @@
       {"case_id": "RT-IBSCBS-0008-DATE-002", "description": "Primeiro dia de produção de efeitos, com fatos materiais ainda incompletos.", "input": {"operation.date": "2026-01-01", "buyer.zfm_incentivized_industry_status": "UNKNOWN"}, "expected": {"status": "NECESSITA_VALIDACAO", "cst": null, "cclasstrib": null, "missing_facts": ["buyer.zfm_incentivized_industry_status"]}}
     ]
   },
-  "approval": {"prepared_by": "Codex — consolidação documental de fonte oficial; requer revisão jurídica humana", "reviewed_by": null, "approved_by": null, "approval_date": null, "approval_evidence": null},
+  "approval": {"prepared_by": "Codex — consolidação documental de fonte oficial; requer revisão jurídica humana", "reviewed_by": "legal-approver-guilherme-nunes", "approved_by": "legal-approver-guilherme-nunes", "approval_date": "2026-09-06", "approval_evidence": "docs/tax/rules/approvals/RT-IBSCBS-0008-v3.md#sha256=aff541c9a35f4f67b68809d4bb02ff599234e2b57c27163d6962ea2842731ad1"},
   "implementation": null,
   "superseded_by_specification_id": null
 }

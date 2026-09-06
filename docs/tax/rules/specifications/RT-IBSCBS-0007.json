@@ -6,7 +6,7 @@
   "tax_domain": "IBS_CBS",
   "objective": "Especificar, sem produzir regra executável, a redução a zero do IBS e da CBS na hipótese delimitada pelo art. 445 da LC nº 214/2025, preservando como fatos obrigatórios a origem, o destino, a natureza do bem, a habilitação, o regime do destinatário, as exclusões e a prova de ingresso.",
   "jurisdiction": "BR",
-  "status": "DRAFT",
+  "status": "APPROVED",
   "legal_foundation": {
     "legal_source_id": "23302183-6c92-4b34-a26d-cd272e2c1b1e",
     "source_title": "Lei Complementar nº 214, de 16 de janeiro de 2025 — texto vigente compilado",
@@ -84,7 +84,7 @@
       {"case_id": "RT-IBSCBS-0007-DATE-002", "description": "Primeiro dia de produção de efeitos com internamento pendente.", "input": {"operation.date": "2026-01-01", "operation.zfm_entry_proof_status": "PENDING_WITHIN_DEADLINE"}, "expected": {"status": "NECESSITA_VALIDACAO", "cst": null, "cclasstrib": null, "missing_facts": ["operation.zfm_entry_proof_status"]}}
     ]
   },
-  "approval": {"prepared_by": "Codex — consolidação documental de fonte oficial; requer revisão jurídica humana", "reviewed_by": null, "approved_by": null, "approval_date": null, "approval_evidence": null},
+  "approval": {"prepared_by": "Codex — consolidação documental de fonte oficial; requer revisão jurídica humana", "reviewed_by": "legal-approver-guilherme-nunes", "approved_by": "legal-approver-guilherme-nunes", "approval_date": "2026-09-06", "approval_evidence": "docs/tax/rules/approvals/RT-IBSCBS-0007-v3.md#sha256=0f39fbd410e5c90d24deb8cb9105bf59001af1c05c4d218e6d9b5007a77e1caa"},
   "implementation": null,
   "superseded_by_specification_id": null
 }
