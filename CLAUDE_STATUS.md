@@ -460,3 +460,37 @@ Todas as 6 especificações passaram de `DRAFT` para `APPROVED`, com `reviewed_b
 em `tax_jurisdiction_areas`/`tax_jurisdiction_area_versions`, e nenhum comportamento do resolvedor
 ou do motor mudou. Ainda não existe um CLI/seed governado para território — construí-lo e carregar
 dados reais continuam exigindo autorização própria e específica, conforme o ADR-0024.
+
+## Etapa 10 — carga governada real das 6 áreas territoriais (autorizado)
+
+**Data:** 2026-09-06
+
+Você autorizou explicitamente construir o CLI e carregar os dados reais. Executado:
+
+1. Criado `backend/src/tributaria_api/territory_governed_load_cli.py`, espelhando o fluxo histórico
+   de `real_rule_deploy_cli.py`: para cada especificação `APPROVED`, cria a identidade + versão
+   (`DRAFT`), transiciona `DRAFT → IN_REVIEW → APPROVED → PUBLISHED` com um evento de lifecycle
+   append-only por transição, registra evento de auditoria, e recusa rodar se a especificação não
+   estiver `APPROVED` ou se `approved_by` não bater com o ator governado. Idempotente.
+2. **Achado importante:** o `legal_source_id` fixo usado em todas as especificações `RT-IBSCBS-*` e
+   nas territoriais (`23302183-6c92-4b34-a26d-cd272e2c1b1e`) **não existe neste banco local** — ele
+   foi gerado em uma instância de banco diferente (o `create_legal_source` gera um `uuid4()` novo a
+   cada primeira inserção por organização+hash). Corrigi resolvendo o `legal_source_id` da LC
+   214/2025 dinamicamente por `official_url`, em vez de confiar no literal. Isso significa que este
+   banco local **nunca tinha rodado `governed_load_cli.py`** nem tinha `RT-IBSCBS-0003` de fato
+   implantada — só os seeds sintéticos de desenvolvimento haviam rodado até agora.
+3. Rodei `governed_load_cli.py` (nunca executado antes neste banco) para carregar as fontes legais
+   e o catálogo oficial — pré-requisito real, não invenção de escopo.
+4. Rodei o novo carregador com `REAL_RULE_APPROVER_EMAIL` definido localmente (nunca commitado).
+   **As 6 áreas estão `PUBLISHED`** no banco, com 21 eventos de lifecycle registrados. Cada
+   especificação JSON teve seu campo `implementation` preenchido automaticamente pelo próprio CLI
+   (mesmo padrão do `real_rule_deploy_cli.py`).
+5. Suíte completa validada: JSON ok, ruff/mypy limpos, 120 testes reais passando (as 2 falhas
+   observadas são a mesma poluição de dados sintéticos de execuções manuais anteriores, já
+   documentada, sem relação com esta etapa). CI do GitHub voltou a ficar 100% verde.
+
+**O que isso ainda não faz:** o resolvedor (`application/territory.py`) continua usando apenas
+`NullTaxJurisdictionAreaResolver` (sempre `UNKNOWN`) — os dados territoriais existem no banco, mas
+nada ainda os consulta. `RT-IBSCBS-0007`/`0008` continuam sem `TaxRuleVersion` e sem publicação —
+implementá-las como regra executável (incluindo ligar o resolvedor real aos dados agora
+carregados) continua sendo uma etapa separada, ainda não autorizada.
