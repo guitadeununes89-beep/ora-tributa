@@ -23,10 +23,14 @@ describe("AssistedConsultation", () => {
     ));
   });
 
-  it("presents the governed journey from product to reproducible history", () => {
+  it("presents the governed journey from product to reproducible history", async () => {
     render(<AssistedConsultation />);
 
-    const journey = screen.getByRole("navigation", { name: "Fluxo da consulta tributária" });
+    // The initial useEffect fetches products/catalogs; wait for it to settle so the
+    // mocked promises resolve (and any resulting state update flushes) before the test
+    // tears down jsdom — otherwise the update lands on a torn-down environment and
+    // throws "window is not defined" intermittently (timing-dependent, not a real bug).
+    const journey = await screen.findByRole("navigation", { name: "Fluxo da consulta tributária" });
     for (const step of [
       "Produto",
       "Consulta IBS/CBS",
