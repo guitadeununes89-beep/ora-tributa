@@ -310,10 +310,32 @@ no banco local — e ficaram presas **porque o trigger de append-only realmente 
 consegui apagá-las manualmente. Isso só afeta reexecuções manuais repetidas contra este Postgres
 local de desenvolvimento; o CI sempre sobe um Postgres efêmero e novo, então não é afetado.
 
-### Pendências reais agora
+### Pendências reais agora (na época do fim da Etapa 4)
 
-- [ ] Decidir se quer proteção de branch no GitHub (exige plano pago ou repo público).
+- [x] Decidir se quer proteção de branch no GitHub — respondido e executado na Etapa 5, abaixo.
 - [ ] Pesquisa jurídica dedicada para carregar território real da ZFM/ALC (fonte oficial, com
       revisão e aprovação sua) — pré-requisito para qualquer resolvedor real e para publicar
       `RT-IBSCBS-0007`/`0008`.
 - [ ] Monitorar fonte oficial para resolver o conflito de `RT-IBSCBS-0009`.
+
+## Etapa 5 — repositório público e proteção da branch `main`
+
+**Data:** 2026-09-06
+
+Você optou por tornar o repositório **público** para viabilizar proteção de branch (recurso pago
+em repositório privado no GitHub). Executado:
+
+- `guitadeununes89-beep/ora-tributa` alterado de privado para **público**.
+- Proteção da branch `main` ativada:
+  - exige que os checks de CI `python` e `frontend` passem antes de qualquer merge (`strict:
+    true`, ou seja, a branch precisa estar atualizada com `main` antes do merge);
+  - exige pull request antes de integrar a `main` (`required_approving_review_count: 0`, já que
+    hoje você é o único mantenedor — sem exigir aprovação de terceiro, mas ainda impedindo push
+    direto sem CI);
+  - bloqueia force-push e exclusão da branch `main`.
+
+**Atenção:** como o repositório agora é público, todo o conteúdo — incluindo código, ADRs,
+especificações jurídicas `RT-IBSCBS` e as evidências de aprovação com seu nome
+(`docs/tax/rules/approvals/`) — é visível para qualquer pessoa na internet. Nenhum segredo real foi
+commitado (`.env` nunca entrou no Git, `DEV_SEED_PASSWORD` é local); se decidir voltar a privado
+depois, a proteção de branch configurada agora deixará de funcionar (mesma limitação de plano).
