@@ -339,3 +339,39 @@ especificações jurídicas `RT-IBSCBS` e as evidências de aprovação com seu 
 (`docs/tax/rules/approvals/`) — é visível para qualquer pessoa na internet. Nenhum segredo real foi
 commitado (`.env` nunca entrou no Git, `DEV_SEED_PASSWORD` é local); se decidir voltar a privado
 depois, a proteção de branch configurada agora deixará de funcionar (mesma limitação de plano).
+
+## Etapa 6 — pesquisa jurídica preliminar de território (ZFM/ALC)
+
+**Data:** 2026-09-06
+
+Você pediu para eu seguir com a "produção" e perguntou em que percentual eu avaliaria o projeto —
+respondi no chat (resumo: cobertura tributária real ~0,61-1,83%; fundação de engenharia ~60-65%;
+produto completo ~15-20%, puxado para baixo pelo conteúdo tributário ser o gargalo estrutural).
+
+Comecei a pesquisa jurídica de fonte oficial para o território ZFM/ALC (pré-requisito de
+`RT-IBSCBS-0007`/`0008`, conforme ADR-0024). Usei busca e leitura web, e produzi
+`docs/tax/territory/ZFM_ALC_RESEARCH_MEMO.md`, marcado explicitamente como **`PESQUISA
+PRELIMINAR`** — não é especificação aprovada nem dado governado, e não autoriza carregar nada em
+`tax_jurisdiction_areas`.
+
+Encontrado com razoável confiança:
+- **ZFM**: Decreto-Lei nº 288/1967, arts. 1º-2º (área geográfica: 10.000 km² mínimos à margem
+  esquerda dos rios Negro e Amazonas, incluindo Manaus) e art. 42 (vigência, prorrogada por
+  sucessivas emendas — a mais recente, EC nº 83/2014, até 2073).
+- **5 Áreas de Livre Comércio oficiais**, cada uma com sua lei de criação: Tabatinga (Lei
+  7.965/1989), Guajará-Mirim (Lei 8.210/1991), Macapá e Santana (Lei 8.387/1991, art. 11), Boa
+  Vista e Bonfim (Lei 8.256/1991, ampliada por Lei 15.273/2025), Brasiléia e Cruzeiro do Sul (Lei
+  8.857/1994).
+
+**Deliberadamente não resolvido** (fica explícito no memorando, para você ou um próximo passo
+decidir):
+- Se a LC nº 214/2025 define "ZFM" por remissão direta ao DL 288/1967 ou por conceito próprio —
+  essencial antes de aprovar qualquer versão territorial real.
+- Se o Executivo já alterou a configuração original da ZFM por decreto (o DL 288/1967 permite isso
+  no art. 2º, § 3º) — não localizei um decreto consolidado com o perímetro atual.
+- Listas mais amplas de municípios "integrantes" de cada ALC, citadas por fontes secundárias, não
+  confirmadas ainda no texto literal das leis ou de decretos regulamentadores.
+
+Nenhum dado foi carregado no banco. O próximo passo (não executado) seria ler cada fonte na
+íntegra, resolver essas incertezas, e só então redigir uma especificação territorial formal para
+sua aprovação — nos mesmos moldes de uma `RT-IBSCBS`.
