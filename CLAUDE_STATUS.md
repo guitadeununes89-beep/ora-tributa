@@ -770,4 +770,46 @@ para sua decisão; você aprovou ambas ("aprovo e pode seguir").
   quiser usar essas regras pela interface.
 - Não avança `RT-IBSCBS-0001`, `0002`, `0006` nem `0009` — todas seguem bloqueadas por fonte
   oficial ausente, sem ação possível.
+
+## Etapa 16 — tela de consulta para RT-IBSCBS-0004/0005 e verificação real no navegador
+
+**Data:** 2026-09-07
+
+Você pediu para eu construir a tela de consulta que faltava para 0004/0005, mesma pendência que eu
+mesmo tinha registrado ao final da Etapa 15.
+
+1. Criei `/reforma-tributaria/consulta-medicamentos`: nova tela com alternância entre os dois
+   cenários (mutuamente exclusivos, mesmo padrão de `consulta-zfm`), formulário específico para os
+   fatos de cada regra, reaproveitando o mesmo endpoint genérico `/tax/ibs-cbs/classify`. O campo
+   `product.ncm_sh` (NCM/SH verificada) aparece só no cenário 0004, como campo de texto livre — sem
+   inferência, exatamente como a especificação exige — em vez de um `<select>` fechado. O campo de
+   data da 0004 ganhou `min`/`max` (01/01 a 13/01/2026) com uma nota explicando a janela histórica
+   exclusiva, para deixar visível na própria interface a limitação temporal já registrada na
+   especificação.
+2. Liguei o mapa `RULESET_CONSULTATION_LINKS` do dashboard de cobertura (Etapa 14) aos dois novos
+   rulesets (`IBSCBS-PILOT-0004-001`, `IBSCBS-PILOT-0005-001`) — o elo "Consultar via..." construído
+   naquela etapa passou a funcionar para as duas regras novas sem nenhuma outra mudança, prova de
+   que aquele desenho generaliza como pretendido. Adicionei o item "Consulta Medicamentos (piloto)"
+   ao menu lateral.
+3. **Verifiquei de verdade no navegador**, não só em teste automatizado: logado como
+   `analyst@example.invalid`, preenchi o formulário completo da `RT-IBSCBS-0004` (data 05/01/2026,
+   dentro da janela) e recebi `CONCLUSIVO`, CST 200/cClassTrib 200009, com o fundamento legal real
+   (LC nº 214/2025, art. 146, caput, redação original; Anexo XIV) e o `DecisionTrace` completo.
+   Alternei para `RT-IBSCBS-0005`, preenchi seus 7 fatos e recebi `CONCLUSIVO`, CST 200/cClassTrib
+   200010, fundamento do art. 146, § 1º, II. Confirmei também, a partir do dashboard de cobertura,
+   que buscar "200009" mostra o link "Consultar via IBSCBS-PILOT-0004-001 →" apontando para a tela
+   nova. Sem erros no console do navegador.
+4. 2 testes novos de frontend (padrão/alternância de cenário, igual ao de `consulta-zfm`); suíte
+   completa (17 testes), typecheck e lint do frontend continuam limpos.
+
+Com isso, as quatro regras reais publicadas (`RT-IBSCBS-0003/0004/0005` e o par ZFM `0007/0008`)
+estão todas alcançáveis por um analista através de uma tela real, e a descoberta "código/descrição
+→ regra aplicável → formulário certo" (a fatia de "consulta por NCM/NBS" do e-Auditoria que eu
+recomendei priorizar) está fechada de ponta a ponta para tudo que já está publicado hoje.
+
+### O que isso NÃO faz
+
+- Não avança `RT-IBSCBS-0001`, `0002`, `0006` nem `0009` — seguem bloqueadas.
+- Não inicia a frente de NCM/NBS real, XML/EFD, lote ou relatório/e-mail — visão de longo prazo
+  ainda não iniciada.
 - Não inicia a frente de NCM/NBS nem qualquer item da visão de longo prazo do e-Auditoria.

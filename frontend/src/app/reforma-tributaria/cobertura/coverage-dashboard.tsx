@@ -38,6 +38,8 @@ const RULESET_CONSULTATION_LINKS: Record<string, string> = {
   "IBSCBS-PILOT-001": "/reforma-tributaria/consulta",
   "IBSCBS-ZFM-0007-PILOT-001": "/reforma-tributaria/consulta-zfm",
   "IBSCBS-ZFM-0008-PILOT-001": "/reforma-tributaria/consulta-zfm",
+  "IBSCBS-PILOT-0004-001": "/reforma-tributaria/consulta-medicamentos",
+  "IBSCBS-PILOT-0005-001": "/reforma-tributaria/consulta-medicamentos",
 };
 
 const STATUS_LABELS: Record<string, string> = {
