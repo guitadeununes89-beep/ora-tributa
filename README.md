@@ -388,3 +388,27 @@ Aprovação jurídica isolada **não** cria regra executável: a cobertura perma
 e nenhuma `TaxRuleVersion` ou ruleset foi alterado. A implementação depende de nova autorização
 específica e da carga governada do território da Zona Franca de Manaus (ADR-0021). Consulte
 `docs/tax/ETAPA_9_3_LEGAL_APPROVAL_P1.md`.
+
+## Etapa 10 — território real carregado e RT-IBSCBS-0007/0008 publicadas
+
+Com autorização específica adicional, a plataforma implementou o modelo de território governado
+(ADR-0024) na prática: seis `TaxJurisdictionAreaVersion` reais estão `PUBLISHED`
+(`tax_jurisdiction_areas`) — a Zona Franca de Manaus (Decreto-Lei nº 288/1967, confirmada pelo
+art. 433, I, da Resolução CGIBS nº 6/2026 como abrangendo parte dos Municípios de Manaus, Rio Preto
+da Eva e Itacoatiara) e as cinco Áreas de Livre Comércio oficiais (art. 437 da mesma Resolução).
+
+`RT-IBSCBS-0007` e `RT-IBSCBS-0008` foram implementadas no `tax-engine`, testadas (54 testes novos
+cobrindo cada fato obrigatório e os cenários positivos da especificação) e publicadas como
+`TaxRuleVersion` reais, cada uma em seu próprio ruleset explícito
+(`IBSCBS-ZFM-0007-PILOT-001` e `IBSCBS-ZFM-0008-PILOT-001`) — não um ruleset combinado, porque as
+duas descrevem cenários operacionais mutuamente exclusivos. **A cobertura executável avança de
+`1/164` para `3/164` (`1,83%`)**, o teto condicional já previsto em
+`ETAPA_9_1_FINAL_APPROVAL_MATRIX.md`.
+
+O resolvedor territorial (`application/territory.py`) não é chamado por nenhuma das duas regras:
+todos os fatos exigidos pelas especificações (incluindo relação com a ZFM e habilitação Suframa) são
+fornecidos já resolvidos por quem chama a avaliação. O resolvedor existe para uma futura
+funcionalidade de apoio ao preenchimento (transformar evidência bruta nesses fatos), ainda não
+construída. A interface `/reforma-tributaria/consulta` continua oferecendo apenas `RT-IBSCBS-0003`;
+nenhuma mudança de frontend foi feita nesta etapa. `RT-IBSCBS-0009` continua bloqueada, sem relação
+com este trabalho.

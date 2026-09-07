@@ -494,3 +494,65 @@ Você autorizou explicitamente construir o CLI e carregar os dados reais. Execut
 nada ainda os consulta. `RT-IBSCBS-0007`/`0008` continuam sem `TaxRuleVersion` e sem publicação —
 implementá-las como regra executável (incluindo ligar o resolvedor real aos dados agora
 carregados) continua sendo uma etapa separada, ainda não autorizada.
+
+## Etapa 11 — RT-IBSCBS-0007 e RT-IBSCBS-0008 implementadas, publicadas e verificadas (autorizado)
+
+**Data:** 2026-09-07
+
+Você autorizou explicitamente ("pode executar então"). Implementei as duas regras no `tax-engine`,
+publiquei como `TaxRuleVersion` reais, e verifiquei de ponta a ponta contra o backend/banco real —
+não só os testes unitários do motor.
+
+1. **Código**: `tax_engine/ibs_cbs_rt_0007.py` e `ibs_cbs_rt_0008.py`, com um helper compartilhado
+   novo (`rule_condition_helpers.py`) — sem tocar em `ibs_cbs_rt_0003.py` (já publicada, deixada
+   intocada por segurança). A lógica de internamento de 0007 usa um mapeamento de 3 estados
+   (`CONFIRMED`=satisfeito, `NOT_CONFIRMED_AFTER_DEADLINE`=violado,
+   `PENDING_WITHIN_DEADLINE`/`UNKNOWN`=faltante) exatamente como a narrativa da condição C05 da
+   especificação descreve — não inventei simplificação.
+2. **54 testes novos**, cobrindo cada fato obrigatório em todos os três caminhos (satisfeito,
+   violado, faltante), os dois cenários positivos de cada regra, e os limites de vigência. Não
+   copiei os casos de teste "esparsos" do próprio JSON da especificação literalmente — eles
+   pressupõem fatos não listados como "fora do exemplo", não "faltantes"; montei conjuntos de fatos
+   completos, no mesmo padrão já usado pelos testes de `RT-IBSCBS-0003`.
+3. **Achado do mesmo tipo do território**: o `legal_source_id` e o `catalog_version_id` fixos nas
+   especificações `RT-IBSCBS-0007.json`/`0008.json` também não existem neste banco (mesma causa:
+   gerados em outra instância). Resolvidos dinamicamente no script de implantação
+   (`real_rule_deploy_cli_p1_zfm.py`), assim como fiz para o território.
+4. **As duas regras estão `PUBLISHED`** no banco (`TaxRuleVersion` reais, com proveniência
+   completa e allowlist em `persisted_rule_registry.py`).
+5. **Erro de design real encontrado e corrigido durante a própria verificação**: coloquei as duas
+   regras inicialmente no MESMO ruleset. Ao testar de ponta a ponta contra o `EvaluationService`
+   real (não só o motor isolado), descobri que isso fazia qualquer avaliação retornar sempre
+   `NECESSITA_VALIDACAO`, porque 0007 e 0008 descrevem cenários mutuamente exclusivos — a regra que
+   não se aplica ao caso sempre reporta seus próprios fatos como "faltantes". Corrigi criando um
+   ruleset explícito por regra (`IBSCBS-ZFM-0007-PILOT-001` e `IBSCBS-ZFM-0008-PILOT-001`), no
+   mesmo espírito do ADR-0017 (`IBSCBS-PILOT-001` continha só a RT-IBSCBS-0003). O ruleset combinado
+   errado (`IBSCBS-ZFM-PILOT-001`) ficou publicado no banco, mas não é usado por nada — rulesets
+   publicados são imutáveis, não pude apagá-lo, só parar de referenciá-lo.
+6. **Verificação de ponta a ponta contra o banco real** (não só pytest): reiniciei a API, e chamei o
+   `EvaluationService` real com o ruleset corrigido. Caso completo → `CONCLUSIVO`, CST 200 /
+   cClassTrib 200022, todas as 14 condições satisfeitas, referência legal real anexada. Caso com
+   `buyer.art_442_habilitation_status = UNKNOWN` → `NECESSITA_VALIDACAO`, com
+   `missing_facts: ["buyer.art_442_habilitation_status"]` exatamente.
+7. **Cobertura executável avança de `1/164` (0,61%) para `3/164` (1,83%)** — o teto condicional que
+   o próprio `ETAPA_9_1_FINAL_APPROVAL_MATRIX.md` já previa.
+8. CI do GitHub voltou a ficar verde após o push.
+
+### Esclarecimento importante sobre o resolvedor
+
+O resolvedor territorial (`application/territory.py`) **não é chamado por nenhuma das duas
+regras**. Todos os fatos que as especificações exigem (inclusive relação com a ZFM e habilitação
+Suframa) são fornecidos já resolvidos por quem chama a avaliação — não há, hoje, nenhum ponto do
+sistema que pegue evidência bruta (endereço, CNPJ, número de inscrição Suframa) e a transforme
+automaticamente nesses fatos. O resolvedor existe para essa futura funcionalidade de apoio ao
+preenchimento, que ainda não foi construída. "Carregar o território" e "implementar a regra" eram,
+na prática, duas peças que não dependiam uma da outra tecnicamente — mas ambas eram pré-requisitos
+de governança (documentação e aprovação) antes de qualquer execução real.
+
+### O que NÃO foi feito nesta etapa
+
+- Nenhuma mudança de frontend — `/reforma-tributaria/consulta` continua oferecendo só
+  `RT-IBSCBS-0003`.
+- Nenhum resolvedor real de território foi construído (continua `NullTaxJurisdictionAreaResolver`).
+- `RT-IBSCBS-0009` não foi tocada — continua bloqueada pelo conflito de referência (art. 456 vs.
+  460), sem relação com este trabalho.
