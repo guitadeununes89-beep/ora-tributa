@@ -551,8 +551,39 @@ de governança (documentação e aprovação) antes de qualquer execução real.
 
 ### O que NÃO foi feito nesta etapa
 
-- Nenhuma mudança de frontend — `/reforma-tributaria/consulta` continua oferecendo só
-  `RT-IBSCBS-0003`.
 - Nenhum resolvedor real de território foi construído (continua `NullTaxJurisdictionAreaResolver`).
 - `RT-IBSCBS-0009` não foi tocada — continua bloqueada pelo conflito de referência (art. 456 vs.
   460), sem relação com este trabalho.
+
+## Etapa 12 — tela de consulta ZFM (frontend) e verificação real no navegador
+
+**Data:** 2026-09-07
+
+Você pediu para eu seguir para o próximo passo. Escolhi tornar `RT-IBSCBS-0007`/`0008` de fato
+usáveis: publicadas no banco (Etapa 11), mas inacessíveis, porque `/reforma-tributaria/consulta`
+só conhecia a `RT-IBSCBS-0003` e o endpoint de classificação assistida tinha uma allowlist de
+fatos (proteção deliberada, não descuido) que só reconhecia os 4 fatos da 0003 — qualquer fato da
+ZFM seria rejeitado com HTTP 422, mesmo com a regra publicada e correta.
+
+1. Estendi a allowlist (`contracts/assisted_classification.py`) com todos os fatos e valores
+   permitidos de `RT-IBSCBS-0007`/`0008`, exatamente como aprovados nas especificações — mais 3
+   testes de backend confirmando a extensão e que valores não previstos continuam rejeitados.
+2. Criei `/reforma-tributaria/consulta-zfm`: nova tela com alternância entre os dois cenários
+   (mutuamente exclusivos), formulário específico para os fatos de cada um, reaproveitando o
+   mesmo endpoint genérico já existente (`/tax/ibs-cbs/classify`) — nenhuma mudança de endpoint foi
+   necessária, ele já aceitava qualquer `ruleset_id`. Adicionei o item "Consulta ZFM (piloto)" no
+   menu lateral.
+3. **Verifiquei de verdade no navegador**, não só em teste automatizado: logado como
+   `analyst@example.invalid`, preenchi o formulário completo da `RT-IBSCBS-0007` e recebi
+   `CONCLUSIVO`, CST 200 / cClassTrib 200022, com o fundamento legal real (LC nº 214/2025, art.
+   445; Resolução CGIBS nº 6/2026, art. 516) e o `DecisionTrace` completo
+   (`SELECTION → EVALUATION (MATCHED) → AGGREGATION (CONCLUSIVO)`). Confirmei também que alternar
+   para `RT-IBSCBS-0008` troca corretamente o formulário e o ruleset.
+4. **Um bug real apareceu no caminho e foi corrigido**: a primeira tentativa de envio retornou
+   HTTP 422 porque o processo da API ainda estava rodando com o código anterior à extensão da
+   allowlist (sem `--reload`). Reiniciei a API — não contornei a validação.
+5. Suíte completa: 177 testes Python passando, lint/typecheck/testes de frontend limpos, CI do
+   GitHub verde.
+
+Com isso, a cobertura de `3/164 (1,83%)` deixa de ser apenas um número no banco — está
+efetivamente utilizável por um analista através da interface real.
