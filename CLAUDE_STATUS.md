@@ -813,3 +813,42 @@ recomendei priorizar) está fechada de ponta a ponta para tudo que já está pub
 - Não inicia a frente de NCM/NBS real, XML/EFD, lote ou relatório/e-mail — visão de longo prazo
   ainda não iniciada.
 - Não inicia a frente de NCM/NBS nem qualquer item da visão de longo prazo do e-Auditoria.
+
+## Etapa 17 — dashboard e topbar param de mentir sobre a cobertura
+
+**Data:** 2026-09-07
+
+Você pediu para eu escolher a próxima alteração. Ao revisar a interface depois da Etapa 16,
+percebi que o dashboard inicial (`/`) e o indicador de cobertura no topo de toda tela
+(`app-shell.tsx`) ainda mostravam **"0,61% · 1 de 164 cClassTrib · RT-IBSCBS-0003"** — números
+fixos, escritos em código na Etapa 0/1, nunca atualizados nas oito etapas seguintes em que a
+cobertura real avançou. Isso contraria diretamente o princípio central deste projeto (nunca
+apresentar cobertura maior — ou, neste caso, **desatualizada** — do que a real): um analista
+abrindo a plataforma hoje veria "0,61%" em toda página, enquanto a tela de cobertura normativa já
+mostrava corretamente "2,44%".
+
+1. Converti `app/page.tsx` (dashboard) e o indicador `topbar-indicator` de `app-shell.tsx` para
+   buscar `/taxonomy/ibs-cbs/coverage` ao vivo (mesmo endpoint já usado pela tela de cobertura e
+   pelo elo "Consultar via..." da Etapa 14), em vez de literais fixos. O card "Regra real
+   publicada" agora conta regras distintas publicadas de verdade (hoje 5: `0003/0004/0005/0007/
+   0008`) em vez de nomear uma regra específica que ficaria errada a cada nova publicação.
+2. Testes atualizados para mockar o endpoint e validar o valor dinâmico (incluindo um teste novo
+   dedicado a provar que o indicador do topo mostra a porcentagem real, não mais um literal).
+3. **Achado real ao verificar no navegador**: depois de editar `app-shell.tsx` com o servidor de
+   desenvolvimento já rodando, o Fast Refresh do Next.js deixou o efeito de busca da cobertura
+   "preso" numa versão antiga do componente — o indicador do topo continuava mostrando "…"
+   mesmo com a chamada retornando 200. Um recarregamento completo (não só navegação) resolveu;
+   confirmei em uma aba nova, sem histórico de HMR, que o comportamento real é `2,44%` sem nenhum
+   erro no console. Registro isso porque não é a primeira vez nesta sessão que uma checagem via
+   navegador revela algo que os testes automatizados (que sempre partem de um processo limpo) não
+   pegariam sozinhos.
+4. Sua sessão expirou durante a verificação (cookie de autenticação) — reautentiquei como
+   `analyst@example.invalid` para confirmar o resultado logado.
+5. Suíte completa do frontend: 18 testes passando, typecheck e lint limpos. Backend inalterado
+   nesta etapa (212 testes Python continuam passando).
+
+### O que isso NÃO faz
+
+- Não muda nenhuma regra jurídica nem dado de cobertura — apenas corrige a interface para refletir
+  o que já era verdade no banco desde a Etapa 15.
+- Não resolve `RT-IBSCBS-0001/0002/0006/0009` nem inicia a frente de NCM/NBS.

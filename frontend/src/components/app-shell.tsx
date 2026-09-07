@@ -54,6 +54,7 @@ export function AppShell({ children }: Readonly<{ children: ReactNode }>) {
   const [identity, setIdentity] = useState<Identity | null>(null);
   const [menuOpen, setMenuOpen] = useState(false);
   const [sidebarCollapsed, setSidebarCollapsed] = useState(false);
+  const [executablePercentage, setExecutablePercentage] = useState<string | null>(null);
 
   useEffect(() => {
     if (pathname === "/login") return;
@@ -62,6 +63,14 @@ export function AppShell({ children }: Readonly<{ children: ReactNode }>) {
       else setIdentity(null);
     });
   }, [pathname]);
+
+  useEffect(() => {
+    void apiFetch("/taxonomy/ibs-cbs/coverage").then(async (response) => {
+      if (!response.ok) return;
+      const data = (await response.json()) as { metrics: { executable_percentage: string } };
+      setExecutablePercentage(data.metrics.executable_percentage.replace(".", ","));
+    });
+  }, []);
 
   async function logout() {
     const response = await apiFetch("/auth/logout", { method: "POST" });
@@ -84,7 +93,7 @@ export function AppShell({ children }: Readonly<{ children: ReactNode }>) {
           <span><strong>Ora <span>Tributa</span></strong><small>Inteligência Fiscal</small></span>
         </Link>
         <div className="topbar-actions">
-          <div className="topbar-indicator"><small>Cobertura executável</small><strong>0,61%</strong></div>
+          <div className="topbar-indicator"><small>Cobertura executável</small><strong>{executablePercentage ? `${executablePercentage}%` : "…"}</strong></div>
           {identity ? <div className="context-strip" aria-label="Contexto ativo">
             <span><small>Organização ativa</small><strong>{identity.organization_name}</strong></span>
             <span><small>Empresa</small><strong>Não selecionada</strong></span>
