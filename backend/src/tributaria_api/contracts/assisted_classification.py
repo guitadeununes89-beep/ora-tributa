@@ -35,6 +35,9 @@ class AssistedClassificationRequest(BaseModel):
     @field_validator("product_attributes")
     @classmethod
     def governed_pilot_attributes(cls, value: dict[str, str]) -> dict[str, str]:
+        # Facts with no closed value set (governed identifiers, not enums) are
+        # exempt from the enum check below but still real, allowlisted facts.
+        free_text_facts = {"operation.zfm_area_version_id"}
         real_values = {
             "product.kind": {"MEDICINE", "OTHER", "UNKNOWN"},
             "product.anvisa_registration_status": {
@@ -52,9 +55,63 @@ class AssistedClassificationRequest(BaseModel):
                 "UNKNOWN",
             },
             "operation.buyer_is_acquirer": {"YES", "NO", "UNKNOWN"},
+            # RT-IBSCBS-0007 (LC 214/2025 art. 445; Resolução CGIBS 6/2026 art. 516)
+            "operation.origin_area_status": {"OUTSIDE_ZFM", "INSIDE_ZFM", "UNKNOWN"},
+            "operation.destination_area_status": {"ZFM", "OTHER", "UNKNOWN"},
+            "product.material_good_status": {"MATERIAL_GOOD", "NOT_MATERIAL_GOOD", "UNKNOWN"},
+            "product.industrialization_status": {
+                "INDUSTRIALIZED",
+                "NOT_INDUSTRIALIZED",
+                "UNKNOWN",
+            },
+            "product.origin_status": {"NATIONAL", "FOREIGN", "UNKNOWN"},
+            "buyer.establishment_area_status": {
+                "ESTABLISHED_IN_ZFM",
+                "NOT_ESTABLISHED_IN_ZFM",
+                "UNKNOWN",
+            },
+            "buyer.taxpayer_status": {"TAXPAYER", "NOT_TAXPAYER", "UNKNOWN"},
+            "buyer.art_442_habilitation_status": {"VALID", "INVALID", "UNKNOWN"},
+            "buyer.tax_regime_status": {
+                "REGULAR_IBS_CBS",
+                "SIMPLES_NACIONAL",
+                "OTHER",
+                "UNKNOWN",
+            },
+            "operation.invoice_suframa_registration_status": {
+                "PRESENT_AND_MATCHING",
+                "ABSENT_OR_MISMATCH",
+                "UNKNOWN",
+            },
+            "product.art_443_par1_exclusion_status": {"NOT_EXCLUDED", "EXCLUDED", "UNKNOWN"},
+            "operation.zfm_entry_proof_status": {
+                "CONFIRMED",
+                "NOT_CONFIRMED_AFTER_DEADLINE",
+                "PENDING_WITHIN_DEADLINE",
+                "UNKNOWN",
+            },
+            "operation.entry_deadline_status": {
+                "WITHIN_120_DAYS",
+                "VALID_EXTENSION_WITHIN_210_DAYS",
+                "EXPIRED",
+                "UNKNOWN",
+            },
+            # RT-IBSCBS-0008 (LC 214/2025 art. 448; Resolução CGIBS 6/2026 art. 519)
+            "seller.establishment_zfm_relation": {"INSIDE", "OUTSIDE", "BOUNDARY", "UNKNOWN"},
+            "buyer.establishment_zfm_relation": {"INSIDE", "OUTSIDE", "BOUNDARY", "UNKNOWN"},
+            "seller.zfm_incentivized_industry_status": {"VALID", "INVALID", "UNKNOWN"},
+            "buyer.zfm_incentivized_industry_status": {"VALID", "INVALID", "UNKNOWN"},
+            "product.intermediate_good_status": {
+                "INTERMEDIATE_GOOD",
+                "NOT_INTERMEDIATE_GOOD",
+                "UNKNOWN",
+            },
+            "operation.delivery_area_status": {"INSIDE_ZFM", "OUTSIDE_ZFM", "UNKNOWN"},
+            "operation.flow_type": {"DIRECT", "TOLL_MANUFACTURING", "UNKNOWN"},
+            "operation.taxable_scope_status": {"FULL_OPERATION", "VALUE_ADDED_ONLY", "UNKNOWN"},
         }
         for key, item in value.items():
-            if key.startswith("synthetic."):
+            if key.startswith("synthetic.") or key in free_text_facts:
                 continue
             if key not in real_values or item not in real_values[key]:
                 raise ValueError(f"unsupported governed fact or value: {key}")
@@ -67,6 +124,8 @@ class AssistedClassificationRequest(BaseModel):
             "product.anvisa_registration_status",
             "buyer.legal_nature",
             "operation.buyer_is_acquirer",
+            "operation.origin_area_status",
+            "seller.establishment_zfm_relation",
         }
         if (
             self.product_id is None

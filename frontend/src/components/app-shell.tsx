@@ -30,6 +30,7 @@ const navigation: NavigationItem[] = [
   { label: "Reforma Tributária", icon: "§", group: true },
   { label: "Classificação IBS/CBS", href: "/reforma-tributaria/classificacao", icon: "◈", nested: true },
   { label: "Cobertura Normativa", href: "/reforma-tributaria/cobertura", icon: "◎", nested: true },
+  { label: "Consulta ZFM (piloto)", href: "/reforma-tributaria/consulta-zfm", icon: "⛭", nested: true },
   { label: "Imposto Seletivo", icon: "IS", future: true, nested: true },
   { label: "Transição 2026–2033", icon: "↗", future: true, nested: true },
   { label: "Simulação", icon: "∑", future: true, nested: true },

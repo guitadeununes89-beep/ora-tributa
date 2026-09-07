@@ -79,6 +79,35 @@ def test_unapproved_real_tax_attribute_remains_rejected() -> None:
         request(product_attributes={"product.composition": "unknown"})
 
 
+def test_rt_ibscbs_0007_facts_are_accepted() -> None:
+    built = request(
+        product_attributes={
+            "operation.zfm_area_version_id": "TJA-ZFM-V1",
+            "operation.origin_area_status": "OUTSIDE_ZFM",
+            "buyer.art_442_habilitation_status": "VALID",
+            "operation.zfm_entry_proof_status": "PENDING_WITHIN_DEADLINE",
+        }
+    )
+    assert built.product_attributes["operation.origin_area_status"] == "OUTSIDE_ZFM"
+
+
+def test_rt_ibscbs_0008_facts_are_accepted() -> None:
+    built = request(
+        product_attributes={
+            "seller.establishment_zfm_relation": "INSIDE",
+            "buyer.establishment_zfm_relation": "BOUNDARY",
+            "operation.flow_type": "TOLL_MANUFACTURING",
+            "operation.taxable_scope_status": "VALUE_ADDED_ONLY",
+        }
+    )
+    assert built.product_attributes["seller.establishment_zfm_relation"] == "INSIDE"
+
+
+def test_zfm_fact_still_rejects_unknown_value() -> None:
+    with pytest.raises(ValidationError, match="unsupported governed fact"):
+        request(product_attributes={"operation.origin_area_status": "SOMEWHERE_ELSE"})
+
+
 def test_product_version_participates_in_factset_hash() -> None:
     first = FactSet(
         operation_date=date(2040, 1, 1),
