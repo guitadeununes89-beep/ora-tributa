@@ -587,3 +587,56 @@ ZFM seria rejeitado com HTTP 422, mesmo com a regra publicada e correta.
 
 Com isso, a cobertura de `3/164 (1,83%)` deixa de ser apenas um número no banco — está
 efetivamente utilizável por um analista através da interface real.
+
+## Etapa 13 — referência territorial informativa na consulta ZFM (não vinculante)
+
+**Data:** 2026-09-07
+
+Você pediu para eu seguir pelas duas frentes que eu havia identificado como abertas
+(monitoramento da `RT-IBSCBS-0009` e um resolvedor territorial real), escolhendo a melhor forma.
+`RT-IBSCBS-0009` continua sem nenhuma ação possível além de acompanhar fonte oficial (nada mudou).
+Na frente territorial, decidi **não** construir um resolvedor que preenche fatos automaticamente —
+os próprios specs territoriais (Etapa 7-9) documentam ressalvas como "cobre só parte do município"
+(ZFM) ou "Pacaraima não confirmado no regulamento" (Boa Vista), então qualquer determinação
+automática de `INSIDE`/`OUTSIDE` seria uma inferência arriscada, na contramão da regra do
+`AGENTS.md` de nunca presumir fato ausente. Em vez disso, construí uma **referência informativa**:
+mostra o que a base territorial governada já sabe, sem nunca decidir por quem preenche o
+formulário.
+
+1. **Backend**: novo endpoint `GET /territory/areas` (somente leitura), com repositório
+   (`infrastructure/database/territory_repository.py`) que lista apenas versões territoriais já
+   `PUBLISHED`, filtradas por organização. Sem caminho de escrita — carregar dado territorial real
+   continua sendo função exclusiva de `territory_governed_load_cli.py`, com todo o processo de
+   aprovação humana já existente. Teste novo (`test_territory_repository.py`) cobre isolamento por
+   organização e filtro de status. Ruff, mypy e os 177 testes (180 com `POSTGRES_TESTS=1`) seguem
+   limpos.
+2. **Frontend**: a tela `/reforma-tributaria/consulta-zfm` ganhou um campo opcional "Município do
+   estabelecimento (referência)". Ao digitar um município que aparece nos critérios de uma área
+   governada publicada, aparece um aviso **não vinculante** citando a área, versão e dispositivo
+   legal — mas nenhum campo de fato (os `<select>` ENUM) é preenchido automaticamente, e o aviso
+   deixa explícito que a área pode cobrir só parte do município ou exigir comprovação adicional.
+3. **Achado ao integrar os 6 specs**: as chaves de critério não são consistentes entre eles —
+   `municipio_sede` (string, nas ALC de sede única), `municipios_sede` (lista, na de sede dupla) e
+   `municipios_parcialmente_abrangidos` (lista, na ZFM). Tratei isso lendo as três chaves. Mais
+   importante: a chave `municipio_incluido_por_lei_posterior_nao_confirmado_no_regulamento` (onde
+   "Pacaraima" está guardado) foi **deliberadamente excluída** da leitura — verificado ao vivo no
+   navegador que digitar "Pacaraima" não produz nenhum aviso, exatamente como a ressalva jurídica
+   já registrada exige.
+4. **Verificação real no navegador** (não só teste automatizado): reiniciei a API (processo antigo
+   não tinha o novo endpoint), digitei "Manaus" → apareceu o aviso citando a Zona Franca de Manaus;
+   digitei "tabatinga" (minúsculo, sem acento) → apareceu o aviso da ALC de Tabatinga, confirmando
+   a normalização de caixa/acento; digitei "Pacaraima" → nenhum aviso, como esperado. Sem erros no
+   console do navegador.
+5. Dois testes novos de frontend cobrem o caso positivo e o caso negativo; suíte completa (13
+   testes), typecheck e lint do frontend continuam limpos.
+
+### O que isso NÃO faz
+
+- Não decide, infere nem preenche `buyer.establishment_area_status`,
+  `seller.establishment_zfm_relation` ou qualquer outro fato de `RT-IBSCBS-0007`/`0008` — o
+  analista sempre confirma manualmente. Isso é uma escolha de design deliberada, não uma limitação
+  técnica adiada: os próprios specs jurídicos aprovados dizem que uma verificação de município
+  sozinha não basta.
+- Não resolve `RT-IBSCBS-0009` (continua bloqueada, sem ação possível).
+- Não adiciona endereço, CEP ou geometria — continua sendo comparação textual de nome de município
+  contra os critérios administrativos já aprovados, exatamente o que o ADR-0021 previa como escopo.
