@@ -193,14 +193,11 @@ def _family_metrics(items: list[dict[str, Any]]) -> dict[str, int | str]:
                 1
                 for item in items
                 if any(
-                    specification["status"] == "DRAFT"
-                    for specification in item["specifications"]
+                    specification["status"] == "DRAFT" for specification in item["specifications"]
                 )
             ),
             "ready_for_review": sum(
-                1
-                for item in items
-                if item["review_readiness"] == "READY_FOR_HUMAN_REVIEW"
+                1 for item in items if item["review_readiness"] == "READY_FOR_HUMAN_REVIEW"
             ),
             "legal_review": sum(
                 1
@@ -276,14 +273,11 @@ def _status(
     return max(candidates, key=STATUS_PRIORITY.__getitem__)
 
 
-def _review_readiness(
-    specifications: list[dict[str, Any]], blockers: list[str]
-) -> str:
+def _review_readiness(specifications: list[dict[str, Any]], blockers: list[str]) -> str:
     if blockers:
         return "BLOCKED"
     if any(
-        specification.get("status") == "DRAFT"
-        and specification.get("implementation") is None
+        specification.get("status") == "DRAFT" and specification.get("implementation") is None
         for specification in specifications
     ):
         return "READY_FOR_HUMAN_REVIEW"
@@ -332,6 +326,7 @@ def _rule_view(value: dict[str, Any]) -> dict[str, Any]:
         "valid_from": value.get("valid_from"),
         "valid_to": value.get("valid_to"),
         "content_hash": value.get("content_hash"),
+        "queryable_rulesets": list(value.get("queryable_rulesets", [])),
     }
 
 

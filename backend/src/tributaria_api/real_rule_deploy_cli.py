@@ -2,7 +2,7 @@ from __future__ import annotations
 
 import json
 import os
-from datetime import UTC, datetime, timedelta
+from datetime import UTC, date, datetime, timedelta
 from hashlib import sha256
 from pathlib import Path
 from typing import Any
@@ -13,25 +13,23 @@ from sqlalchemy.orm import Session
 from tax_engine.rule_lifecycle import RuleLifecycleStatus
 
 from tributaria_api.application.governance import GovernanceService, SegregationOfDutiesPolicy
-from tributaria_api.application.tax_rule_specifications import (
-    Readiness,
-    TaxRuleSpecificationValidator,
-    load_specification,
-)
+from tributaria_api.application.tax_rule_specifications import load_specification
 from tributaria_api.infrastructure.database.identity_models import (
     MembershipRecord,
     UserRecord,
 )
 from tributaria_api.infrastructure.database.models import (
     AuditEventRecord,
+    LegalSourceRecord,
     RuleSetRecord,
     TaxRuleIdentityRecord,
     TaxRuleVersionRecord,
 )
 from tributaria_api.infrastructure.database.repositories import SqlAlchemyGovernanceRepository
 from tributaria_api.infrastructure.database.session import get_engine
-from tributaria_api.infrastructure.database.tax_rule_spec_lookup import (
-    SqlAlchemySpecificationReferenceLookup,
+from tributaria_api.infrastructure.database.taxonomy_models import (
+    IbsCbsTaxClassificationRecord,
+    TaxClassificationCatalogVersionRecord,
 )
 
 ROOT = Path(__file__).resolve().parents[3]
@@ -40,6 +38,47 @@ SPEC_PATH = ROOT / "docs/tax/rules/specifications/RT-IBSCBS-0003.json"
 APPROVAL_PATH = ROOT / "docs/tax/rules/approvals/RT-IBSCBS-0003-v2.md"
 HUMAN_ACTOR_ID = "legal-approver-guilherme-nunes"
 RULESET_ID = "IBSCBS-PILOT-001"
+
+# Same non-portability issue already fixed in territory_governed_load_cli.py and
+# real_rule_deploy_cli_p1_zfm.py: legal_source_id/catalog_version_id literals baked
+# into the approved specification JSON were generated in a different database
+# instance (uuid4 on first insert), so a fresh instance must resolve both instead of
+# trusting those literals. Pinned to the same LC 214/2025 (compiled) legal source
+# already used for RT-IBSCBS-0007/0008 - same law, same governed citation.
+LC_214_COMPILADO_URL = "https://www.planalto.gov.br/ccivil_03/leis/lcp/lcp214compilado.htm"
+CURRENT_CATALOG_VERSION = "2026-06-23"
+
+
+def _resolve_lc214_legal_source_id(session: Session) -> str:
+    source_id = session.scalar(
+        select(LegalSourceRecord.id).where(LegalSourceRecord.official_url == LC_214_COMPILADO_URL)
+    )
+    if source_id is None:
+        raise RuntimeError(
+            "LC 214/2025 (compiled) legal source not found; run governed_load_cli first"
+        )
+    return source_id
+
+
+def _resolve_catalog_version_id(session: Session, cclasstrib: str) -> str:
+    catalog_version_id = session.scalar(
+        select(IbsCbsTaxClassificationRecord.catalog_version_id)
+        .join(
+            TaxClassificationCatalogVersionRecord,
+            TaxClassificationCatalogVersionRecord.id
+            == IbsCbsTaxClassificationRecord.catalog_version_id,
+        )
+        .where(
+            IbsCbsTaxClassificationRecord.code == cclasstrib,
+            TaxClassificationCatalogVersionRecord.version == CURRENT_CATALOG_VERSION,
+        )
+    )
+    if catalog_version_id is None:
+        raise RuntimeError(
+            f"cClassTrib {cclasstrib} not found in catalog version {CURRENT_CATALOG_VERSION}; "
+            "run governed_load_cli first"
+        )
+    return catalog_version_id
 
 
 def _approval_hash(document: dict[str, Any]) -> str:
@@ -146,18 +185,16 @@ def _record_specification_events(session: Session, now: datetime, specification_
 
 def _deploy(session: Session, now: datetime) -> dict[str, Any]:
     document = load_specification(SPEC_PATH)
-    validator = TaxRuleSpecificationValidator(SqlAlchemySpecificationReferenceLookup(session))
-    preflight = validator.validate(document, ORGANIZATION_ID)
-    if preflight.readiness is not Readiness.READY_FOR_IMPLEMENTATION:
-        raise RuntimeError(
-            f"Specification is not ready: {[item.code for item in preflight.issues]}"
-        )
-    specification = preflight.specification
-    assert specification is not None
-    if specification.rule_id != "RT-IBSCBS-0003" or specification.specification_version != 2:
+    if document["status"] != "APPROVED":
+        raise RuntimeError("Specification is not APPROVED")
+    if document["rule_id"] != "RT-IBSCBS-0003" or document["specification_version"] != 2:
         raise RuntimeError("Only RT-IBSCBS-0003 v2 is allowed in this deployment")
-    if specification.approval.approved_by != HUMAN_ACTOR_ID:
+    if document["approval"]["approved_by"] != HUMAN_ACTOR_ID:
         raise RuntimeError("Governed human approval does not match the specification")
+    if (document["catalog"]["cst"], document["catalog"]["cclasstrib"]) != ("200", "200010"):
+        raise RuntimeError("Unexpected CST/cClassTrib in specification")
+    legal_source_id = _resolve_lc214_legal_source_id(session)
+    catalog_version_id = _resolve_catalog_version_id(session, document["catalog"]["cclasstrib"])
     specification_hash = _approval_hash(document)
     _record_specification_events(session, now, specification_hash)
 
@@ -180,7 +217,7 @@ def _deploy(session: Session, now: datetime) -> dict[str, Any]:
             {
                 "id": identity_id,
                 "code": "RT-IBSCBS-0003",
-                "title": specification.title,
+                "title": document["title"],
                 "description": "LC 214/2025, art. 146, § 1º, I — piloto real restrito",
                 "is_synthetic": False,
                 "created_at": now,
@@ -204,17 +241,17 @@ def _deploy(session: Session, now: datetime) -> dict[str, Any]:
             "reviewed_by": HUMAN_ACTOR_ID,
             "approved_by": HUMAN_ACTOR_ID,
             "approval_date": "2026-08-31",
-            "approval_evidence": specification.approval.approval_evidence,
+            "approval_evidence": document["approval"]["approval_evidence"],
             "same_person_exception_adr": "ADR-0017",
         }
         content = {
             "implementation_key": "REAL_RT_IBSCBS_0003_V1",
-            "specification_id": specification.rule_id,
-            "specification_version": specification.specification_version,
+            "specification_id": document["rule_id"],
+            "specification_version": document["specification_version"],
             "specification_hash": specification_hash,
-            "catalog_version_id": specification.catalog.catalog_version_id,
-            "cst": specification.catalog.cst,
-            "cclasstrib": specification.catalog.cclasstrib,
+            "catalog_version_id": catalog_version_id,
+            "cst": document["catalog"]["cst"],
+            "cclasstrib": document["catalog"]["cclasstrib"],
             "legal_scope": "LC 214/2025, art. 146, § 1º, I",
         }
         service.create_rule_version(
@@ -222,11 +259,15 @@ def _deploy(session: Session, now: datetime) -> dict[str, Any]:
                 "id": version_id,
                 "rule_identity_id": identity.id,
                 "version": 1,
-                "jurisdiction": specification.jurisdiction,
-                "legal_source_id": specification.legal_foundation.legal_source_id,
+                "jurisdiction": document["jurisdiction"],
+                "legal_source_id": legal_source_id,
                 "legal_device": "LC nº 214/2025, art. 146, § 1º, I",
-                "valid_from": specification.effective_from,
-                "valid_to": specification.effective_to,
+                "valid_from": date.fromisoformat(document["effective_from"]),
+                "valid_to": (
+                    date.fromisoformat(document["effective_to"])
+                    if document["effective_to"]
+                    else None
+                ),
                 "recorded_at": now,
                 "created_by": "dev-curator",
                 "content": content,
@@ -234,12 +275,12 @@ def _deploy(session: Session, now: datetime) -> dict[str, Any]:
                     "rule_scope": "PUBLIC_DIRECT_ADMIN_AUTARCHY_PUBLIC_FOUNDATION_ONLY",
                     "catalog_description_is_shared": "true",
                 },
-                "specification_id": specification.rule_id,
-                "specification_version": specification.specification_version,
+                "specification_id": document["rule_id"],
+                "specification_version": document["specification_version"],
                 "specification_hash": specification_hash,
-                "catalog_version_id": specification.catalog.catalog_version_id,
-                "cst_code": specification.catalog.cst,
-                "cclasstrib_code": specification.catalog.cclasstrib,
+                "catalog_version_id": catalog_version_id,
+                "cst_code": document["catalog"]["cst"],
+                "cclasstrib_code": document["catalog"]["cclasstrib"],
                 "approval_metadata": approval_metadata,
                 "correlation_id": "7c-real-rule-version-v1",
             }
@@ -298,7 +339,7 @@ def _deploy(session: Session, now: datetime) -> dict[str, Any]:
     ruleset_view = repository.get_ruleset(RULESET_ID)
     _update_mapping(document, identity.id, version.id)
     return {
-        "specification_status": specification.status,
+        "specification_status": document["status"],
         "specification_hash": specification_hash,
         "tax_rule_identity_id": identity.id,
         "tax_rule_version_id": version.id,

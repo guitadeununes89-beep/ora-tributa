@@ -15,7 +15,8 @@ type Family = Metrics & { name: string };
 type Specification = { rule_id: string; version: number; title: string; status: string;
   legal_device: string; effective_from: string; effective_to: string | null };
 type Rule = { rule_code: string; version: number; status: string; rule_version_id: string;
-  legal_device: string; valid_from: string; valid_to: string | null; content_hash: string };
+  legal_device: string; valid_from: string; valid_to: string | null; content_hash: string;
+  queryable_rulesets: string[] };
 type History = { catalog_version: string; catalog_version_id: string; name: string;
   official_description: string; valid_from: string | null; valid_to: string | null;
   updated_on: string | null; artifact_hash: string };
@@ -29,6 +30,15 @@ type CoverageItem = { cst: string; cst_description: string | null; cclasstrib: s
 type Coverage = { catalog: { version: string; version_id: string; technical_document: string;
   artifact_hash: string; official_url: string }; metrics: Metrics; families: Family[]; items: CoverageItem[];
   disclaimer: string };
+
+// Roteamento manual, temporário: cada ruleset publicado precisa apontar para a tela de
+// consulta que sabe perguntar seus fatos. Cresce/atualiza junto com a cobertura (3/164 hoje);
+// um ruleset sem entrada aqui simplesmente não ganha o link "Consultar" — nunca inventamos um.
+const RULESET_CONSULTATION_LINKS: Record<string, string> = {
+  "IBSCBS-PILOT-001": "/reforma-tributaria/consulta",
+  "IBSCBS-ZFM-0007-PILOT-001": "/reforma-tributaria/consulta-zfm",
+  "IBSCBS-ZFM-0008-PILOT-001": "/reforma-tributaria/consulta-zfm",
+};
 
 const STATUS_LABELS: Record<string, string> = {
   CATALOG_ONLY: "Somente catálogo", LEGAL_MAPPING_REQUIRED: "Mapeamento jurídico necessário",
@@ -118,7 +128,12 @@ export function CoverageDashboard() {
         <h3>Especificações associadas</h3>{selected.specifications.length ? <ul>{selected.specifications.map((spec) => <li key={spec.rule_id}>
           <strong>{spec.rule_id}</strong> v{spec.version} · {spec.status}<br /><small>{spec.legal_device}</small></li>)}</ul> : <p>Nenhuma especificação jurídica.</p>}
         <h3>Regras associadas</h3>{selected.rules.length ? <ul>{selected.rules.map((rule) => <li key={rule.rule_version_id}>
-          <strong>{rule.rule_code}</strong> v{rule.version} · {rule.status}</li>)}</ul> : <p>Nenhuma regra executável.</p>}
+          <strong>{rule.rule_code}</strong> v{rule.version} · {rule.status}
+          {rule.queryable_rulesets.map((rulesetId) => {
+            const href = RULESET_CONSULTATION_LINKS[rulesetId];
+            return href ? <a key={rulesetId} className="coverage-consult-link" href={href}>
+              Consultar via {rulesetId} →</a> : null;
+          })}</li>)}</ul> : <p>Nenhuma regra executável.</p>}
         {selected.blockers.length > 0 && <><h3>Bloqueadores explícitos</h3><ul>{selected.blockers.map((blocker) => <li key={blocker}>{blocker}</li>)}</ul></>}
         <details><summary>Indicadores oficiais</summary><pre>{JSON.stringify(selected.indicators, null, 2)}</pre></details>
         <h3>Histórico da tabela</h3>{selected.history?.length ? <div className="coverage-history">{selected.history.map((entry) => <section key={entry.catalog_version_id}>

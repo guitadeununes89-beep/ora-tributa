@@ -5,7 +5,7 @@ from collections.abc import Sequence
 from datetime import UTC, date, datetime
 from typing import Any, cast
 
-from sqlalchemy import select
+from sqlalchemy import func, select
 from sqlalchemy.exc import IntegrityError
 from sqlalchemy.orm import Session, selectinload
 from tax_engine.engine import RuleSet
@@ -228,8 +228,37 @@ class SqlAlchemyGovernanceRepository:
                 .order_by(RuleSetRecord.id)
             ).all()
             item["rulesets"] = list(ruleset_ids)
+            item["queryable_rulesets"] = self._queryable_rulesets(record.id)
             result.append(item)
         return result
+
+    def _queryable_rulesets(self, rule_version_id: str) -> list[str]:
+        """Published rulesets that can actually be queried for this rule alone.
+
+        A ruleset only qualifies if it is PUBLISHED *and* contains this rule and
+        no other - mirroring ADR-0017's "one explicit ruleset per rule" design.
+        A published ruleset that bundles mutually-exclusive rules together
+        always reports missing facts for whichever rule does not apply (see
+        CLAUDE_STATUS.md, Etapa 11), so it must never be suggested as a
+        candidate here even though it is technically PUBLISHED.
+        """
+        single_item_rulesets = (
+            select(RuleSetItemRecord.ruleset_id)
+            .group_by(RuleSetItemRecord.ruleset_id)
+            .having(func.count() == 1)
+        )
+        return list(
+            self._session.scalars(
+                select(RuleSetRecord.id)
+                .join(RuleSetItemRecord, RuleSetItemRecord.ruleset_id == RuleSetRecord.id)
+                .where(
+                    RuleSetItemRecord.rule_version_id == rule_version_id,
+                    RuleSetRecord.status == "PUBLISHED",
+                    RuleSetRecord.id.in_(single_item_rulesets),
+                )
+                .order_by(RuleSetRecord.id)
+            ).all()
+        )
 
     def save_evaluation(
         self,

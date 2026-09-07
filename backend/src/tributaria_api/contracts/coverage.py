@@ -27,6 +27,7 @@ class CoverageRuleView(BaseModel):
     valid_from: date
     valid_to: date | None
     content_hash: str
+    queryable_rulesets: list[str]
 
 
 class CoverageItemView(BaseModel):

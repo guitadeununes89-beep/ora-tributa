@@ -305,8 +305,8 @@
     "approval_evidence": "docs/tax/rules/approvals/RT-IBSCBS-0003-v2.md#sha256=fb53804622dd94a5a753c9b3d308a65192e277068df5be170bd50b33d6e0a7f6"
   },
   "implementation": {
-    "tax_rule_identity_id": "7e0c67f5-0a8c-46c4-94ea-c9f258ef2e67",
-    "tax_rule_version_id": "56322ae2-aa2a-4d7d-8af0-d8b348953c0e",
+    "tax_rule_identity_id": "26a3a85d-1396-4268-b8e9-f1f05cb553f1",
+    "tax_rule_version_id": "9df26fcc-2d5a-42dd-9d54-0a9bf642b0d3",
     "implemented_at": "2026-08-31"
   },
   "superseded_by_specification_id": null

@@ -640,3 +640,61 @@ formulário.
 - Não resolve `RT-IBSCBS-0009` (continua bloqueada, sem ação possível).
 - Não adiciona endereço, CEP ou geometria — continua sendo comparação textual de nome de município
   contra os critérios administrativos já aprovados, exatamente o que o ADR-0021 previa como escopo.
+
+## Etapa 14 — elo cClassTrib → ruleset consultável, e uma lacuna real corrigida (RT-IBSCBS-0003)
+
+**Data:** 2026-09-07
+
+Você compartilhou a descrição da e-Auditoria (módulo "Tributação na Reforma") como referência de
+onde quer chegar: consulta por NCM/NBS, código ou descrição, com base legal e várias regras
+(CBS/IBS/IS/IPI/II/PIS-COFINS/ICMS/ICMS-ST/Pauta Fiscal/CEST), lote de até 500 itens, leitura de
+XML de NF-e/EFD, laudos com identidade visual do escritório e um simulador de regime 2027-2033.
+Registrei essa visão em memória de longo prazo (fora deste repositório) para orientar priorização
+futura, mas fui explícito com você de que replicar tudo isso é trabalho de vários estágios contra
+um produto comercial maduro — nada disso foi (nem deveria ser) tentado numa única etapa.
+
+Escolhi como primeira fatia concreta o elo que faltava para a consulta "por código ou descrição"
+já existente (`/reforma-tributaria/cobertura` já buscava por texto, mas não dizia qual ruleset
+consultar):
+
+1. **Backend**: `GET /taxonomy/ibs-cbs/coverage` (e `/coverage/{code}`) passam a incluir, por regra
+   associada a um cClassTrib, `queryable_rulesets` — os rulesets **publicados e de regra única**
+   que realmente respondem por aquele código. A exigência de regra única (não só `PUBLISHED`)
+   existe porque o próprio Etapa 11 já tinha descoberto e documentado que um ruleset publicado
+   pode empacotar regras mutuamente exclusivas e sempre retornar `NECESSITA_VALIDACAO` — o ruleset
+   abandonado `IBSCBS-ZFM-PILOT-001` continua publicado (imutável) mas nunca aparece como
+   candidato, exatamente por isso. Novo teste de integração
+   (`test_queryable_rulesets.py`) reproduz esse cenário exato contra Postgres real.
+2. **Frontend**: no painel `/reforma-tributaria/cobertura`, cada regra associada a um cClassTrib
+   publicado ganha um link **"Consultar via `<ruleset_id>` →"** apontando para a tela de consulta
+   correta (`/reforma-tributaria/consulta` ou `/reforma-tributaria/consulta-zfm`, conforme um mapa
+   pequeno e explícito no próprio componente — um ruleset sem entrada nesse mapa simplesmente não
+   ganha link, nunca inventamos um). Testado (3 testes novos) e verificado ao vivo no navegador
+   buscando por "200022" (mostrou o link certo) e "200099"/casos sem ruleset (sem link).
+3. **Achado real ao testar isso no navegador, não previsto na etapa**: `RT-IBSCBS-0003`
+   (cClassTrib 200010) **não estava de fato publicada neste banco Postgres local** — só as duas
+   regras da ZFM (0007/0008) estavam. A tabela `rulesets` nem tinha `IBSCBS-PILOT-001`. Ou seja, a
+   cobertura real aqui era 2/164, não 3/164 como as etapas anteriores registraram, e a tela
+   `/reforma-tributaria/consulta` (a original, usada para 0003) quebraria se alguém tentasse usar
+   nesta máquina. Avisei você antes de agir; você autorizou a correção.
+4. **Correção**: `real_rule_deploy_cli.py` (o script original de implantação de `RT-IBSCBS-0003`)
+   tinha o mesmo bug de portabilidade de UUID já corrigido em três lugares antes (território,
+   0007/0008): `legal_source_id`/`catalog_version_id` eram literais fixos de outra instância de
+   banco. Apliquei a mesma correção (resolver dinamicamente por URL oficial e por
+   cclasstrib+versão do catálogo, em vez de confiar no literal) e rodei o CLI já existente —
+   nenhuma decisão jurídica nova, a aprovação de `RT-IBSCBS-0003` v2 já existia desde antes desta
+   sessão. Resultado: `RT-IBSCBS-0003` agora está `PUBLISHED` de verdade neste banco, ruleset
+   `IBSCBS-PILOT-001` criado e publicado, cobertura real confirmada em 3/164 (1,83%) tanto no
+   endpoint de cobertura quanto no dashboard.
+5. Suíte completa: 178 testes Python passando (182 com `POSTGRES_TESTS=1`), ruff/mypy limpos, 18
+   testes de frontend passando, typecheck/lint do frontend limpos.
+
+### O que isso NÃO faz
+
+- Não implementa consulta por NCM/NBS — ainda não existe tabela NCM nem mapeamento NCM→cClassTrib
+  no sistema; isso é uma frente própria, maior, ainda não iniciada.
+- Não lê XML de NF-e, EFD ou planilhas, não faz consulta em lote, não gera laudo/relatório
+  exportável nem envia nada por e-mail — tudo isso é visão de longo prazo (e-Auditoria), não
+  escopo desta etapa.
+- Não expande cobertura jurídica além do que já existia (3/164 continua sendo o teto real; a
+  correção desta etapa apenas tornou esse número verdadeiro no banco, não criou regra nova).

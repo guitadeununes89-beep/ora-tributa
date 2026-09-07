@@ -100,6 +100,7 @@ def test_published_rule_counts_the_code_once_and_marks_scope_as_partial() -> Non
                 "valid_from": "2026-01-01",
                 "valid_to": None,
                 "content_hash": "b" * 64,
+                "queryable_rulesets": ["IBSCBS-PILOT-001"],
             }
         ],
     )
@@ -108,6 +109,36 @@ def test_published_rule_counts_the_code_once_and_marks_scope_as_partial() -> Non
     assert result["metrics"]["executable_percentage"] == "100.00"
     assert result["items"][0]["coverage_status"] == "PUBLISHED"
     assert "sem afirmar cobertura integral" in result["items"][0]["coverage_caveat"]
+    assert result["items"][0]["rules"][0]["queryable_rulesets"] == ["IBSCBS-PILOT-001"]
+
+
+def test_published_rule_without_a_single_rule_ruleset_has_no_queryable_ruleset() -> None:
+    """A rule can be PUBLISHED yet only belong to a bundled ruleset (e.g. the abandoned
+    IBSCBS-ZFM-PILOT-001 combining two mutually-exclusive rules, see CLAUDE_STATUS.md
+    Etapa 11) - the repository already excludes those, so this only has to prove the
+    coverage projection surfaces whatever the repository sends, empty list included."""
+    result = build_national_coverage(
+        [classification("200022", "Art. 445")],
+        [specification("RT-IBSCBS-0007", "200022", "APPROVED")],
+        [
+            {
+                "id": "version",
+                "rule_identity_id": "identity",
+                "identity_code": "RT-IBSCBS-0007",
+                "version": 1,
+                "lifecycle_status": "PUBLISHED",
+                "cclasstrib_code": "200022",
+                "legal_device": "Art. 445",
+                "valid_from": "2026-01-01",
+                "valid_to": None,
+                "content_hash": "c" * 64,
+                "queryable_rulesets": [],
+            }
+        ],
+    )
+
+    assert result["items"][0]["coverage_status"] == "PUBLISHED"
+    assert result["items"][0]["rules"][0]["queryable_rulesets"] == []
 
 
 def test_coverage_groups_codes_by_official_family_without_assuming_one_rule_per_code() -> None:
