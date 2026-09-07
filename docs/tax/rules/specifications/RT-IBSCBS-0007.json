@@ -22,34 +22,240 @@
     "cclasstrib": "200022"
   },
   "required_facts": [
-    {"name": "operation.date", "legal_meaning": "Data da operação para seleção da redação e do catálogo temporalmente aplicáveis.", "value_type": "DATE", "allowed_values": null, "source": "Documento fiscal"},
-    {"name": "operation.zfm_area_version_id", "legal_meaning": "Versão governada do perímetro da ZFM usada na origem, destino e estabelecimento.", "value_type": "STRING", "allowed_values": null, "source": "TaxJurisdictionArea futuro, conforme ADR-0021"},
-    {"name": "operation.origin_area_status", "legal_meaning": "Confirmação de que a operação se origina fora da Zona Franca de Manaus.", "value_type": "ENUM", "allowed_values": ["OUTSIDE_ZFM", "INSIDE_ZFM", "UNKNOWN"], "source": "Documento fiscal e evidência de origem"},
-    {"name": "operation.destination_area_status", "legal_meaning": "Confirmação de que o destino da operação é a Zona Franca de Manaus.", "value_type": "ENUM", "allowed_values": ["ZFM", "OTHER", "UNKNOWN"], "source": "Documento fiscal e estabelecimento de destino"},
-    {"name": "product.material_good_status", "legal_meaning": "Natureza do objeto como bem material, sem conclusão baseada apenas na descrição.", "value_type": "ENUM", "allowed_values": ["MATERIAL_GOOD", "NOT_MATERIAL_GOOD", "UNKNOWN"], "source": "Cadastro e documentação do bem"},
-    {"name": "product.industrialization_status", "legal_meaning": "Condição do bem como industrializado.", "value_type": "ENUM", "allowed_values": ["INDUSTRIALIZED", "NOT_INDUSTRIALIZED", "UNKNOWN"], "source": "Documentação técnica e fiscal"},
-    {"name": "product.origin_status", "legal_meaning": "Origem nacional do bem.", "value_type": "ENUM", "allowed_values": ["NATIONAL", "FOREIGN", "UNKNOWN"], "source": "Documento fiscal e comprovação de origem"},
-    {"name": "buyer.establishment_area_status", "legal_meaning": "Estabelecimento do contribuinte destinatário na Zona Franca de Manaus.", "value_type": "ENUM", "allowed_values": ["ESTABLISHED_IN_ZFM", "NOT_ESTABLISHED_IN_ZFM", "UNKNOWN"], "source": "Cadastro oficial e documentos do destinatário"},
-    {"name": "buyer.taxpayer_status", "legal_meaning": "Condição do adquirente como contribuinte do IBS/CBS.", "value_type": "ENUM", "allowed_values": ["TAXPAYER", "NOT_TAXPAYER", "UNKNOWN"], "source": "Cadastro tributário oficial temporalmente válido"},
-    {"name": "buyer.art_442_habilitation_status", "legal_meaning": "Habilitação válida nos termos do art. 442 na data da operação.", "value_type": "ENUM", "allowed_values": ["VALID", "INVALID", "UNKNOWN"], "source": "Evidência oficial da Suframa e regulamentação aplicável"},
-    {"name": "buyer.tax_regime_status", "legal_meaning": "Destinatário sujeito ao regime regular do IBS/CBS ou optante pelo Simples Nacional.", "value_type": "ENUM", "allowed_values": ["REGULAR_IBS_CBS", "SIMPLES_NACIONAL", "OTHER", "UNKNOWN"], "source": "Cadastro tributário oficial temporalmente válido"},
-    {"name": "operation.invoice_suframa_registration_status", "legal_meaning": "Documento fiscal contém a inscrição específica do destinatário na Suframa no campo próprio.", "value_type": "ENUM", "allowed_values": ["PRESENT_AND_MATCHING", "ABSENT_OR_MISMATCH", "UNKNOWN"], "source": "Resolução CGIBS nº 6/2026, art. 516, § 2º"},
-    {"name": "product.art_443_par1_exclusion_status", "legal_meaning": "Verificação de que o bem não integra as exclusões do art. 443, § 1º.", "value_type": "ENUM", "allowed_values": ["NOT_EXCLUDED", "EXCLUDED", "UNKNOWN"], "source": "LC nº 214/2025 e evidência de classificação do bem"},
-    {"name": "operation.zfm_entry_proof_status", "legal_meaning": "Estado do evento fiscal de internamento e do desembaraço que comprovam o ingresso físico.", "value_type": "ENUM", "allowed_values": ["CONFIRMED", "NOT_CONFIRMED_AFTER_DEADLINE", "PENDING_WITHIN_DEADLINE", "UNKNOWN"], "source": "Resolução CGIBS nº 6/2026, arts. 551 a 553"},
-    {"name": "operation.entry_deadline_status", "legal_meaning": "Situação do prazo de 120 dias ou da prorrogação deferida até 210 dias.", "value_type": "ENUM", "allowed_values": ["WITHIN_120_DAYS", "VALID_EXTENSION_WITHIN_210_DAYS", "EXPIRED", "UNKNOWN"], "source": "Resolução CGIBS nº 6/2026, art. 516, §§ 6º e 7º"}
+    {
+      "name": "operation.date",
+      "legal_meaning": "Data da operação para seleção da redação e do catálogo temporalmente aplicáveis.",
+      "value_type": "DATE",
+      "allowed_values": null,
+      "source": "Documento fiscal"
+    },
+    {
+      "name": "operation.zfm_area_version_id",
+      "legal_meaning": "Versão governada do perímetro da ZFM usada na origem, destino e estabelecimento.",
+      "value_type": "STRING",
+      "allowed_values": null,
+      "source": "TaxJurisdictionArea futuro, conforme ADR-0021"
+    },
+    {
+      "name": "operation.origin_area_status",
+      "legal_meaning": "Confirmação de que a operação se origina fora da Zona Franca de Manaus.",
+      "value_type": "ENUM",
+      "allowed_values": [
+        "OUTSIDE_ZFM",
+        "INSIDE_ZFM",
+        "UNKNOWN"
+      ],
+      "source": "Documento fiscal e evidência de origem"
+    },
+    {
+      "name": "operation.destination_area_status",
+      "legal_meaning": "Confirmação de que o destino da operação é a Zona Franca de Manaus.",
+      "value_type": "ENUM",
+      "allowed_values": [
+        "ZFM",
+        "OTHER",
+        "UNKNOWN"
+      ],
+      "source": "Documento fiscal e estabelecimento de destino"
+    },
+    {
+      "name": "product.material_good_status",
+      "legal_meaning": "Natureza do objeto como bem material, sem conclusão baseada apenas na descrição.",
+      "value_type": "ENUM",
+      "allowed_values": [
+        "MATERIAL_GOOD",
+        "NOT_MATERIAL_GOOD",
+        "UNKNOWN"
+      ],
+      "source": "Cadastro e documentação do bem"
+    },
+    {
+      "name": "product.industrialization_status",
+      "legal_meaning": "Condição do bem como industrializado.",
+      "value_type": "ENUM",
+      "allowed_values": [
+        "INDUSTRIALIZED",
+        "NOT_INDUSTRIALIZED",
+        "UNKNOWN"
+      ],
+      "source": "Documentação técnica e fiscal"
+    },
+    {
+      "name": "product.origin_status",
+      "legal_meaning": "Origem nacional do bem.",
+      "value_type": "ENUM",
+      "allowed_values": [
+        "NATIONAL",
+        "FOREIGN",
+        "UNKNOWN"
+      ],
+      "source": "Documento fiscal e comprovação de origem"
+    },
+    {
+      "name": "buyer.establishment_area_status",
+      "legal_meaning": "Estabelecimento do contribuinte destinatário na Zona Franca de Manaus.",
+      "value_type": "ENUM",
+      "allowed_values": [
+        "ESTABLISHED_IN_ZFM",
+        "NOT_ESTABLISHED_IN_ZFM",
+        "UNKNOWN"
+      ],
+      "source": "Cadastro oficial e documentos do destinatário"
+    },
+    {
+      "name": "buyer.taxpayer_status",
+      "legal_meaning": "Condição do adquirente como contribuinte do IBS/CBS.",
+      "value_type": "ENUM",
+      "allowed_values": [
+        "TAXPAYER",
+        "NOT_TAXPAYER",
+        "UNKNOWN"
+      ],
+      "source": "Cadastro tributário oficial temporalmente válido"
+    },
+    {
+      "name": "buyer.art_442_habilitation_status",
+      "legal_meaning": "Habilitação válida nos termos do art. 442 na data da operação.",
+      "value_type": "ENUM",
+      "allowed_values": [
+        "VALID",
+        "INVALID",
+        "UNKNOWN"
+      ],
+      "source": "Evidência oficial da Suframa e regulamentação aplicável"
+    },
+    {
+      "name": "buyer.tax_regime_status",
+      "legal_meaning": "Destinatário sujeito ao regime regular do IBS/CBS ou optante pelo Simples Nacional.",
+      "value_type": "ENUM",
+      "allowed_values": [
+        "REGULAR_IBS_CBS",
+        "SIMPLES_NACIONAL",
+        "OTHER",
+        "UNKNOWN"
+      ],
+      "source": "Cadastro tributário oficial temporalmente válido"
+    },
+    {
+      "name": "operation.invoice_suframa_registration_status",
+      "legal_meaning": "Documento fiscal contém a inscrição específica do destinatário na Suframa no campo próprio.",
+      "value_type": "ENUM",
+      "allowed_values": [
+        "PRESENT_AND_MATCHING",
+        "ABSENT_OR_MISMATCH",
+        "UNKNOWN"
+      ],
+      "source": "Resolução CGIBS nº 6/2026, art. 516, § 2º"
+    },
+    {
+      "name": "product.art_443_par1_exclusion_status",
+      "legal_meaning": "Verificação de que o bem não integra as exclusões do art. 443, § 1º.",
+      "value_type": "ENUM",
+      "allowed_values": [
+        "NOT_EXCLUDED",
+        "EXCLUDED",
+        "UNKNOWN"
+      ],
+      "source": "LC nº 214/2025 e evidência de classificação do bem"
+    },
+    {
+      "name": "operation.zfm_entry_proof_status",
+      "legal_meaning": "Estado do evento fiscal de internamento e do desembaraço que comprovam o ingresso físico.",
+      "value_type": "ENUM",
+      "allowed_values": [
+        "CONFIRMED",
+        "NOT_CONFIRMED_AFTER_DEADLINE",
+        "PENDING_WITHIN_DEADLINE",
+        "UNKNOWN"
+      ],
+      "source": "Resolução CGIBS nº 6/2026, arts. 551 a 553"
+    },
+    {
+      "name": "operation.entry_deadline_status",
+      "legal_meaning": "Situação do prazo de 120 dias ou da prorrogação deferida até 210 dias.",
+      "value_type": "ENUM",
+      "allowed_values": [
+        "WITHIN_120_DAYS",
+        "VALID_EXTENSION_WITHIN_210_DAYS",
+        "EXPIRED",
+        "UNKNOWN"
+      ],
+      "source": "Resolução CGIBS nº 6/2026, art. 516, §§ 6º e 7º"
+    }
   ],
   "optional_facts": [
-    {"name": "product.description", "legal_meaning": "Descrição auxiliar incapaz de substituir origem, industrialização, exclusões e prova de ingresso.", "value_type": "STRING", "allowed_values": null, "source": "Cadastro e documento fiscal"},
-    {"name": "operation.toll_manufacturing_status", "legal_meaning": "Registro da hipótese específica de industrialização por encomenda prevista no § 5º.", "value_type": "ENUM", "allowed_values": ["APPLICABLE", "NOT_APPLICABLE", "UNKNOWN"], "source": "Contrato e documentos da operação"}
+    {
+      "name": "product.description",
+      "legal_meaning": "Descrição auxiliar incapaz de substituir origem, industrialização, exclusões e prova de ingresso.",
+      "value_type": "STRING",
+      "allowed_values": null,
+      "source": "Cadastro e documento fiscal"
+    },
+    {
+      "name": "operation.toll_manufacturing_status",
+      "legal_meaning": "Registro da hipótese específica de industrialização por encomenda prevista no § 5º.",
+      "value_type": "ENUM",
+      "allowed_values": [
+        "APPLICABLE",
+        "NOT_APPLICABLE",
+        "UNKNOWN"
+      ],
+      "source": "Contrato e documentos da operação"
+    }
   ],
   "deterministic_conditions": [
-    {"condition_id": "RT-IBSCBS-0007-C01", "description": "A operação deve estar no período normativo e partir de fora da ZFM com destino à ZFM, conforme uma versão territorial governada.", "required_fact_names": ["operation.date", "operation.zfm_area_version_id", "operation.origin_area_status", "operation.destination_area_status"]},
-    {"condition_id": "RT-IBSCBS-0007-C02", "description": "O objeto deve ser bem material industrializado de origem nacional.", "required_fact_names": ["product.material_good_status", "product.industrialization_status", "product.origin_status"]},
-    {"condition_id": "RT-IBSCBS-0007-C03", "description": "O adquirente deve ser contribuinte estabelecido na ZFM, habilitado pelo art. 442 e no regime admitido.", "required_fact_names": ["buyer.establishment_area_status", "buyer.taxpayer_status", "buyer.art_442_habilitation_status", "buyer.tax_regime_status"]},
-    {"condition_id": "RT-IBSCBS-0007-C04", "description": "O bem não pode estar excluído e o documento deve conter inscrição Suframa compatível.", "required_fact_names": ["product.art_443_par1_exclusion_status", "operation.invoice_suframa_registration_status"]},
-    {"condition_id": "RT-IBSCBS-0007-C05", "description": "O internamento deve ser confirmado; enquanto dentro do prazo, a pendência exige acompanhamento e, após o prazo, gera evento de não internamento.", "required_fact_names": ["operation.zfm_entry_proof_status", "operation.entry_deadline_status"]}
+    {
+      "condition_id": "RT-IBSCBS-0007-C01",
+      "description": "A operação deve estar no período normativo e partir de fora da ZFM com destino à ZFM, conforme uma versão territorial governada.",
+      "required_fact_names": [
+        "operation.date",
+        "operation.zfm_area_version_id",
+        "operation.origin_area_status",
+        "operation.destination_area_status"
+      ]
+    },
+    {
+      "condition_id": "RT-IBSCBS-0007-C02",
+      "description": "O objeto deve ser bem material industrializado de origem nacional.",
+      "required_fact_names": [
+        "product.material_good_status",
+        "product.industrialization_status",
+        "product.origin_status"
+      ]
+    },
+    {
+      "condition_id": "RT-IBSCBS-0007-C03",
+      "description": "O adquirente deve ser contribuinte estabelecido na ZFM, habilitado pelo art. 442 e no regime admitido.",
+      "required_fact_names": [
+        "buyer.establishment_area_status",
+        "buyer.taxpayer_status",
+        "buyer.art_442_habilitation_status",
+        "buyer.tax_regime_status"
+      ]
+    },
+    {
+      "condition_id": "RT-IBSCBS-0007-C04",
+      "description": "O bem não pode estar excluído e o documento deve conter inscrição Suframa compatível.",
+      "required_fact_names": [
+        "product.art_443_par1_exclusion_status",
+        "operation.invoice_suframa_registration_status"
+      ]
+    },
+    {
+      "condition_id": "RT-IBSCBS-0007-C05",
+      "description": "O internamento deve ser confirmado; enquanto dentro do prazo, a pendência exige acompanhamento e, após o prazo, gera evento de não internamento.",
+      "required_fact_names": [
+        "operation.zfm_entry_proof_status",
+        "operation.entry_deadline_status"
+      ]
+    }
   ],
-  "result": {"classification_status": "CONCLUSIVO", "cst": "200", "cclasstrib": "200022", "explanation": "Somente com todos os fatos e evidências confirmados, a hipótese documental indica redução a zero do IBS e da CBS do art. 445. Este DRAFT não autoriza execução."},
+  "result": {
+    "classification_status": "CONCLUSIVO",
+    "cst": "200",
+    "cclasstrib": "200022",
+    "explanation": "Somente com todos os fatos e evidências confirmados, a hipótese documental indica redução a zero do IBS e da CBS do art. 445. Este DRAFT não autoriza execução."
+  },
   "exclusion_hypotheses": [
     "Operação originada dentro da Zona Franca de Manaus ou destinada para fora dela.",
     "Objeto que não seja bem material industrializado de origem nacional.",
@@ -61,30 +267,253 @@
     "NON_BLOCKING_OUT_OF_SCOPE_FOREIGN_GOODS_MAPPING: a Resolução CGIBS nº 6/2026, art. 516, § 3º, estende a hipótese a certos bens estrangeiros. A especificação 0007 e a descrição oficial de 200022 permanecem deliberadamente restritas a bens de origem nacional; eventual enquadramento de bens estrangeiros exige especificação e mapeamento oficial próprios, sem inferência de código.",
     "NEEDS_GOVERNED_ZFM_TERRITORY_AND_OPERATIONAL_ACTS: implementar fonte territorial versionada e ingerir os atos conjuntos operacionais previstos nos arts. 550 a 553 antes da execução."
   ],
-  "precedence": {"precedes_rule_ids": [], "legal_basis": "O art. 445, caput, determina expressamente alíquota zero na hipótese especial. Uma futura regra geral só poderá ser preterida após existir e ser vinculada por ID; a falta de fatos não autoriza aplicar automaticamente a regra geral."},
+  "precedence": {
+    "precedes_rule_ids": [],
+    "legal_basis": "O art. 445, caput, determina expressamente alíquota zero na hipótese especial. Uma futura regra geral só poderá ser preterida após existir e ser vinculada por ID; a falta de fatos não autoriza aplicar automaticamente a regra geral."
+  },
   "tests": {
     "positive_cases": [
-      {"case_id": "RT-IBSCBS-0007-POS-001", "description": "Bem nacional industrializado com ingresso confirmado no prazo regular.", "input": {"operation.date": "2026-06-01", "operation.zfm_area_version_id": "GOVERNED-ZFM-VERSION", "operation.origin_area_status": "OUTSIDE_ZFM", "operation.destination_area_status": "ZFM", "product.material_good_status": "MATERIAL_GOOD", "product.industrialization_status": "INDUSTRIALIZED", "product.origin_status": "NATIONAL", "buyer.establishment_area_status": "ESTABLISHED_IN_ZFM", "buyer.taxpayer_status": "TAXPAYER", "buyer.art_442_habilitation_status": "VALID", "buyer.tax_regime_status": "REGULAR_IBS_CBS", "operation.invoice_suframa_registration_status": "PRESENT_AND_MATCHING", "product.art_443_par1_exclusion_status": "NOT_EXCLUDED", "operation.zfm_entry_proof_status": "CONFIRMED", "operation.entry_deadline_status": "WITHIN_120_DAYS"}, "expected": {"status": "CONCLUSIVO", "cst": "200", "cclasstrib": "200022", "missing_facts": []}},
-      {"case_id": "RT-IBSCBS-0007-POS-002", "description": "Destinatário do Simples com internamento confirmado sob prorrogação válida.", "input": {"operation.date": "2026-06-01", "operation.zfm_area_version_id": "GOVERNED-ZFM-VERSION", "operation.origin_area_status": "OUTSIDE_ZFM", "operation.destination_area_status": "ZFM", "product.material_good_status": "MATERIAL_GOOD", "product.industrialization_status": "INDUSTRIALIZED", "product.origin_status": "NATIONAL", "buyer.establishment_area_status": "ESTABLISHED_IN_ZFM", "buyer.taxpayer_status": "TAXPAYER", "buyer.art_442_habilitation_status": "VALID", "buyer.tax_regime_status": "SIMPLES_NACIONAL", "operation.invoice_suframa_registration_status": "PRESENT_AND_MATCHING", "product.art_443_par1_exclusion_status": "NOT_EXCLUDED", "operation.zfm_entry_proof_status": "CONFIRMED", "operation.entry_deadline_status": "VALID_EXTENSION_WITHIN_210_DAYS"}, "expected": {"status": "CONCLUSIVO", "cst": "200", "cclasstrib": "200022", "missing_facts": []}},
-      {"case_id": "RT-IBSCBS-0007-POS-003", "description": "Bem intermediário em industrialização por encomenda com todos os controles confirmados.", "input": {"operation.date": "2026-06-01", "operation.zfm_area_version_id": "GOVERNED-ZFM-VERSION", "operation.origin_area_status": "OUTSIDE_ZFM", "operation.destination_area_status": "ZFM", "product.material_good_status": "MATERIAL_GOOD", "product.industrialization_status": "INDUSTRIALIZED", "product.origin_status": "NATIONAL", "buyer.establishment_area_status": "ESTABLISHED_IN_ZFM", "buyer.taxpayer_status": "TAXPAYER", "buyer.art_442_habilitation_status": "VALID", "buyer.tax_regime_status": "REGULAR_IBS_CBS", "operation.invoice_suframa_registration_status": "PRESENT_AND_MATCHING", "product.art_443_par1_exclusion_status": "NOT_EXCLUDED", "operation.zfm_entry_proof_status": "CONFIRMED", "operation.entry_deadline_status": "WITHIN_120_DAYS"}, "expected": {"status": "CONCLUSIVO", "cst": "200", "cclasstrib": "200022", "missing_facts": []}}
+      {
+        "case_id": "RT-IBSCBS-0007-POS-001",
+        "description": "Bem nacional industrializado com ingresso confirmado no prazo regular.",
+        "input": {
+          "operation.date": "2026-06-01",
+          "operation.zfm_area_version_id": "GOVERNED-ZFM-VERSION",
+          "operation.origin_area_status": "OUTSIDE_ZFM",
+          "operation.destination_area_status": "ZFM",
+          "product.material_good_status": "MATERIAL_GOOD",
+          "product.industrialization_status": "INDUSTRIALIZED",
+          "product.origin_status": "NATIONAL",
+          "buyer.establishment_area_status": "ESTABLISHED_IN_ZFM",
+          "buyer.taxpayer_status": "TAXPAYER",
+          "buyer.art_442_habilitation_status": "VALID",
+          "buyer.tax_regime_status": "REGULAR_IBS_CBS",
+          "operation.invoice_suframa_registration_status": "PRESENT_AND_MATCHING",
+          "product.art_443_par1_exclusion_status": "NOT_EXCLUDED",
+          "operation.zfm_entry_proof_status": "CONFIRMED",
+          "operation.entry_deadline_status": "WITHIN_120_DAYS"
+        },
+        "expected": {
+          "status": "CONCLUSIVO",
+          "cst": "200",
+          "cclasstrib": "200022",
+          "missing_facts": []
+        }
+      },
+      {
+        "case_id": "RT-IBSCBS-0007-POS-002",
+        "description": "Destinatário do Simples com internamento confirmado sob prorrogação válida.",
+        "input": {
+          "operation.date": "2026-06-01",
+          "operation.zfm_area_version_id": "GOVERNED-ZFM-VERSION",
+          "operation.origin_area_status": "OUTSIDE_ZFM",
+          "operation.destination_area_status": "ZFM",
+          "product.material_good_status": "MATERIAL_GOOD",
+          "product.industrialization_status": "INDUSTRIALIZED",
+          "product.origin_status": "NATIONAL",
+          "buyer.establishment_area_status": "ESTABLISHED_IN_ZFM",
+          "buyer.taxpayer_status": "TAXPAYER",
+          "buyer.art_442_habilitation_status": "VALID",
+          "buyer.tax_regime_status": "SIMPLES_NACIONAL",
+          "operation.invoice_suframa_registration_status": "PRESENT_AND_MATCHING",
+          "product.art_443_par1_exclusion_status": "NOT_EXCLUDED",
+          "operation.zfm_entry_proof_status": "CONFIRMED",
+          "operation.entry_deadline_status": "VALID_EXTENSION_WITHIN_210_DAYS"
+        },
+        "expected": {
+          "status": "CONCLUSIVO",
+          "cst": "200",
+          "cclasstrib": "200022",
+          "missing_facts": []
+        }
+      },
+      {
+        "case_id": "RT-IBSCBS-0007-POS-003",
+        "description": "Bem intermediário em industrialização por encomenda com todos os controles confirmados.",
+        "input": {
+          "operation.date": "2026-06-01",
+          "operation.zfm_area_version_id": "GOVERNED-ZFM-VERSION",
+          "operation.origin_area_status": "OUTSIDE_ZFM",
+          "operation.destination_area_status": "ZFM",
+          "product.material_good_status": "MATERIAL_GOOD",
+          "product.industrialization_status": "INDUSTRIALIZED",
+          "product.origin_status": "NATIONAL",
+          "buyer.establishment_area_status": "ESTABLISHED_IN_ZFM",
+          "buyer.taxpayer_status": "TAXPAYER",
+          "buyer.art_442_habilitation_status": "VALID",
+          "buyer.tax_regime_status": "REGULAR_IBS_CBS",
+          "operation.invoice_suframa_registration_status": "PRESENT_AND_MATCHING",
+          "product.art_443_par1_exclusion_status": "NOT_EXCLUDED",
+          "operation.zfm_entry_proof_status": "CONFIRMED",
+          "operation.entry_deadline_status": "WITHIN_120_DAYS"
+        },
+        "expected": {
+          "status": "CONCLUSIVO",
+          "cst": "200",
+          "cclasstrib": "200022",
+          "missing_facts": []
+        }
+      }
     ],
     "negative_cases": [
-      {"case_id": "RT-IBSCBS-0007-NEG-001", "description": "Bem abrangido pela exclusão do art. 443, § 1º.", "input": {"operation.date": "2026-06-01", "product.art_443_par1_exclusion_status": "EXCLUDED"}, "expected": {"status": "SEM_CLASSIFICACAO", "cst": null, "cclasstrib": null, "missing_facts": []}},
-      {"case_id": "RT-IBSCBS-0007-NEG-002", "description": "Operação originada dentro da ZFM.", "input": {"operation.date": "2026-06-01", "operation.origin_area_status": "INSIDE_ZFM"}, "expected": {"status": "SEM_CLASSIFICACAO", "cst": null, "cclasstrib": null, "missing_facts": []}},
-      {"case_id": "RT-IBSCBS-0007-NEG-003", "description": "Adquirente não é contribuinte.", "input": {"operation.date": "2026-06-01", "buyer.taxpayer_status": "NOT_TAXPAYER"}, "expected": {"status": "SEM_CLASSIFICACAO", "cst": null, "cclasstrib": null, "missing_facts": []}}
+      {
+        "case_id": "RT-IBSCBS-0007-NEG-001",
+        "description": "Bem abrangido pela exclusão do art. 443, § 1º.",
+        "input": {
+          "operation.date": "2026-06-01",
+          "product.art_443_par1_exclusion_status": "EXCLUDED"
+        },
+        "expected": {
+          "status": "SEM_CLASSIFICACAO",
+          "cst": null,
+          "cclasstrib": null,
+          "missing_facts": []
+        }
+      },
+      {
+        "case_id": "RT-IBSCBS-0007-NEG-002",
+        "description": "Operação originada dentro da ZFM.",
+        "input": {
+          "operation.date": "2026-06-01",
+          "operation.origin_area_status": "INSIDE_ZFM"
+        },
+        "expected": {
+          "status": "SEM_CLASSIFICACAO",
+          "cst": null,
+          "cclasstrib": null,
+          "missing_facts": []
+        }
+      },
+      {
+        "case_id": "RT-IBSCBS-0007-NEG-003",
+        "description": "Adquirente não é contribuinte.",
+        "input": {
+          "operation.date": "2026-06-01",
+          "buyer.taxpayer_status": "NOT_TAXPAYER"
+        },
+        "expected": {
+          "status": "SEM_CLASSIFICACAO",
+          "cst": null,
+          "cclasstrib": null,
+          "missing_facts": []
+        }
+      }
     ],
     "insufficient_fact_cases": [
-      {"case_id": "RT-IBSCBS-0007-INC-001", "description": "Habilitação e internamento não confirmados.", "input": {"operation.date": "2026-06-01", "buyer.art_442_habilitation_status": "UNKNOWN", "operation.zfm_entry_proof_status": "UNKNOWN"}, "expected": {"status": "NECESSITA_VALIDACAO", "cst": null, "cclasstrib": null, "missing_facts": ["buyer.art_442_habilitation_status", "operation.zfm_entry_proof_status"]}},
-      {"case_id": "RT-IBSCBS-0007-INC-002", "description": "CEP e município sem versão territorial governada.", "input": {"operation.date": "2026-06-01", "operation.zfm_area_version_id": "", "operation.destination_area_status": "UNKNOWN"}, "expected": {"status": "NECESSITA_VALIDACAO", "cst": null, "cclasstrib": null, "missing_facts": ["operation.zfm_area_version_id", "operation.destination_area_status"]}},
-      {"case_id": "RT-IBSCBS-0007-INC-003", "description": "Internamento pendente dentro do prazo exige acompanhamento, não conclusão arbitrária.", "input": {"operation.date": "2026-06-01", "operation.zfm_entry_proof_status": "PENDING_WITHIN_DEADLINE", "operation.entry_deadline_status": "WITHIN_120_DAYS"}, "expected": {"status": "NECESSITA_VALIDACAO", "cst": null, "cclasstrib": null, "missing_facts": ["operation.zfm_entry_proof_status"]}},
-      {"case_id": "RT-IBSCBS-0007-INC-004", "description": "Tratamento geral também candidato, mas fato especial de habilitação está ausente; não há queda automática para a regra geral.", "input": {"operation.date": "2026-06-01", "general_treatment.candidate_status": "CANDIDATE", "buyer.art_442_habilitation_status": "UNKNOWN"}, "expected": {"status": "NECESSITA_VALIDACAO", "cst": null, "cclasstrib": null, "missing_facts": ["buyer.art_442_habilitation_status"]}}
+      {
+        "case_id": "RT-IBSCBS-0007-INC-001",
+        "description": "Habilitação e internamento não confirmados.",
+        "input": {
+          "operation.date": "2026-06-01",
+          "buyer.art_442_habilitation_status": "UNKNOWN",
+          "operation.zfm_entry_proof_status": "UNKNOWN"
+        },
+        "expected": {
+          "status": "NECESSITA_VALIDACAO",
+          "cst": null,
+          "cclasstrib": null,
+          "missing_facts": [
+            "buyer.art_442_habilitation_status",
+            "operation.zfm_entry_proof_status"
+          ]
+        }
+      },
+      {
+        "case_id": "RT-IBSCBS-0007-INC-002",
+        "description": "CEP e município sem versão territorial governada.",
+        "input": {
+          "operation.date": "2026-06-01",
+          "operation.zfm_area_version_id": "",
+          "operation.destination_area_status": "UNKNOWN"
+        },
+        "expected": {
+          "status": "NECESSITA_VALIDACAO",
+          "cst": null,
+          "cclasstrib": null,
+          "missing_facts": [
+            "operation.zfm_area_version_id",
+            "operation.destination_area_status"
+          ]
+        }
+      },
+      {
+        "case_id": "RT-IBSCBS-0007-INC-003",
+        "description": "Internamento pendente dentro do prazo exige acompanhamento, não conclusão arbitrária.",
+        "input": {
+          "operation.date": "2026-06-01",
+          "operation.zfm_entry_proof_status": "PENDING_WITHIN_DEADLINE",
+          "operation.entry_deadline_status": "WITHIN_120_DAYS"
+        },
+        "expected": {
+          "status": "NECESSITA_VALIDACAO",
+          "cst": null,
+          "cclasstrib": null,
+          "missing_facts": [
+            "operation.zfm_entry_proof_status"
+          ]
+        }
+      },
+      {
+        "case_id": "RT-IBSCBS-0007-INC-004",
+        "description": "Tratamento geral também candidato, mas fato especial de habilitação está ausente; não há queda automática para a regra geral.",
+        "input": {
+          "operation.date": "2026-06-01",
+          "general_treatment.candidate_status": "CANDIDATE",
+          "buyer.art_442_habilitation_status": "UNKNOWN"
+        },
+        "expected": {
+          "status": "NECESSITA_VALIDACAO",
+          "cst": null,
+          "cclasstrib": null,
+          "missing_facts": [
+            "buyer.art_442_habilitation_status"
+          ]
+        }
+      }
     ],
     "boundary_date_cases": [
-      {"case_id": "RT-IBSCBS-0007-DATE-001", "description": "Dia anterior à produção de efeitos.", "input": {"operation.date": "2025-12-31"}, "expected": {"status": "SEM_CLASSIFICACAO", "cst": null, "cclasstrib": null, "missing_facts": []}},
-      {"case_id": "RT-IBSCBS-0007-DATE-002", "description": "Primeiro dia de produção de efeitos com internamento pendente.", "input": {"operation.date": "2026-01-01", "operation.zfm_entry_proof_status": "PENDING_WITHIN_DEADLINE"}, "expected": {"status": "NECESSITA_VALIDACAO", "cst": null, "cclasstrib": null, "missing_facts": ["operation.zfm_entry_proof_status"]}}
+      {
+        "case_id": "RT-IBSCBS-0007-DATE-001",
+        "description": "Dia anterior à produção de efeitos.",
+        "input": {
+          "operation.date": "2025-12-31"
+        },
+        "expected": {
+          "status": "SEM_CLASSIFICACAO",
+          "cst": null,
+          "cclasstrib": null,
+          "missing_facts": []
+        }
+      },
+      {
+        "case_id": "RT-IBSCBS-0007-DATE-002",
+        "description": "Primeiro dia de produção de efeitos com internamento pendente.",
+        "input": {
+          "operation.date": "2026-01-01",
+          "operation.zfm_entry_proof_status": "PENDING_WITHIN_DEADLINE"
+        },
+        "expected": {
+          "status": "NECESSITA_VALIDACAO",
+          "cst": null,
+          "cclasstrib": null,
+          "missing_facts": [
+            "operation.zfm_entry_proof_status"
+          ]
+        }
+      }
     ]
   },
-  "approval": {"prepared_by": "Codex — consolidação documental de fonte oficial; requer revisão jurídica humana", "reviewed_by": "legal-approver-guilherme-nunes", "approved_by": "legal-approver-guilherme-nunes", "approval_date": "2026-09-06", "approval_evidence": "docs/tax/rules/approvals/RT-IBSCBS-0007-v3.md#sha256=0f39fbd410e5c90d24deb8cb9105bf59001af1c05c4d218e6d9b5007a77e1caa"},
-  "implementation": null,
+  "approval": {
+    "prepared_by": "Codex — consolidação documental de fonte oficial; requer revisão jurídica humana",
+    "reviewed_by": "legal-approver-guilherme-nunes",
+    "approved_by": "legal-approver-guilherme-nunes",
+    "approval_date": "2026-09-06",
+    "approval_evidence": "docs/tax/rules/approvals/RT-IBSCBS-0007-v3.md#sha256=0f39fbd410e5c90d24deb8cb9105bf59001af1c05c4d218e6d9b5007a77e1caa"
+  },
+  "implementation": {
+    "tax_rule_identity_id": "8cb6e4d2-9594-4768-9c19-f6e0bea6464d",
+    "tax_rule_version_id": "59456929-ab3d-47a7-9043-22929dd09507",
+    "implemented_at": "2026-09-07"
+  },
   "superseded_by_specification_id": null
 }
