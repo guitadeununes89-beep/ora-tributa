@@ -40,6 +40,7 @@ describe("AssistedConsultationMedicamentos", () => {
     expect(
       screen.getByLabelText("NCM/SH verificada (evidência oficial, não inferida)"),
     ).toBeInTheDocument();
+    expect(screen.getByText(/Hipótese historicamente encerrada/)).toBeInTheDocument();
   });
 
   it("switches to RT-IBSCBS-0005's own fields and ruleset when selected", async () => {
@@ -58,5 +59,6 @@ describe("AssistedConsultationMedicamentos", () => {
     expect(
       screen.queryByLabelText("NCM/SH verificada (evidência oficial, não inferida)"),
     ).not.toBeInTheDocument();
+    expect(screen.queryByText(/Hipótese historicamente encerrada/)).not.toBeInTheDocument();
   });
 });

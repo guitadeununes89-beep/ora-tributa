@@ -190,6 +190,15 @@ export function AssistedConsultationMedicamentos() {
       A análise é determinística, usa o ruleset explícito {RULESETS[scenario].rulesetId} e não presume
       fatos ausentes.
     </div>
+    {scenario === "RT-IBSCBS-0004" && <div className="curation-warning" role="alert">
+      <strong>Hipótese historicamente encerrada.</strong> O Anexo XIV foi revogado com efeitos em
+      14/01/2026 e substituído, a partir dessa data, por uma lista dinâmica de medicamentos (art. 146,
+      § 3º, atualizada a cada 120 dias por ato conjunto do Ministério da Fazenda e do Comitê Gestor do
+      IBS). Esta regra só se aplica a operações entre 01/01/2026 e 13/01/2026 — para qualquer data
+      posterior, o resultado será sempre &quot;sem classificação&quot; por esta regra. A hipótese
+      correspondente à lista dinâmica (RT-IBSCBS-0002) ainda não foi implementada: até 2026-09-07,
+      nenhum ato oficial publicado em cgibs.gov.br contém essa lista.
+    </div>}
     <section className="object-kind-entry" aria-labelledby="medicamentos-scenario-title">
       <header><div><span className="eyebrow">Cenário</span>
         <h2 id="medicamentos-scenario-title">Qual hipótese de alíquota zero será analisada?</h2></div>

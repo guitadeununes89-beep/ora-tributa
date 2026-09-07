@@ -889,3 +889,43 @@ data/versão fixando-os como registro histórico) ainda dizendo `0,61%`/`1/164`/
   substituído por este arquivo (`CLAUDE_STATUS.md`) como log corrente; estendê-lo seria escopo novo,
   não uma correção.
 - Não resolve `RT-IBSCBS-0001/0002/0006/0009` nem inicia a frente de NCM/NBS.
+
+## Etapa 19 — confirmação de que o Anexo XIV foi revogado, e a tela deixa isso explícito
+
+**Data:** 2026-09-07
+
+Você apontou que o Anexo XIV foi revogado e substituído por uma classificação dinâmica — observação
+correta e já era exatamente o motivo documentado do bloqueio da `RT-IBSCBS-0002` (`known_conflicts`
+já registrava isso desde a Etapa 6/9.1). Fiz uma pesquisa nova em fonte oficial para confirmar se
+esse bloqueio continua válido hoje, e ajustei a interface para deixar isso muito mais visível do
+que estava.
+
+1. **Pesquisa em fonte oficial (2026-09-07)**: consultei diretamente `cgibs.gov.br/atos-conjuntos`
+   e li o conteúdo real dos 6 atos conjuntos/portaria publicados entre janeiro e agosto de 2026
+   (baixei e extraí o PDF da Portaria Conjunta MF/CGIBS nº 7 com `pypdf`, mesma técnica já usada na
+   Etapa 7 para a Resolução CGIBS nº 6). **Nenhum deles publica a lista do art. 146, § 3º** — nº 7
+   trata de reconhecimento de disposições comuns CBS/IBS, nº 4 trata de amostra grátis de
+   medicamento, nº 6 trata de isenção de cadastro/documento fiscal para nanoempreendedor. Notícias
+   do setor (CMED, Trench Rossi Watanabe) confirmam que o prazo para entidades de classe
+   submeterem a planilha ao Ministério da Saúde era 07/08/2026, mas o ato oficial com a lista em si
+   ainda não foi localizado publicado até a data desta pesquisa. **O bloqueador
+   `NEEDS_ART146_PAR3_OFFICIAL_LIST` continua válido** — registrei essa verificação datada em
+   `known_conflicts` de `RT-IBSCBS-0002.json` para a próxima sessão não precisar refazer a mesma
+   pesquisa do zero.
+2. **Frontend**: a tela `/reforma-tributaria/consulta-medicamentos`, no cenário `RT-IBSCBS-0004`,
+   ganhou um aviso proeminente (antes só havia a restrição discreta de `min`/`max` no campo de
+   data): explica que o Anexo XIV foi revogado em 14/01/2026, que a regra só vale para operações
+   dentro da janela histórica, que qualquer data posterior sempre retorna "sem classificação" por
+   esta regra, e que a hipótese sucessora (`RT-IBSCBS-0002`, lista dinâmica) ainda não está
+   implementada porque a lista oficial não foi publicada. O aviso desaparece corretamente ao
+   alternar para `RT-IBSCBS-0005`.
+3. Teste novo cobrindo a presença/ausência do aviso por cenário; suíte completa do frontend (18
+   testes) e do backend (212 testes) revalidada — nenhuma mudança de regra jurídica, só
+   documentação e clareza de interface.
+
+### O que isso NÃO faz
+
+- Não implementa `RT-IBSCBS-0002` — continua bloqueada até que o ato oficial com a lista dinâmica
+  seja publicado e localizado. Isso não depende de mais pesquisa (já fiz o que dava para fazer com
+  as fontes públicas disponíveis); depende de o próprio ato existir.
+- Não resolve `RT-IBSCBS-0001/0006/0009` nem inicia a frente de NCM/NBS.
