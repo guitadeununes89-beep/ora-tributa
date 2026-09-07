@@ -1,15 +1,62 @@
 "use client";
 
-import { FormEvent, useEffect, useState } from "react";
+import { FormEvent, useEffect, useMemo, useState } from "react";
 import { apiFetch } from "@/lib/api";
 
 type Catalog = { id: string; version: string; status: string };
 type Scenario = "RT-IBSCBS-0007" | "RT-IBSCBS-0008";
 
-type FieldOption = { value: string; label: string };
-type FieldSpec = { name: string; label: string; options: FieldOption[] };
+type TerritorialArea = {
+  area_id: string;
+  area_type: string;
+  official_name: string;
+  version: number;
+  version_id: string;
+  legal_device: string;
+  criteria: Record<string, unknown>;
+  valid_from: string;
+  valid_to: string | null;
+};
 
-const UNKNOWN_OPTION: FieldOption = { value: "UNKNOWN", label: "Não informado" };
+const DIACRITICS_PATTERN = new RegExp("[̀-ͯ]", "g");
+
+function normalizeMunicipio(value: string): string {
+  return value.normalize("NFD").replace(DIACRITICS_PATTERN, "").trim().toLowerCase();
+}
+
+// Os specs territoriais usam chaves inconsistentes para "municípios confirmados"
+// (município único, lista, ou cobertura parcial) - ver docs/tax/territory/specifications/.
+// Deliberadamente NÃO lemos chaves como "*_nao_confirmado_no_regulamento": um município
+// listado ali (ex.: Pacaraima) foi expressamente marcado como não confirmado no regulamento.
+function confirmedMunicipiosFromCriteria(criteria: Record<string, unknown>): string[] {
+  const names: string[] = [];
+  const single = criteria["municipio_sede"];
+  if (typeof single === "string") names.push(single);
+  for (const key of ["municipios_sede", "municipios_parcialmente_abrangidos"]) {
+    const list = criteria[key];
+    if (Array.isArray(list)) {
+      for (const item of list) if (typeof item === "string") names.push(item);
+    }
+  }
+  return names;
+}
+
+type TerritorialHint = { area: TerritorialArea; matchedMunicipio: string };
+
+function findTerritorialHints(municipio: string, areas: TerritorialArea[]): TerritorialHint[] {
+  const normalized = normalizeMunicipio(municipio);
+  if (!normalized) return [];
+  const hints: TerritorialHint[] = [];
+  for (const area of areas) {
+    for (const candidate of confirmedMunicipiosFromCriteria(area.criteria)) {
+      if (normalizeMunicipio(candidate) === normalized) {
+        hints.push({ area, matchedMunicipio: candidate });
+        break;
+      }
+    }
+  }
+  return hints;
+}
 
 const RULESETS: Record<Scenario, { rulesetId: string; cclasstrib: string; title: string }> = {
   "RT-IBSCBS-0007": {
@@ -23,6 +70,11 @@ const RULESETS: Record<Scenario, { rulesetId: string; cclasstrib: string; title:
     title: "Bem intermediário entre indústrias na ZFM (art. 448)",
   },
 };
+
+type FieldOption = { value: string; label: string };
+type FieldSpec = { name: string; label: string; options: FieldOption[] };
+
+const UNKNOWN_OPTION: FieldOption = { value: "UNKNOWN", label: "Não informado" };
 
 const FIELDS_0007: FieldSpec[] = [
   {
@@ -272,6 +324,8 @@ type Result = {
 export function AssistedConsultationZfm() {
   const [scenario, setScenario] = useState<Scenario>("RT-IBSCBS-0007");
   const [catalogs, setCatalogs] = useState<Catalog[]>([]);
+  const [territorialAreas, setTerritorialAreas] = useState<TerritorialArea[]>([]);
+  const [municipioReferencia, setMunicipioReferencia] = useState("");
   const [result, setResult] = useState<Result | null>(null);
   const [error, setError] = useState("");
 
@@ -279,7 +333,15 @@ export function AssistedConsultationZfm() {
     void apiFetch("/taxonomy/ibs-cbs/catalogs?status=PUBLISHED").then(async (response) => {
       if (response.ok) setCatalogs((await response.json()) as Catalog[]);
     });
+    void apiFetch("/territory/areas").then(async (response) => {
+      if (response.ok) setTerritorialAreas((await response.json()) as TerritorialArea[]);
+    });
   }, []);
+
+  const territorialHints = useMemo(
+    () => findTerritorialHints(municipioReferencia, territorialAreas),
+    [municipioReferencia, territorialAreas],
+  );
 
   const fields = scenario === "RT-IBSCBS-0007" ? FIELDS_0007 : FIELDS_0008;
 
@@ -353,6 +415,30 @@ export function AssistedConsultationZfm() {
             <input name="operation.zfm_area_version_id" defaultValue="TJA-ZFM-V1" required /></label>
           <label>Ruleset piloto<input value={RULESETS[scenario].rulesetId} readOnly /></label>
         </div>
+        <div className="inline-form compact-form">
+          <label>Município do estabelecimento (referência, opcional)
+            <input
+              name="municipio_referencia"
+              value={municipioReferencia}
+              onChange={(event) => setMunicipioReferencia(event.target.value)}
+              placeholder="Ex.: Manaus"
+            />
+          </label>
+        </div>
+        {territorialHints.length > 0 && <div className="territorial-hint" role="status">
+          <strong>Referência territorial (não vinculante)</strong>
+          <ul>
+            {territorialHints.map((hint) => <li key={hint.area.version_id}>
+              &quot;{hint.matchedMunicipio}&quot; consta na área governada <strong>{hint.area.official_name}</strong> (versão
+              {" "}{hint.area.version}, {hint.area.legal_device}).
+            </li>)}
+          </ul>
+          <p>
+            Isso é apenas uma referência informativa extraída da base territorial governada — não preenche
+            nenhum campo automaticamente e não substitui a confirmação manual dos fatos abaixo (a área pode
+            cobrir só parte do município, ou exigir comprovação adicional de habilitação).
+          </p>
+        </div>}
       </fieldset>
       <fieldset>
         <legend>2. Fatos da operação</legend>

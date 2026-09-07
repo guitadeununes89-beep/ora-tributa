@@ -16,6 +16,7 @@ from tributaria_api.api.routes.tax_rule_specifications import (
 )
 from tributaria_api.api.routes.taxonomy import admin_router as taxonomy_admin_router
 from tributaria_api.api.routes.taxonomy import router as taxonomy_router
+from tributaria_api.api.routes.territory import router as territory_router
 
 api_router = APIRouter()
 api_router.include_router(health_router)
@@ -30,3 +31,4 @@ api_router.include_router(products_router)
 api_router.include_router(taxonomy_router)
 api_router.include_router(taxonomy_admin_router)
 api_router.include_router(tax_rule_specifications_router)
+api_router.include_router(territory_router)
