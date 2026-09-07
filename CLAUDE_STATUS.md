@@ -698,3 +698,76 @@ consultar):
   escopo desta etapa.
 - Não expande cobertura jurídica além do que já existia (3/164 continua sendo o teto real; a
   correção desta etapa apenas tornou esse número verdadeiro no banco, não criou regra nova).
+
+## Etapa 15 — RT-IBSCBS-0004 e RT-IBSCBS-0005 aprovadas, implementadas e publicadas
+
+**Data:** 2026-09-07
+
+Levantei o estado das 5 especificações DRAFT existentes (`RT-IBSCBS-0001/0002/0004/0005/0006`) e
+identifiquei que só `0004` e `0005` não tinham nenhum bloqueador `NEEDS_*` pendente de fonte
+externa — `0001`, `0002` e `0006` seguem bloqueadas, sem ação possível. Apresentei as duas prontas
+para sua decisão; você aprovou ambas ("aprovo e pode seguir").
+
+1. **Aprovação jurídica registrada**: as duas especificações passaram de `DRAFT` para `APPROVED`,
+   com `reviewed_by`, `approved_by`, `approval_date` (2026-09-07) e `approval_evidence`
+   preenchidos. Evidência em `docs/tax/rules/approvals/RT-IBSCBS-0004-v1.md` e `...-0005-v1.md`,
+   seguindo o mesmo formato já usado para `RT-IBSCBS-0003/0007/0008`, restatando explicitamente as
+   ressalvas já documentadas em `known_conflicts` (nenhuma lista de NCM/SH do Anexo XIV é inferida
+   pela 0004; a 0005 não autoriza combinar sua regra com a do inciso I mesmo compartilhando
+   cClassTrib 200010).
+2. **Implementação no `tax-engine`**: `ibs_cbs_rt_0004.py` (3 condições: NCM/SH informada,
+   correspondência ao Anexo XIV confirmada, versão normativa original) e `ibs_cbs_rt_0005.py` (7
+   condições cobrindo medicamento, registro Anvisa, entidade de saúde, imunidade, adquirente
+   efetivo, CEBAS e requisito SUS) — reaproveitando os helpers compartilhados de
+   `rule_condition_helpers.py`. Vigência (01/01 a 13/01/2026, fim exclusivo, para a 0004) é
+   aplicada pelo motor via `TaxRuleVersion.valid_from/valid_to`, não por condição própria da regra
+   — mesmo padrão já usado por `RT-IBSCBS-0003/0007/0008`. 31 testes novos, cobrindo cada fato
+   obrigatório nos três caminhos (satisfeito, violado, faltante) e os limites de vigência
+   (inclusive o fim exclusivo em 14/01/2026 da 0004).
+3. **Achado do mesmo tipo já visto antes, corrigido no mesmo commit**: o script de implantação
+   original (`real_rule_deploy_cli.py`, usado só para `RT-IBSCBS-0003`) tinha o padrão antigo de
+   validação (`TaxRuleSpecificationValidator` verificando existência de `legal_source_id`/
+   `catalog_version_id` no banco a partir dos literais do JSON) em vez do padrão já corrigido nos
+   scripts territoriais e de ZFM (resolução dinâmica). Reaproveitei o padrão já corrigido: novo
+   script `real_rule_deploy_cli_p2_medicamentos.py` resolve `legal_source_id` por URL oficial (a
+   0004 cita a publicação original da LC nº 214/2025, já carregada nesta base; a 0005 cita a
+   "norma atualizada" da Câmara, que não existe nesta base — resolvida para o texto compilado do
+   Planalto, já usado por `0003/0007/0008`, mesmo precedente já aplicado antes) e
+   `catalog_version_id` por cClassTrib + versão do catálogo.
+4. **Cada regra em ruleset explícito próprio** (`IBSCBS-PILOT-0004-001`, `IBSCBS-PILOT-0005-001`),
+   nunca combinado com outro — a `RT-IBSCBS-0005` share o cClassTrib 200010 com a já publicada
+   `RT-IBSCBS-0003`, mas cada uma tem seu próprio ruleset de regra única, exatamente o padrão do
+   ADR-0017 e a lição da Etapa 11 (ruleset combinado sempre retorna `NECESSITA_VALIDACAO` para a
+   regra que não se aplica). O elo `queryable_rulesets` construído na Etapa 14 já reflete isso
+   corretamente sem nenhuma mudança adicional: a busca por "200010" no dashboard de cobertura
+   agora mostra dois links de consulta distintos, um para cada regra.
+5. **Verificação de ponta a ponta contra o banco real** (não só pytest): reiniciei a API, chamei
+   `POST /tax/ibs-cbs/classify` diretamente para as duas novas regras. Caso completo da 0004 →
+   `CONCLUSIVO`, CST 200/cClassTrib 200009. Caso completo da 0005 → `CONCLUSIVO`, CST
+   200/cClassTrib 200010. Caso da 0005 com `buyer.cebas_status = UNKNOWN` →
+   `NECESSITA_VALIDACAO`, `missing_facts: ["buyer.cebas_status"]` exatamente. Um 422 real apareceu
+   no meio do caminho (mesmo padrão da Etapa 12: processo da API sem `--reload` ainda rodando
+   código anterior à extensão da allowlist) — corrigido reiniciando a API, não contornando a
+   validação.
+6. **Cobertura executável avança de `3/164` (1,83%) para `4/164` (2,44%)** — `RT-IBSCBS-0004`
+   soma um cClassTrib novo (200009); `RT-IBSCBS-0005` aprofunda 200010 (já contado via 0003) com
+   uma segunda hipótese jurídica real, sem alterar o denominador.
+7. Estendi a allowlist de fatos governados (`contracts/assisted_classification.py`) com os fatos
+   de ambas as regras, e adicionei `product.ncm_sh` ao conjunto de fatos de texto livre (sem
+   enumeração fechada, mesmo tratamento de `operation.zfm_area_version_id`). Testes novos
+   confirmam aceitação dos fatos válidos e rejeição de valores não previstos.
+8. Suíte completa: 212 testes Python passando (216 com `POSTGRES_TESTS=1`), ruff/mypy limpos, 15
+   testes de frontend continuam passando (nenhuma mudança de frontend nesta etapa), CI a confirmar
+   após o push.
+
+### O que isso NÃO faz
+
+- Não constrói nenhuma tela de consulta dedicada para `RT-IBSCBS-0004`/`0005` — hoje só são
+  alcançáveis via API direta ou pelo link "Consultar via `<ruleset_id>`" no dashboard de
+  cobertura (Etapa 14), que ainda não sabe abrir um formulário específico para essas duas regras
+  (o mapa `RULESET_CONSULTATION_LINKS` do frontend não tem entrada para elas). Construir essa tela
+  — nos mesmos moldes de `/reforma-tributaria/consulta-zfm` — é o próximo passo natural se você
+  quiser usar essas regras pela interface.
+- Não avança `RT-IBSCBS-0001`, `0002`, `0006` nem `0009` — todas seguem bloqueadas por fonte
+  oficial ausente, sem ação possível.
+- Não inicia a frente de NCM/NBS nem qualquer item da visão de longo prazo do e-Auditoria.

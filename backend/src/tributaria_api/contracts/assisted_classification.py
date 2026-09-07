@@ -37,7 +37,7 @@ class AssistedClassificationRequest(BaseModel):
     def governed_pilot_attributes(cls, value: dict[str, str]) -> dict[str, str]:
         # Facts with no closed value set (governed identifiers, not enums) are
         # exempt from the enum check below but still real, allowlisted facts.
-        free_text_facts = {"operation.zfm_area_version_id"}
+        free_text_facts = {"operation.zfm_area_version_id", "product.ncm_sh"}
         real_values = {
             "product.kind": {"MEDICINE", "OTHER", "UNKNOWN"},
             "product.anvisa_registration_status": {
@@ -109,6 +109,15 @@ class AssistedClassificationRequest(BaseModel):
             "operation.delivery_area_status": {"INSIDE_ZFM", "OUTSIDE_ZFM", "UNKNOWN"},
             "operation.flow_type": {"DIRECT", "TOLL_MANUFACTURING", "UNKNOWN"},
             "operation.taxable_scope_status": {"FULL_OPERATION", "VALUE_ADDED_ONLY", "UNKNOWN"},
+            # RT-IBSCBS-0004 (LC 214/2025, art. 146, caput, redação original; Anexo XIV)
+            "product.annex_xiv_match_status": {"MATCHED", "NOT_MATCHED", "UNKNOWN"},
+            "normative.annex_xiv_version": {"LC214_2025_ORIGINAL", "UNKNOWN"},
+            # RT-IBSCBS-0005 (LC 214/2025, art. 146, § 1º, II; LC 187/2021, arts. 9º a 11)
+            "buyer.health_entity_status": {"HEALTH_ENTITY", "NOT_HEALTH_ENTITY", "UNKNOWN"},
+            "buyer.ibs_cbs_immunity_status": {"IMMUNE", "NOT_IMMUNE", "UNKNOWN"},
+            "operation.effective_buyer_status": {"CONFIRMED", "NOT_CONFIRMED", "UNKNOWN"},
+            "buyer.cebas_status": {"VALID", "INVALID", "UNKNOWN"},
+            "buyer.sus_service_requirement_status": {"SATISFIED", "NOT_SATISFIED", "UNKNOWN"},
         }
         for key, item in value.items():
             if key.startswith("synthetic.") or key in free_text_facts:
@@ -126,6 +135,8 @@ class AssistedClassificationRequest(BaseModel):
             "operation.buyer_is_acquirer",
             "operation.origin_area_status",
             "seller.establishment_zfm_relation",
+            "product.annex_xiv_match_status",
+            "buyer.health_entity_status",
         }
         if (
             self.product_id is None

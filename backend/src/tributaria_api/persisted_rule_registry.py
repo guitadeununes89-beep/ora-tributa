@@ -5,6 +5,8 @@ from typing import Any
 
 from tax_engine.engine import DeterministicRule
 from tax_engine.ibs_cbs_rt_0003 import RtIbsCbs0003V1
+from tax_engine.ibs_cbs_rt_0004 import RtIbsCbs0004V1
+from tax_engine.ibs_cbs_rt_0005 import RtIbsCbs0005V1
 from tax_engine.ibs_cbs_rt_0007 import RtIbsCbs0007V1
 from tax_engine.ibs_cbs_rt_0008 import RtIbsCbs0008V1
 from tax_engine.rule_lifecycle import RuleLifecycle
@@ -32,6 +34,54 @@ def _rt_0003(
     if not catalog_version_id:
         raise GovernanceError("Real implementation requires catalog_version_id")
     return RtIbsCbs0003V1(
+        version=version,
+        lifecycle=lifecycle,
+        catalog_version_id=catalog_version_id,
+        cst_code="200",
+        cclasstrib_code="200010",
+    )
+
+
+def _rt_0004(
+    version: TaxRuleVersion, lifecycle: RuleLifecycle, content: dict[str, Any]
+) -> DeterministicRule:
+    expected = {
+        "specification_id": "RT-IBSCBS-0004",
+        "specification_version": 1,
+        "cst": "200",
+        "cclasstrib": "200009",
+    }
+    mismatches = [key for key, value in expected.items() if content.get(key) != value]
+    if mismatches:
+        raise GovernanceError(f"Real implementation provenance mismatch: {', '.join(mismatches)}")
+    catalog_version_id = str(content.get("catalog_version_id", ""))
+    if not catalog_version_id:
+        raise GovernanceError("Real implementation requires catalog_version_id")
+    return RtIbsCbs0004V1(
+        version=version,
+        lifecycle=lifecycle,
+        catalog_version_id=catalog_version_id,
+        cst_code="200",
+        cclasstrib_code="200009",
+    )
+
+
+def _rt_0005(
+    version: TaxRuleVersion, lifecycle: RuleLifecycle, content: dict[str, Any]
+) -> DeterministicRule:
+    expected = {
+        "specification_id": "RT-IBSCBS-0005",
+        "specification_version": 1,
+        "cst": "200",
+        "cclasstrib": "200010",
+    }
+    mismatches = [key for key, value in expected.items() if content.get(key) != value]
+    if mismatches:
+        raise GovernanceError(f"Real implementation provenance mismatch: {', '.join(mismatches)}")
+    catalog_version_id = str(content.get("catalog_version_id", ""))
+    if not catalog_version_id:
+        raise GovernanceError("Real implementation requires catalog_version_id")
+    return RtIbsCbs0005V1(
         version=version,
         lifecycle=lifecycle,
         catalog_version_id=catalog_version_id,
@@ -90,6 +140,8 @@ def _rt_0008(
 
 REAL_IMPLEMENTATIONS: dict[str, RealRuleFactory] = {
     "REAL_RT_IBSCBS_0003_V1": _rt_0003,
+    "REAL_RT_IBSCBS_0004_V1": _rt_0004,
+    "REAL_RT_IBSCBS_0005_V1": _rt_0005,
     "REAL_RT_IBSCBS_0007_V1": _rt_0007,
     "REAL_RT_IBSCBS_0008_V1": _rt_0008,
 }

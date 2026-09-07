@@ -58,7 +58,7 @@ def test_stage_7_specifications_preserve_governed_lifecycle(
     result = TaxRuleSpecificationValidator(references).validate(document, "test-org")
 
     assert result.specification is not None
-    if rule_id == "RT-IBSCBS-0003":
+    if rule_id in {"RT-IBSCBS-0003", "RT-IBSCBS-0004", "RT-IBSCBS-0005"}:
         assert result.specification.status == "APPROVED"
         assert result.specification.implementation is not None
         assert result.readiness is Readiness.READY_FOR_IMPLEMENTATION

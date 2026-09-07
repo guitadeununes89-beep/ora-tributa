@@ -108,6 +108,35 @@ def test_zfm_fact_still_rejects_unknown_value() -> None:
         request(product_attributes={"operation.origin_area_status": "SOMEWHERE_ELSE"})
 
 
+def test_rt_ibscbs_0004_facts_are_accepted() -> None:
+    built = request(
+        product_attributes={
+            "product.ncm_sh": "VERIFIED_FROM_OFFICIAL_ANNEX_XIV",
+            "product.annex_xiv_match_status": "MATCHED",
+            "normative.annex_xiv_version": "LC214_2025_ORIGINAL",
+        }
+    )
+    assert built.product_attributes["product.annex_xiv_match_status"] == "MATCHED"
+
+
+def test_rt_ibscbs_0005_facts_are_accepted() -> None:
+    built = request(
+        product_attributes={
+            "buyer.health_entity_status": "HEALTH_ENTITY",
+            "buyer.ibs_cbs_immunity_status": "IMMUNE",
+            "buyer.cebas_status": "VALID",
+            "buyer.sus_service_requirement_status": "SATISFIED",
+            "operation.effective_buyer_status": "CONFIRMED",
+        }
+    )
+    assert built.product_attributes["buyer.cebas_status"] == "VALID"
+
+
+def test_medicamentos_fact_still_rejects_unknown_value() -> None:
+    with pytest.raises(ValidationError, match="unsupported governed fact"):
+        request(product_attributes={"buyer.cebas_status": "SOMEWHERE_ELSE"})
+
+
 def test_product_version_participates_in_factset_hash() -> None:
     first = FactSet(
         operation_date=date(2040, 1, 1),

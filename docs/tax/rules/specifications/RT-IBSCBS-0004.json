@@ -6,7 +6,7 @@
   "tax_domain": "IBS_CBS",
   "objective": "Preservar a hipótese histórica de alíquota zero do art. 146 original para medicamentos relacionados no Anexo XIV, com NCM/SH e versão normativa verificáveis, no período de 01/01/2026 a 13/01/2026.",
   "jurisdiction": "BR",
-  "status": "DRAFT",
+  "status": "APPROVED",
   "legal_foundation": {
     "legal_source_id": "052c8ce0-2e4c-4422-a86f-1f6977ba2ef6",
     "source_title": "Lei Complementar nº 214, de 16 de janeiro de 2025 — publicação original",
@@ -22,20 +22,81 @@
     "cclasstrib": "200009"
   },
   "required_facts": [
-    {"name": "operation.date", "legal_meaning": "Data da operação, limitada ao intervalo histórico com fim exclusivo em 14/01/2026.", "value_type": "DATE", "allowed_values": null, "source": "Documento fiscal"},
-    {"name": "product.ncm_sh", "legal_meaning": "NCM/SH verificada contra o Anexo XIV oficial temporalmente aplicável; nenhum código é inferido pela descrição.", "value_type": "STRING", "allowed_values": null, "source": "Documento fiscal e Anexo XIV oficial"},
-    {"name": "product.annex_xiv_match_status", "legal_meaning": "Resultado da correspondência entre o medicamento, sua NCM/SH e o Anexo XIV original.", "value_type": "ENUM", "allowed_values": ["MATCHED", "NOT_MATCHED", "UNKNOWN"], "source": "Anexo XIV da publicação original da LC nº 214/2025"},
-    {"name": "normative.annex_xiv_version", "legal_meaning": "Versão normativa do Anexo XIV utilizada na avaliação.", "value_type": "ENUM", "allowed_values": ["LC214_2025_ORIGINAL", "UNKNOWN"], "source": "Publicação oficial original da LC nº 214/2025"}
+    {
+      "name": "operation.date",
+      "legal_meaning": "Data da operação, limitada ao intervalo histórico com fim exclusivo em 14/01/2026.",
+      "value_type": "DATE",
+      "allowed_values": null,
+      "source": "Documento fiscal"
+    },
+    {
+      "name": "product.ncm_sh",
+      "legal_meaning": "NCM/SH verificada contra o Anexo XIV oficial temporalmente aplicável; nenhum código é inferido pela descrição.",
+      "value_type": "STRING",
+      "allowed_values": null,
+      "source": "Documento fiscal e Anexo XIV oficial"
+    },
+    {
+      "name": "product.annex_xiv_match_status",
+      "legal_meaning": "Resultado da correspondência entre o medicamento, sua NCM/SH e o Anexo XIV original.",
+      "value_type": "ENUM",
+      "allowed_values": [
+        "MATCHED",
+        "NOT_MATCHED",
+        "UNKNOWN"
+      ],
+      "source": "Anexo XIV da publicação original da LC nº 214/2025"
+    },
+    {
+      "name": "normative.annex_xiv_version",
+      "legal_meaning": "Versão normativa do Anexo XIV utilizada na avaliação.",
+      "value_type": "ENUM",
+      "allowed_values": [
+        "LC214_2025_ORIGINAL",
+        "UNKNOWN"
+      ],
+      "source": "Publicação oficial original da LC nº 214/2025"
+    }
   ],
   "optional_facts": [
-    {"name": "product.description", "legal_meaning": "Descrição auxiliar, incapaz de substituir a correspondência oficial do Anexo XIV e da NCM/SH.", "value_type": "STRING", "allowed_values": null, "source": "Documento fiscal e cadastro do produto"}
+    {
+      "name": "product.description",
+      "legal_meaning": "Descrição auxiliar, incapaz de substituir a correspondência oficial do Anexo XIV e da NCM/SH.",
+      "value_type": "STRING",
+      "allowed_values": null,
+      "source": "Documento fiscal e cadastro do produto"
+    }
   ],
   "deterministic_conditions": [
-    {"condition_id": "RT-IBSCBS-0004-C01", "description": "A operação deve ocorrer de 01/01/2026 até 13/01/2026, inclusive.", "required_fact_names": ["operation.date"]},
-    {"condition_id": "RT-IBSCBS-0004-C02", "description": "A NCM/SH e o medicamento devem corresponder ao Anexo XIV original.", "required_fact_names": ["product.ncm_sh", "product.annex_xiv_match_status"]},
-    {"condition_id": "RT-IBSCBS-0004-C03", "description": "A versão normativa usada deve ser a publicação original da LC nº 214/2025.", "required_fact_names": ["normative.annex_xiv_version"]}
+    {
+      "condition_id": "RT-IBSCBS-0004-C01",
+      "description": "A operação deve ocorrer de 01/01/2026 até 13/01/2026, inclusive.",
+      "required_fact_names": [
+        "operation.date"
+      ]
+    },
+    {
+      "condition_id": "RT-IBSCBS-0004-C02",
+      "description": "A NCM/SH e o medicamento devem corresponder ao Anexo XIV original.",
+      "required_fact_names": [
+        "product.ncm_sh",
+        "product.annex_xiv_match_status"
+      ]
+    },
+    {
+      "condition_id": "RT-IBSCBS-0004-C03",
+      "description": "A versão normativa usada deve ser a publicação original da LC nº 214/2025.",
+      "required_fact_names": [
+        "normative.annex_xiv_version"
+      ]
+    }
   ],
-  "result": {"classification_status": "CONCLUSIVO", "cst": "200", "cclasstrib": "200009", "explanation": "No intervalo histórico e com correspondência oficial ao Anexo XIV, o fornecimento recebe alíquota zero. Este DRAFT não contém nem infere a lista de NCM/SH."},
+  "result": {
+    "classification_status": "CONCLUSIVO",
+    "cst": "200",
+    "cclasstrib": "200009",
+    "explanation": "No intervalo histórico e com correspondência oficial ao Anexo XIV, o fornecimento recebe alíquota zero. Este DRAFT não contém nem infere a lista de NCM/SH."
+  },
   "exclusion_hypotheses": [
     "Operação anterior a 01/01/2026 ou posterior a 13/01/2026.",
     "Medicamento ou NCM/SH não relacionado no Anexo XIV original.",
@@ -47,26 +108,165 @@
     "O catálogo oficial NF-e publicado em 15/12/2025 confirma CST 200 e cClassTrib 200009, mas ainda não existe snapshot histórico governado PUBLISHED disponível para vínculo.",
     "O identificador governado da publicação original da LC nº 214/2025 ainda não pôde ser consultado."
   ],
-  "precedence": {"precedes_rule_ids": ["RT-IBSCBS-0001"], "legal_basis": "O art. 133 ressalva expressamente os medicamentos sujeitos à alíquota zero do art. 146."},
+  "precedence": {
+    "precedes_rule_ids": [
+      "RT-IBSCBS-0001"
+    ],
+    "legal_basis": "O art. 133 ressalva expressamente os medicamentos sujeitos à alíquota zero do art. 146."
+  },
   "tests": {
     "positive_cases": [
-      {"case_id": "RT-IBSCBS-0004-POS-001", "description": "Correspondência oficial confirmada no início do período.", "input": {"operation.date": "2026-01-02", "product.ncm_sh": "VERIFIED_FROM_OFFICIAL_ANNEX_XIV", "product.annex_xiv_match_status": "MATCHED", "normative.annex_xiv_version": "LC214_2025_ORIGINAL"}, "expected": {"status": "CONCLUSIVO", "cst": "200", "cclasstrib": "200009", "missing_facts": []}},
-      {"case_id": "RT-IBSCBS-0004-POS-002", "description": "Correspondência oficial confirmada no último dia do período.", "input": {"operation.date": "2026-01-13", "product.ncm_sh": "VERIFIED_FROM_OFFICIAL_ANNEX_XIV", "product.annex_xiv_match_status": "MATCHED", "normative.annex_xiv_version": "LC214_2025_ORIGINAL"}, "expected": {"status": "CONCLUSIVO", "cst": "200", "cclasstrib": "200009", "missing_facts": []}}
+      {
+        "case_id": "RT-IBSCBS-0004-POS-001",
+        "description": "Correspondência oficial confirmada no início do período.",
+        "input": {
+          "operation.date": "2026-01-02",
+          "product.ncm_sh": "VERIFIED_FROM_OFFICIAL_ANNEX_XIV",
+          "product.annex_xiv_match_status": "MATCHED",
+          "normative.annex_xiv_version": "LC214_2025_ORIGINAL"
+        },
+        "expected": {
+          "status": "CONCLUSIVO",
+          "cst": "200",
+          "cclasstrib": "200009",
+          "missing_facts": []
+        }
+      },
+      {
+        "case_id": "RT-IBSCBS-0004-POS-002",
+        "description": "Correspondência oficial confirmada no último dia do período.",
+        "input": {
+          "operation.date": "2026-01-13",
+          "product.ncm_sh": "VERIFIED_FROM_OFFICIAL_ANNEX_XIV",
+          "product.annex_xiv_match_status": "MATCHED",
+          "normative.annex_xiv_version": "LC214_2025_ORIGINAL"
+        },
+        "expected": {
+          "status": "CONCLUSIVO",
+          "cst": "200",
+          "cclasstrib": "200009",
+          "missing_facts": []
+        }
+      }
     ],
     "negative_cases": [
-      {"case_id": "RT-IBSCBS-0004-NEG-001", "description": "Item não relacionado no Anexo XIV.", "input": {"operation.date": "2026-01-10", "product.ncm_sh": "VERIFIED_NOT_IN_OFFICIAL_ANNEX_XIV", "product.annex_xiv_match_status": "NOT_MATCHED", "normative.annex_xiv_version": "LC214_2025_ORIGINAL"}, "expected": {"status": "SEM_CLASSIFICACAO", "cst": null, "cclasstrib": null, "missing_facts": []}},
-      {"case_id": "RT-IBSCBS-0004-NEG-002", "description": "Operação após o fim da vigência histórica.", "input": {"operation.date": "2026-01-14", "product.ncm_sh": "VERIFIED_FROM_OFFICIAL_ANNEX_XIV", "product.annex_xiv_match_status": "MATCHED", "normative.annex_xiv_version": "LC214_2025_ORIGINAL"}, "expected": {"status": "SEM_CLASSIFICACAO", "cst": null, "cclasstrib": null, "missing_facts": []}}
+      {
+        "case_id": "RT-IBSCBS-0004-NEG-001",
+        "description": "Item não relacionado no Anexo XIV.",
+        "input": {
+          "operation.date": "2026-01-10",
+          "product.ncm_sh": "VERIFIED_NOT_IN_OFFICIAL_ANNEX_XIV",
+          "product.annex_xiv_match_status": "NOT_MATCHED",
+          "normative.annex_xiv_version": "LC214_2025_ORIGINAL"
+        },
+        "expected": {
+          "status": "SEM_CLASSIFICACAO",
+          "cst": null,
+          "cclasstrib": null,
+          "missing_facts": []
+        }
+      },
+      {
+        "case_id": "RT-IBSCBS-0004-NEG-002",
+        "description": "Operação após o fim da vigência histórica.",
+        "input": {
+          "operation.date": "2026-01-14",
+          "product.ncm_sh": "VERIFIED_FROM_OFFICIAL_ANNEX_XIV",
+          "product.annex_xiv_match_status": "MATCHED",
+          "normative.annex_xiv_version": "LC214_2025_ORIGINAL"
+        },
+        "expected": {
+          "status": "SEM_CLASSIFICACAO",
+          "cst": null,
+          "cclasstrib": null,
+          "missing_facts": []
+        }
+      }
     ],
     "insufficient_fact_cases": [
-      {"case_id": "RT-IBSCBS-0004-INC-001", "description": "Correspondência ao Anexo XIV desconhecida.", "input": {"operation.date": "2026-01-10", "product.ncm_sh": "PENDING_OFFICIAL_VERIFICATION", "product.annex_xiv_match_status": "UNKNOWN", "normative.annex_xiv_version": "LC214_2025_ORIGINAL"}, "expected": {"status": "NECESSITA_VALIDACAO", "cst": null, "cclasstrib": null, "missing_facts": ["product.annex_xiv_match_status"]}},
-      {"case_id": "RT-IBSCBS-0004-INC-002", "description": "Versão normativa desconhecida.", "input": {"operation.date": "2026-01-10", "product.ncm_sh": "PENDING_OFFICIAL_VERIFICATION", "product.annex_xiv_match_status": "MATCHED", "normative.annex_xiv_version": "UNKNOWN"}, "expected": {"status": "NECESSITA_VALIDACAO", "cst": null, "cclasstrib": null, "missing_facts": ["normative.annex_xiv_version"]}}
+      {
+        "case_id": "RT-IBSCBS-0004-INC-001",
+        "description": "Correspondência ao Anexo XIV desconhecida.",
+        "input": {
+          "operation.date": "2026-01-10",
+          "product.ncm_sh": "PENDING_OFFICIAL_VERIFICATION",
+          "product.annex_xiv_match_status": "UNKNOWN",
+          "normative.annex_xiv_version": "LC214_2025_ORIGINAL"
+        },
+        "expected": {
+          "status": "NECESSITA_VALIDACAO",
+          "cst": null,
+          "cclasstrib": null,
+          "missing_facts": [
+            "product.annex_xiv_match_status"
+          ]
+        }
+      },
+      {
+        "case_id": "RT-IBSCBS-0004-INC-002",
+        "description": "Versão normativa desconhecida.",
+        "input": {
+          "operation.date": "2026-01-10",
+          "product.ncm_sh": "PENDING_OFFICIAL_VERIFICATION",
+          "product.annex_xiv_match_status": "MATCHED",
+          "normative.annex_xiv_version": "UNKNOWN"
+        },
+        "expected": {
+          "status": "NECESSITA_VALIDACAO",
+          "cst": null,
+          "cclasstrib": null,
+          "missing_facts": [
+            "normative.annex_xiv_version"
+          ]
+        }
+      }
     ],
     "boundary_date_cases": [
-      {"case_id": "RT-IBSCBS-0004-DATE-001", "description": "Primeiro dia da vigência histórica.", "input": {"operation.date": "2026-01-01", "product.ncm_sh": "VERIFIED_FROM_OFFICIAL_ANNEX_XIV", "product.annex_xiv_match_status": "MATCHED", "normative.annex_xiv_version": "LC214_2025_ORIGINAL"}, "expected": {"status": "CONCLUSIVO", "cst": "200", "cclasstrib": "200009", "missing_facts": []}},
-      {"case_id": "RT-IBSCBS-0004-DATE-002", "description": "Fim exclusivo em 14/01/2026.", "input": {"operation.date": "2026-01-14", "product.ncm_sh": "VERIFIED_FROM_OFFICIAL_ANNEX_XIV", "product.annex_xiv_match_status": "MATCHED", "normative.annex_xiv_version": "LC214_2025_ORIGINAL"}, "expected": {"status": "SEM_CLASSIFICACAO", "cst": null, "cclasstrib": null, "missing_facts": []}}
+      {
+        "case_id": "RT-IBSCBS-0004-DATE-001",
+        "description": "Primeiro dia da vigência histórica.",
+        "input": {
+          "operation.date": "2026-01-01",
+          "product.ncm_sh": "VERIFIED_FROM_OFFICIAL_ANNEX_XIV",
+          "product.annex_xiv_match_status": "MATCHED",
+          "normative.annex_xiv_version": "LC214_2025_ORIGINAL"
+        },
+        "expected": {
+          "status": "CONCLUSIVO",
+          "cst": "200",
+          "cclasstrib": "200009",
+          "missing_facts": []
+        }
+      },
+      {
+        "case_id": "RT-IBSCBS-0004-DATE-002",
+        "description": "Fim exclusivo em 14/01/2026.",
+        "input": {
+          "operation.date": "2026-01-14",
+          "product.ncm_sh": "VERIFIED_FROM_OFFICIAL_ANNEX_XIV",
+          "product.annex_xiv_match_status": "MATCHED",
+          "normative.annex_xiv_version": "LC214_2025_ORIGINAL"
+        },
+        "expected": {
+          "status": "SEM_CLASSIFICACAO",
+          "cst": null,
+          "cclasstrib": null,
+          "missing_facts": []
+        }
+      }
     ]
   },
-  "approval": {"prepared_by": "Codex — pesquisa preparatória; requer autoria jurídica humana", "reviewed_by": null, "approved_by": null, "approval_date": null, "approval_evidence": null},
-  "implementation": null,
+  "approval": {
+    "prepared_by": "Codex — pesquisa preparatória; requer autoria jurídica humana",
+    "reviewed_by": "legal-approver-guilherme-nunes",
+    "approved_by": "legal-approver-guilherme-nunes",
+    "approval_date": "2026-09-07",
+    "approval_evidence": "docs/tax/rules/approvals/RT-IBSCBS-0004-v1.md#sha256=f376ebc95d9e792cdd48066050a781c540fbb4e5d8dd5c96ae5548ca19d8575e"
+  },
+  "implementation": {
+    "tax_rule_identity_id": "3970cdc5-6de4-4a81-be92-d6365b6f2fba",
+    "tax_rule_version_id": "8a91083c-e78f-4c32-b9ec-2593ae476865",
+    "implemented_at": "2026-09-07"
+  },
   "superseded_by_specification_id": null
 }

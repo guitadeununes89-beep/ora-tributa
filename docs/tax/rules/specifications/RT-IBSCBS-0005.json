@@ -6,7 +6,7 @@
   "tax_domain": "IBS_CBS",
   "objective": "Especificar separadamente, sem regra executável, a hipótese do art. 146, § 1º, II, preservando fundamento e futura DecisionTrace próprios mesmo quando a classificação oficial coincidir com a do inciso I.",
   "jurisdiction": "BR",
-  "status": "DRAFT",
+  "status": "APPROVED",
   "legal_foundation": {
     "legal_source_id": "23302183-6c92-4b34-a26d-cd272e2c1b1e",
     "source_title": "Lei Complementar nº 214, de 16 de janeiro de 2025 — publicação original e texto vigente compilado",
@@ -16,27 +16,146 @@
   },
   "effective_from": "2026-01-01",
   "effective_to": null,
-  "catalog": {"catalog_version_id": "2295b90f-2f92-4fa4-8181-3007f02b1679", "cst": "200", "cclasstrib": "200010"},
+  "catalog": {
+    "catalog_version_id": "2295b90f-2f92-4fa4-8181-3007f02b1679",
+    "cst": "200",
+    "cclasstrib": "200010"
+  },
   "required_facts": [
-    {"name": "operation.date", "legal_meaning": "Data da operação para seleção temporal da redação.", "value_type": "DATE", "allowed_values": null, "source": "Documento fiscal"},
-    {"name": "product.kind", "legal_meaning": "Confirmação de que o bem é medicamento.", "value_type": "ENUM", "allowed_values": ["MEDICINE", "OTHER", "UNKNOWN"], "source": "Cadastro sanitário e documentação técnica"},
-    {"name": "product.anvisa_registration_status", "legal_meaning": "Situação temporal do registro Anvisa.", "value_type": "ENUM", "allowed_values": ["REGISTERED", "NOT_REGISTERED", "UNKNOWN"], "source": "Fonte oficial da Anvisa"},
-    {"name": "buyer.health_entity_status", "legal_meaning": "Confirmação de que o adquirente efetivo é entidade de saúde.", "value_type": "ENUM", "allowed_values": ["HEALTH_ENTITY", "NOT_HEALTH_ENTITY", "UNKNOWN"], "source": "Ato constitutivo e cadastros oficiais"},
-    {"name": "buyer.ibs_cbs_immunity_status", "legal_meaning": "Situação comprovada de imunidade ao IBS e à CBS.", "value_type": "ENUM", "allowed_values": ["IMMUNE", "NOT_IMMUNE", "UNKNOWN"], "source": "Fundamento constitucional/legal e evidência oficial aplicável"},
-    {"name": "buyer.cebas_status", "legal_meaning": "Situação e vigência do CEBAS na data da operação.", "value_type": "ENUM", "allowed_values": ["VALID", "INVALID", "UNKNOWN"], "source": "Registro oficial de certificação CEBAS"},
-    {"name": "buyer.sus_service_requirement_status", "legal_meaning": "Comprovação do requisito legal relativo à prestação de serviços ao SUS nos termos dos arts. 9º a 11 da LC nº 187/2021.", "value_type": "ENUM", "allowed_values": ["SATISFIED", "NOT_SATISFIED", "UNKNOWN"], "source": "Evidência oficial aplicável ao CEBAS e ao SUS"},
-    {"name": "operation.effective_buyer_status", "legal_meaning": "Confirma que a entidade qualificada é o adquirente efetivo da operação.", "value_type": "ENUM", "allowed_values": ["CONFIRMED", "NOT_CONFIRMED", "UNKNOWN"], "source": "Documento fiscal, contrato e pagamento"}
+    {
+      "name": "operation.date",
+      "legal_meaning": "Data da operação para seleção temporal da redação.",
+      "value_type": "DATE",
+      "allowed_values": null,
+      "source": "Documento fiscal"
+    },
+    {
+      "name": "product.kind",
+      "legal_meaning": "Confirmação de que o bem é medicamento.",
+      "value_type": "ENUM",
+      "allowed_values": [
+        "MEDICINE",
+        "OTHER",
+        "UNKNOWN"
+      ],
+      "source": "Cadastro sanitário e documentação técnica"
+    },
+    {
+      "name": "product.anvisa_registration_status",
+      "legal_meaning": "Situação temporal do registro Anvisa.",
+      "value_type": "ENUM",
+      "allowed_values": [
+        "REGISTERED",
+        "NOT_REGISTERED",
+        "UNKNOWN"
+      ],
+      "source": "Fonte oficial da Anvisa"
+    },
+    {
+      "name": "buyer.health_entity_status",
+      "legal_meaning": "Confirmação de que o adquirente efetivo é entidade de saúde.",
+      "value_type": "ENUM",
+      "allowed_values": [
+        "HEALTH_ENTITY",
+        "NOT_HEALTH_ENTITY",
+        "UNKNOWN"
+      ],
+      "source": "Ato constitutivo e cadastros oficiais"
+    },
+    {
+      "name": "buyer.ibs_cbs_immunity_status",
+      "legal_meaning": "Situação comprovada de imunidade ao IBS e à CBS.",
+      "value_type": "ENUM",
+      "allowed_values": [
+        "IMMUNE",
+        "NOT_IMMUNE",
+        "UNKNOWN"
+      ],
+      "source": "Fundamento constitucional/legal e evidência oficial aplicável"
+    },
+    {
+      "name": "buyer.cebas_status",
+      "legal_meaning": "Situação e vigência do CEBAS na data da operação.",
+      "value_type": "ENUM",
+      "allowed_values": [
+        "VALID",
+        "INVALID",
+        "UNKNOWN"
+      ],
+      "source": "Registro oficial de certificação CEBAS"
+    },
+    {
+      "name": "buyer.sus_service_requirement_status",
+      "legal_meaning": "Comprovação do requisito legal relativo à prestação de serviços ao SUS nos termos dos arts. 9º a 11 da LC nº 187/2021.",
+      "value_type": "ENUM",
+      "allowed_values": [
+        "SATISFIED",
+        "NOT_SATISFIED",
+        "UNKNOWN"
+      ],
+      "source": "Evidência oficial aplicável ao CEBAS e ao SUS"
+    },
+    {
+      "name": "operation.effective_buyer_status",
+      "legal_meaning": "Confirma que a entidade qualificada é o adquirente efetivo da operação.",
+      "value_type": "ENUM",
+      "allowed_values": [
+        "CONFIRMED",
+        "NOT_CONFIRMED",
+        "UNKNOWN"
+      ],
+      "source": "Documento fiscal, contrato e pagamento"
+    }
   ],
   "optional_facts": [
-    {"name": "buyer.tax_identifier", "legal_meaning": "Identificador auxiliar; não prova isoladamente imunidade, CEBAS ou vínculo com o SUS.", "value_type": "STRING", "allowed_values": null, "source": "Cadastros oficiais e documento fiscal"}
+    {
+      "name": "buyer.tax_identifier",
+      "legal_meaning": "Identificador auxiliar; não prova isoladamente imunidade, CEBAS ou vínculo com o SUS.",
+      "value_type": "STRING",
+      "allowed_values": null,
+      "source": "Cadastros oficiais e documento fiscal"
+    }
   ],
   "deterministic_conditions": [
-    {"condition_id": "RT-IBSCBS-0005-C01", "description": "A operação deve ocorrer dentro da vigência aplicável.", "required_fact_names": ["operation.date"]},
-    {"condition_id": "RT-IBSCBS-0005-C02", "description": "O produto deve ser medicamento com registro Anvisa confirmado.", "required_fact_names": ["product.kind", "product.anvisa_registration_status"]},
-    {"condition_id": "RT-IBSCBS-0005-C03", "description": "O adquirente efetivo deve ser entidade de saúde imune ao IBS/CBS.", "required_fact_names": ["buyer.health_entity_status", "buyer.ibs_cbs_immunity_status", "operation.effective_buyer_status"]},
-    {"condition_id": "RT-IBSCBS-0005-C04", "description": "CEBAS válido e requisito legal relativo ao SUS devem estar comprovados.", "required_fact_names": ["buyer.cebas_status", "buyer.sus_service_requirement_status"]}
+    {
+      "condition_id": "RT-IBSCBS-0005-C01",
+      "description": "A operação deve ocorrer dentro da vigência aplicável.",
+      "required_fact_names": [
+        "operation.date"
+      ]
+    },
+    {
+      "condition_id": "RT-IBSCBS-0005-C02",
+      "description": "O produto deve ser medicamento com registro Anvisa confirmado.",
+      "required_fact_names": [
+        "product.kind",
+        "product.anvisa_registration_status"
+      ]
+    },
+    {
+      "condition_id": "RT-IBSCBS-0005-C03",
+      "description": "O adquirente efetivo deve ser entidade de saúde imune ao IBS/CBS.",
+      "required_fact_names": [
+        "buyer.health_entity_status",
+        "buyer.ibs_cbs_immunity_status",
+        "operation.effective_buyer_status"
+      ]
+    },
+    {
+      "condition_id": "RT-IBSCBS-0005-C04",
+      "description": "CEBAS válido e requisito legal relativo ao SUS devem estar comprovados.",
+      "required_fact_names": [
+        "buyer.cebas_status",
+        "buyer.sus_service_requirement_status"
+      ]
+    }
   ],
-  "result": {"classification_status": "CONCLUSIVO", "cst": "200", "cclasstrib": "200010", "explanation": "Com todos os requisitos comprovados, o fornecimento recebe alíquota zero pelo art. 146, § 1º, II. A DecisionTrace desta hipótese deve permanecer separada da regra do inciso I."},
+  "result": {
+    "classification_status": "CONCLUSIVO",
+    "cst": "200",
+    "cclasstrib": "200010",
+    "explanation": "Com todos os requisitos comprovados, o fornecimento recebe alíquota zero pelo art. 146, § 1º, II. A DecisionTrace desta hipótese deve permanecer separada da regra do inciso I."
+  },
   "exclusion_hypotheses": [
     "Produto não registrado na Anvisa.",
     "Adquirente que não seja entidade de saúde imune ao IBS e à CBS.",
@@ -50,26 +169,178 @@
     "Os tipos de evidência suficientes para imunidade, CEBAS e requisito SUS exigem validação jurídica humana.",
     "Os identificadores governados da fonte e do snapshot PUBLISHED ainda não puderam ser consultados."
   ],
-  "precedence": {"precedes_rule_ids": ["RT-IBSCBS-0001"], "legal_basis": "A alíquota zero do art. 146 é expressamente ressalvada pelo art. 133."},
+  "precedence": {
+    "precedes_rule_ids": [
+      "RT-IBSCBS-0001"
+    ],
+    "legal_basis": "A alíquota zero do art. 146 é expressamente ressalvada pelo art. 133."
+  },
   "tests": {
     "positive_cases": [
-      {"case_id": "RT-IBSCBS-0005-POS-001", "description": "Todos os requisitos documentais confirmados.", "input": {"operation.date": "2026-02-01", "product.kind": "MEDICINE", "product.anvisa_registration_status": "REGISTERED", "buyer.health_entity_status": "HEALTH_ENTITY", "buyer.ibs_cbs_immunity_status": "IMMUNE", "buyer.cebas_status": "VALID", "buyer.sus_service_requirement_status": "SATISFIED", "operation.effective_buyer_status": "CONFIRMED"}, "expected": {"status": "CONCLUSIVO", "cst": "200", "cclasstrib": "200010", "missing_facts": []}},
-      {"case_id": "RT-IBSCBS-0005-POS-002", "description": "Hipótese confirmada no início da vigência original.", "input": {"operation.date": "2026-01-01", "product.kind": "MEDICINE", "product.anvisa_registration_status": "REGISTERED", "buyer.health_entity_status": "HEALTH_ENTITY", "buyer.ibs_cbs_immunity_status": "IMMUNE", "buyer.cebas_status": "VALID", "buyer.sus_service_requirement_status": "SATISFIED", "operation.effective_buyer_status": "CONFIRMED"}, "expected": {"status": "CONCLUSIVO", "cst": "200", "cclasstrib": "200010", "missing_facts": []}}
+      {
+        "case_id": "RT-IBSCBS-0005-POS-001",
+        "description": "Todos os requisitos documentais confirmados.",
+        "input": {
+          "operation.date": "2026-02-01",
+          "product.kind": "MEDICINE",
+          "product.anvisa_registration_status": "REGISTERED",
+          "buyer.health_entity_status": "HEALTH_ENTITY",
+          "buyer.ibs_cbs_immunity_status": "IMMUNE",
+          "buyer.cebas_status": "VALID",
+          "buyer.sus_service_requirement_status": "SATISFIED",
+          "operation.effective_buyer_status": "CONFIRMED"
+        },
+        "expected": {
+          "status": "CONCLUSIVO",
+          "cst": "200",
+          "cclasstrib": "200010",
+          "missing_facts": []
+        }
+      },
+      {
+        "case_id": "RT-IBSCBS-0005-POS-002",
+        "description": "Hipótese confirmada no início da vigência original.",
+        "input": {
+          "operation.date": "2026-01-01",
+          "product.kind": "MEDICINE",
+          "product.anvisa_registration_status": "REGISTERED",
+          "buyer.health_entity_status": "HEALTH_ENTITY",
+          "buyer.ibs_cbs_immunity_status": "IMMUNE",
+          "buyer.cebas_status": "VALID",
+          "buyer.sus_service_requirement_status": "SATISFIED",
+          "operation.effective_buyer_status": "CONFIRMED"
+        },
+        "expected": {
+          "status": "CONCLUSIVO",
+          "cst": "200",
+          "cclasstrib": "200010",
+          "missing_facts": []
+        }
+      }
     ],
     "negative_cases": [
-      {"case_id": "RT-IBSCBS-0005-NEG-001", "description": "CEBAS inválido.", "input": {"operation.date": "2026-02-01", "product.kind": "MEDICINE", "product.anvisa_registration_status": "REGISTERED", "buyer.health_entity_status": "HEALTH_ENTITY", "buyer.ibs_cbs_immunity_status": "IMMUNE", "buyer.cebas_status": "INVALID", "buyer.sus_service_requirement_status": "SATISFIED", "operation.effective_buyer_status": "CONFIRMED"}, "expected": {"status": "SEM_CLASSIFICACAO", "cst": null, "cclasstrib": null, "missing_facts": []}},
-      {"case_id": "RT-IBSCBS-0005-NEG-002", "description": "Entidade não é imune.", "input": {"operation.date": "2026-02-01", "product.kind": "MEDICINE", "product.anvisa_registration_status": "REGISTERED", "buyer.health_entity_status": "HEALTH_ENTITY", "buyer.ibs_cbs_immunity_status": "NOT_IMMUNE", "buyer.cebas_status": "VALID", "buyer.sus_service_requirement_status": "SATISFIED", "operation.effective_buyer_status": "CONFIRMED"}, "expected": {"status": "SEM_CLASSIFICACAO", "cst": null, "cclasstrib": null, "missing_facts": []}}
+      {
+        "case_id": "RT-IBSCBS-0005-NEG-001",
+        "description": "CEBAS inválido.",
+        "input": {
+          "operation.date": "2026-02-01",
+          "product.kind": "MEDICINE",
+          "product.anvisa_registration_status": "REGISTERED",
+          "buyer.health_entity_status": "HEALTH_ENTITY",
+          "buyer.ibs_cbs_immunity_status": "IMMUNE",
+          "buyer.cebas_status": "INVALID",
+          "buyer.sus_service_requirement_status": "SATISFIED",
+          "operation.effective_buyer_status": "CONFIRMED"
+        },
+        "expected": {
+          "status": "SEM_CLASSIFICACAO",
+          "cst": null,
+          "cclasstrib": null,
+          "missing_facts": []
+        }
+      },
+      {
+        "case_id": "RT-IBSCBS-0005-NEG-002",
+        "description": "Entidade não é imune.",
+        "input": {
+          "operation.date": "2026-02-01",
+          "product.kind": "MEDICINE",
+          "product.anvisa_registration_status": "REGISTERED",
+          "buyer.health_entity_status": "HEALTH_ENTITY",
+          "buyer.ibs_cbs_immunity_status": "NOT_IMMUNE",
+          "buyer.cebas_status": "VALID",
+          "buyer.sus_service_requirement_status": "SATISFIED",
+          "operation.effective_buyer_status": "CONFIRMED"
+        },
+        "expected": {
+          "status": "SEM_CLASSIFICACAO",
+          "cst": null,
+          "cclasstrib": null,
+          "missing_facts": []
+        }
+      }
     ],
     "insufficient_fact_cases": [
-      {"case_id": "RT-IBSCBS-0005-INC-001", "description": "Situação do CEBAS desconhecida.", "input": {"operation.date": "2026-02-01", "buyer.cebas_status": "UNKNOWN"}, "expected": {"status": "NECESSITA_VALIDACAO", "cst": null, "cclasstrib": null, "missing_facts": ["buyer.cebas_status"]}},
-      {"case_id": "RT-IBSCBS-0005-INC-002", "description": "Requisito SUS desconhecido.", "input": {"operation.date": "2026-02-01", "buyer.sus_service_requirement_status": "UNKNOWN"}, "expected": {"status": "NECESSITA_VALIDACAO", "cst": null, "cclasstrib": null, "missing_facts": ["buyer.sus_service_requirement_status"]}}
+      {
+        "case_id": "RT-IBSCBS-0005-INC-001",
+        "description": "Situação do CEBAS desconhecida.",
+        "input": {
+          "operation.date": "2026-02-01",
+          "buyer.cebas_status": "UNKNOWN"
+        },
+        "expected": {
+          "status": "NECESSITA_VALIDACAO",
+          "cst": null,
+          "cclasstrib": null,
+          "missing_facts": [
+            "buyer.cebas_status"
+          ]
+        }
+      },
+      {
+        "case_id": "RT-IBSCBS-0005-INC-002",
+        "description": "Requisito SUS desconhecido.",
+        "input": {
+          "operation.date": "2026-02-01",
+          "buyer.sus_service_requirement_status": "UNKNOWN"
+        },
+        "expected": {
+          "status": "NECESSITA_VALIDACAO",
+          "cst": null,
+          "cclasstrib": null,
+          "missing_facts": [
+            "buyer.sus_service_requirement_status"
+          ]
+        }
+      }
     ],
     "boundary_date_cases": [
-      {"case_id": "RT-IBSCBS-0005-DATE-001", "description": "Dia anterior ao início dos efeitos.", "input": {"operation.date": "2025-12-31"}, "expected": {"status": "SEM_CLASSIFICACAO", "cst": null, "cclasstrib": null, "missing_facts": []}},
-      {"case_id": "RT-IBSCBS-0005-DATE-002", "description": "Primeiro dia dos efeitos.", "input": {"operation.date": "2026-01-01", "product.kind": "MEDICINE", "product.anvisa_registration_status": "REGISTERED", "buyer.health_entity_status": "HEALTH_ENTITY", "buyer.ibs_cbs_immunity_status": "IMMUNE", "buyer.cebas_status": "VALID", "buyer.sus_service_requirement_status": "SATISFIED", "operation.effective_buyer_status": "CONFIRMED"}, "expected": {"status": "CONCLUSIVO", "cst": "200", "cclasstrib": "200010", "missing_facts": []}}
+      {
+        "case_id": "RT-IBSCBS-0005-DATE-001",
+        "description": "Dia anterior ao início dos efeitos.",
+        "input": {
+          "operation.date": "2025-12-31"
+        },
+        "expected": {
+          "status": "SEM_CLASSIFICACAO",
+          "cst": null,
+          "cclasstrib": null,
+          "missing_facts": []
+        }
+      },
+      {
+        "case_id": "RT-IBSCBS-0005-DATE-002",
+        "description": "Primeiro dia dos efeitos.",
+        "input": {
+          "operation.date": "2026-01-01",
+          "product.kind": "MEDICINE",
+          "product.anvisa_registration_status": "REGISTERED",
+          "buyer.health_entity_status": "HEALTH_ENTITY",
+          "buyer.ibs_cbs_immunity_status": "IMMUNE",
+          "buyer.cebas_status": "VALID",
+          "buyer.sus_service_requirement_status": "SATISFIED",
+          "operation.effective_buyer_status": "CONFIRMED"
+        },
+        "expected": {
+          "status": "CONCLUSIVO",
+          "cst": "200",
+          "cclasstrib": "200010",
+          "missing_facts": []
+        }
+      }
     ]
   },
-  "approval": {"prepared_by": "Codex — pesquisa preparatória; requer autoria jurídica humana", "reviewed_by": null, "approved_by": null, "approval_date": null, "approval_evidence": null},
-  "implementation": null,
+  "approval": {
+    "prepared_by": "Codex — pesquisa preparatória; requer autoria jurídica humana",
+    "reviewed_by": "legal-approver-guilherme-nunes",
+    "approved_by": "legal-approver-guilherme-nunes",
+    "approval_date": "2026-09-07",
+    "approval_evidence": "docs/tax/rules/approvals/RT-IBSCBS-0005-v1.md#sha256=be66dd241e7b3bd7aa7090cdf41e5a765b6d2169afca8c10d1ede099db10d302"
+  },
+  "implementation": {
+    "tax_rule_identity_id": "7914aa07-f544-4940-a963-d33e60b7dc59",
+    "tax_rule_version_id": "19f940f5-36d3-4a72-9623-a446b8b31445",
+    "implemented_at": "2026-09-07"
+  },
   "superseded_by_specification_id": null
 }
