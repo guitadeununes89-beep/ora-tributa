@@ -3,9 +3,11 @@
 Fundação técnica de uma plataforma auditável de inteligência, auditoria e planejamento tributário brasileiro. O primeiro domínio previsto é a Reforma Tributária (IBS, CBS e Imposto Seletivo), sem codificar regras fiscais antes de sua especificação e validação jurídica.
 
 > **Estado atual:** catálogo oficial governado com 164 cClassTrib, lifecycle append-only, rulesets
-> imutáveis e avaliações reproduzíveis. A `RT-IBSCBS-0003` é a única regra brasileira real
-> `PUBLISHED` e integra somente o ruleset explícito `IBSCBS-PILOT-001`. Ela é piloto, não representa
-> cobertura completa, não é default de produção e não existe cálculo amplo da Reforma Tributária.
+> imutáveis e avaliações reproduzíveis. Cinco regras reais estão `PUBLISHED` — `RT-IBSCBS-0003`,
+> `RT-IBSCBS-0004`, `RT-IBSCBS-0005` (medicamentos, art. 146) e `RT-IBSCBS-0007`/`RT-IBSCBS-0008`
+> (Zona Franca de Manaus, art. 445/448) —, cada uma em seu próprio ruleset explícito, cobrindo 4 dos
+> 164 cClassTrib (`2,44%`). São regras piloto, não representam cobertura completa, não são default
+> de produção e não existe cálculo amplo da Reforma Tributária.
 
 ## Princípios centrais
 

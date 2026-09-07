@@ -852,3 +852,40 @@ mostrava corretamente "2,44%".
 - Não muda nenhuma regra jurídica nem dado de cobertura — apenas corrige a interface para refletir
   o que já era verdade no banco desde a Etapa 15.
 - Não resolve `RT-IBSCBS-0001/0002/0006/0009` nem inicia a frente de NCM/NBS.
+
+## Etapa 18 — documentação do projeto parou de contradizer o banco real
+
+**Data:** 2026-09-07
+
+Continuando a mesma limpeza de honestidade da Etapa 17, verifiquei se a documentação do projeto
+(não só a interface) também tinha números desatualizados. Encontrei dois documentos "vivos" (sem
+data/versão fixando-os como registro histórico) ainda dizendo `0,61%`/`1/164`/"RT-IBSCBS-0003 é a
+única regra":
+
+1. **`README.md`**: o bloco `> **Estado atual:**` no topo do arquivo — a primeira coisa que
+   qualquer pessoa (ou sessão futura do Claude) lê sobre o projeto — ainda descrevia só a
+   `RT-IBSCBS-0003`. Atualizei para citar as 5 regras publicadas e `2,44%` (4/164). O restante do
+   README é um log cronológico por etapa (igual a este arquivo) e **não foi tocado** — cada seção
+   "Etapa N" registra o que era verdade naquele momento, e alterar esses números retroativamente
+   destruiria o próprio histórico.
+2. **`docs/tax/IBSCBS_NATIONAL_COVERAGE_MATRIX.md`**: matriz de 164 linhas gerada por
+   `coverage_report_cli.py` (ferramenta já existente, não escrita nesta etapa). Rodei o CLI contra
+   o banco real e o arquivo se corrigiu sozinho — inclusive um `catalog_version_id` desatualizado
+   no cabeçalho (mesmo padrão de UUID não portátil já visto várias vezes nesta sessão) e as 4 linhas
+   de cClassTrib (`200009/200010/200022/200023`) que agora mostram `PUBLISHED` com a regra e o
+   ruleset corretos.
+3. **Verifiquei antes de mexer** que outros documentos com os mesmos números
+   (`CLAUDE_HANDOFF.md`, `docs/tax/TAX_ENGINE_CONSOLIDATED_ROADMAP.md`,
+   `SPEC_PLATAFORMA_TRIBUTARIA.md`, ADRs e relatórios `ETAPA_9_*`) são explicitamente datados ou
+   auto-declarados como registro histórico ("Estado em 2026-09-03", "não devem ser interpretadas
+   isoladamente como estado corrente") — **não toquei nesses**, pelo mesmo motivo que não altero
+   seções antigas deste arquivo.
+4. Suíte completa revalidada (212 testes Python) sem nenhuma mudança de código nesta etapa — só
+   documentação e um artefato gerado.
+
+### O que isso NÃO faz
+
+- Não estende `SPEC_PLATAFORMA_TRIBUTARIA.md` até a etapa atual — esse documento parece ter sido
+  substituído por este arquivo (`CLAUDE_STATUS.md`) como log corrente; estendê-lo seria escopo novo,
+  não uma correção.
+- Não resolve `RT-IBSCBS-0001/0002/0006/0009` nem inicia a frente de NCM/NBS.
