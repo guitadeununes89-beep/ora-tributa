@@ -1,0 +1,7 @@
+# Scraped official legal source text, hashed byte-for-byte in
+# database/normative-artifacts/legal/manifests/*.json (content_hash). Line-ending
+# normalization (autocrlf) would silently change these bytes on checkout depending on
+# the platform/git config, breaking that hash check - as it did for CI (Linux) vs a
+# Windows working tree with core.autocrlf=true. -text disables all conversion so the
+# committed content is byte-identical everywhere.
+database/normative-artifacts/legal/original/*.html -text
