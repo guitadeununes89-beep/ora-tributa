@@ -62,6 +62,7 @@
   ],
   "known_conflicts": [
     "NEEDS_OFFICIAL_CATALOG_CORRECTION_OR_CONFIRMATION: o catálogo 200024 menciona art. 456, enquanto LC 214/2025 art. 463, I, remete ao art. 460 e a Resolução CGIBS nº 6/2026 remete ao equivalente art. 438; não houve correção por inferência.",
+    "Verificado em 2026-09-08: consultada a tabela oficial cClassTrib no portal nacional da NF-e (dfe-portal.svrs.rs.gov.br/DFE/TabelaClassificacaoTributaria) e o Informe Técnico 2025.002 (versão vigente v1.60, 22/06/2026) - o texto do código 200024 continua citando art. 456 e nenhuma nota técnica ou artigo especializado localizado até esta data menciona retificação desse código. Achado circunstancial (não constitui correção oficial): o art. 456 está dentro do capítulo da Zona Franca de Manaus (arts. 439 a 457), e não no capítulo das Áreas de Livre Comércio (arts. 458 a 470) a que pertence o cClassTrib 200024 - o que é compatível com a hipótese de erro de remissão no catálogo, mas não a confirma oficialmente. O bloqueador permanece válido.",
     "NEEDS_GOVERNED_ALC_TERRITORY_AND_OPERATIONAL_ACTS: implementar fonte territorial versionada e ingerir os atos conjuntos operacionais previstos nos arts. 550 a 553 antes da execução."
   ],
   "precedence": {"precedes_rule_ids": [], "legal_basis": "O art. 463, caput, prevê alíquota zero como hipótese especial, mas nenhuma precedência executável pode ser registrada enquanto persistir o conflito oficial de referência e enquanto a regra geral não possuir ID."},

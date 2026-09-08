@@ -159,6 +159,7 @@
   ],
   "known_conflicts": [
     "NEEDS_LEGAL_VALIDATION_ART133_RESPONSIBLE_ENTITY: a redação não autoriza presumir que a pessoa jurídica do art. 133, § 2º, seja necessariamente o fornecedor da operação.",
+    "Pesquisado em 2026-09-08: fontes doutrinárias/especializadas consultadas (não fonte oficial primária - blogs de escritórios tributários e consultorias) convergem em interpretar a 'pessoa jurídica' do art. 133, § 2º, como a indústria ou o importador do medicamento (não o mero fornecedor/distribuidor da operação, salvo se ele próprio for o fabricante ou importador). Isso é insumo para sua decisão jurídica humana, não uma confirmação oficial - o bloqueador NEEDS_LEGAL_VALIDATION_ART133_RESPONSIBLE_ENTITY permanece até validação sua.",
     "A cobertura do art. 146 está incompleta enquanto as hipóteses indicadas em ART146_COVERAGE_MATRIX.md não tiverem especificações avaliáveis.",
     "A fonte legal oficial foi persistida e vinculada por seu identificador governado.",
     "O snapshot governado PUBLISHED do catálogo ainda não foi vinculado; o marcador deve causar NOT_READY."

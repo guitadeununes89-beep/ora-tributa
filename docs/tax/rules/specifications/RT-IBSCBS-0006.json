@@ -44,6 +44,7 @@
   "known_conflicts": [
     "NEEDS_OFFICIAL_SANITARY_REGULATION: não foi identificada com segurança a regulamentação sanitária específica necessária.",
     "NEEDS_ART146_PAR3_OFFICIAL_LIST: não foi localizado com segurança ato conjunto vigente contendo a lista do § 3º.",
+    "Verificado em 2026-09-08: pesquisa em fontes oficiais e especializadas não localizou nenhum ato normativo sanitário (ANVISA ou correlato) que defina especificamente os critérios de classificação de um medicamento como soro ou vacina para os fins do art. 146, § 1º, III. Reportagens setoriais confirmam apenas que o Anexo XIV já relaciona itens de imunização (vacinas) e soros por princípio ativo/NCM, sem apontar um regulamento sanitário autônomo. Ambos os bloqueadores permanecem válidos.",
     "O catálogo oficial confirma CST 200 e cClassTrib 200053, mas os identificadores governados de fonte e catálogo ainda não puderam ser consultados."
   ],
   "precedence": {"precedes_rule_ids": ["RT-IBSCBS-0001"], "legal_basis": "A alíquota zero do art. 146 é expressamente ressalvada pelo art. 133."},

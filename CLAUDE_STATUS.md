@@ -929,3 +929,41 @@ que estava.
   seja publicado e localizado. Isso não depende de mais pesquisa (já fiz o que dava para fazer com
   as fontes públicas disponíveis); depende de o próprio ato existir.
 - Não resolve `RT-IBSCBS-0001/0006/0009` nem inicia a frente de NCM/NBS.
+
+## Etapa 20 — nova pesquisa oficial nos três bloqueadores restantes (`RT-IBSCBS-0001/0006/0009`)
+
+**Data:** 2026-09-08
+
+Nesta sessão passei a ter acesso a busca e leitura web ao vivo (não tinha antes — as avaliações
+anteriores de "bloqueada, só monitorar" para `RT-IBSCBS-0001/0006/0009` foram feitas sem essa
+ferramenta). Com a capacidade nova disponível, refiz a pesquisa dos três bloqueadores restantes
+para confirmar se algo mudou, em vez de simplesmente repetir a mesma conclusão de memória.
+
+1. **`RT-IBSCBS-0009`** (conflito art. 456 vs. art. 460 no cClassTrib 200024): consultei a tabela
+   oficial ao vivo no portal nacional da NF-e e o Informe Técnico 2025.002 vigente (v1.60,
+   22/06/2026) — o texto do código 200024 continua citando art. 456, sem retificação localizada.
+   Achado circunstancial que reforça a suspeita (mas não a confirma oficialmente): o art. 456 está
+   no capítulo da Zona Franca de Manaus (arts. 439–457), não no capítulo das Áreas de Livre
+   Comércio (arts. 458–470) a que pertence o código 200024 — compatível com um erro de remissão,
+   mas isso é inferência minha, não correção oficial. **Bloqueador continua válido.**
+2. **`RT-IBSCBS-0006`** (regulamentação sanitária de soro/vacina): nenhuma fonte oficial ou
+   especializada localizada define critério sanitário específico para essa classificação; o Anexo
+   XIV apenas relaciona itens por princípio ativo/NCM, sem regulamento autônomo. **Bloqueador
+   continua válido**, junto com o mesmo bloqueador da lista dinâmica do § 3º já confirmado na
+   Etapa 19.
+3. **`RT-IBSCBS-0001`** (definição da "pessoa jurídica" do art. 133, § 2º): aqui encontrei algo
+   mais concreto — múltiplas fontes doutrinárias (escritórios tributários, consultorias)
+   convergem em interpretar essa pessoa jurídica como **a indústria ou o importador do
+   medicamento**, não o mero fornecedor/distribuidor da operação (salvo se ele próprio fabricar ou
+   importar). **Isso não é fonte oficial primária** — é doutrina, não decisão jurídica sua — mas é
+   um insumo concreto que pode acelerar sua própria análise, se você concordar com essa leitura.
+4. Registrei as três verificações datadas em `known_conflicts` das respectivas especificações,
+   para a próxima sessão não repetir a mesma pesquisa do zero. Nenhuma mudança de código; suíte
+   completa (212 testes) revalidada.
+
+### O que isso NÃO faz
+
+- Não desbloqueia nenhuma das três regras — permanecem `DRAFT`. `0006` e `0009` seguem sem nenhuma
+  ação possível além de monitorar; `0001` tem, pela primeira vez, um insumo doutrinário concreto
+  que só você pode decidir se aceita como base da definição jurídica exigida.
+- Não inicia a frente de NCM/NBS nem qualquer item da visão de longo prazo do e-Auditoria.
