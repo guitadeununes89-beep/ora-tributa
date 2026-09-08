@@ -6,11 +6,15 @@ from alembic import context
 from sqlalchemy import engine_from_config, pool
 from tributaria_api.config import get_settings
 from tributaria_api.infrastructure.database import identity_models as _identity_models
+from tributaria_api.infrastructure.database import nbs_models as _nbs_models
+from tributaria_api.infrastructure.database import ncm_models as _ncm_models
 from tributaria_api.infrastructure.database import product_models as _product_models
 from tributaria_api.infrastructure.database import taxonomy_models as _taxonomy_models
 from tributaria_api.infrastructure.database.models import Base
 
 assert _identity_models
+assert _nbs_models
+assert _ncm_models
 assert _product_models
 assert _taxonomy_models
 

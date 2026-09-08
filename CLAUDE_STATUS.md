@@ -1049,3 +1049,85 @@ tocar em nenhuma das 5 regras reais publicadas.
 - Não resolve `RT-IBSCBS-0001/0002/0006/0009` — permanecem exatamente como estavam ao final da
   Etapa 20.
 - Não altera a visibilidade do repositório nem apaga histórico de commits.
+
+## Etapa 22 — Catálogos NCM/NBS e descoberta tributária assistida
+
+**Data:** 2026-09-08
+**Decisão arquitetural:** [ADR-0026](docs/adr/0026-catalogos-ncm-nbs-e-descoberta-tributaria.md).
+**Deliverable completo:** [docs/tax/ETAPA_22_NCM_NBS_DISCOVERY.md](docs/tax/ETAPA_22_NCM_NBS_DISCOVERY.md)
+(fontes oficiais, catálogos carregados, o que tem fundamento governado, testes, demonstração ao
+vivo — não repetido aqui na íntegra).
+
+Confirmei antes de iniciar (não reimplementei) que a Etapa 21 estava de fato fechada: leitura do
+relatório/ADR-0025/testes, `pytest` (223 passaram, 11 pulados como esperado sem Postgres),
+`ruff`/`mypy` limpos, consulta unificada testada ao vivo — nenhuma pendência real encontrada. O
+objetivo desta etapa foi permitir pesquisar por NCM/NBS/código interno/descrição sem transformar
+esses identificadores em classificação tributária automática.
+
+1. **Pesquisa de fonte oficial ao vivo** (baixadas e inspecionadas diretamente, não apenas
+   pesquisadas): NCM via Siscomex/Receita Federal (JSON, 15.156 códigos, vigência e ato legal por
+   código) e NBS via MDIC/RFB (CSV Latin-1, 1.237 códigos, vigência de tabela inteira). Também
+   baixei e inspecionei o Anexo VIII (correlação oficial NBS↔cClassTrib, RFB/Portal NFS-e) —
+   achado importante: nenhum dos 27 cClassTrib que ele cita corresponde às 4 cClassTrib das 5
+   regras já publicadas (é uma tabela genérica de serviços; as regras piloto são de bens/ZFM/
+   autarquia). Levei esse achado a você antes de decidir a arquitetura da descoberta.
+2. **Sua decisão** (Plan Mode): semear a camada de descoberta com o Capítulo 30 da própria tabela
+   NCM ("Produtos farmacêuticos") → `RT-IBSCBS-0004`/`RT-IBSCBS-0005`, usando um fato estrutural
+   oficial do governo combinado ao escopo já aprovado dessas regras — não o Anexo VIII (que não
+   aponta para nenhuma regra publicada) e sem NBS nesta etapa.
+3. **Dois catálogos governados paralelos** (não uma extensão do catálogo cClassTrib): NCM e NBS
+   ganham cada um seu par identidade/versão, reaproveitando **sem nenhuma mudança de código**
+   `CatalogStatus`/`TaxonomyService`/`CatalogLifecyclePolicy` (já genéricos via `Protocol` desde a
+   Etapa anterior ao cClassTrib) — mesma proveniência completa (fonte, versão, artefato, hash) já
+   exigida pelo `AGENTS.md`. NCM preserva vigência por código (`valid_from`/`valid_to`/`legal_act`);
+   NBS tem vigência de tabela inteira — reflete a granularidade real de cada fonte, sem inventar
+   histórico que a fonte não dá. `artifact_hash`/`normalized_hash` calculados localmente (nenhuma
+   das duas fontes publica checksum oficial), mesmo padrão já usado para o cClassTrib.
+4. **Descoberta como registro de código fail-closed** (`tax_engine.tax_candidate_discovery`, mesmo
+   espírito do `rule_scope_registry.py` da Etapa 21): um `dict.get()` que nunca assume um padrão —
+   Capítulo 30 → RT-0004/0005 é a única entrada; qualquer outro NCM ou qualquer NBS retorna `None`
+   → `NO_COVERAGE`, resposta normal (200), nunca um erro nem uma classificação presumida.
+5. **API aditiva**: `GET /catalog-discovery/search?q=...` (busca literal, não-ranqueada, cruzando
+   NCM/NBS/produtos internos) e `GET /catalog-discovery/candidates?ncm=...|nbs=...`. Nenhum
+   contrato/endpoint da Etapa 21 mudou.
+6. **Frontend**: `/reforma-tributaria/consulta` ganhou o passo "0. Pesquisar objeto", antes da
+   seleção de regras já existente — mesma tela, mesmo componente (`unified-consultation.tsx`),
+   nenhuma tela nova por regra. Uma sugestão de descoberta só pré-marca os checkboxes já
+   existentes; o usuário confirma e o motor continua exigindo os mesmos fatos de sempre.
+7. **Prevenção proativa do bug de CRLF da Etapa 21**: estendi o `.gitattributes` (`-text` para os
+   novos diretórios de artefato) **antes** de pinar qualquer hash, e desenhei o novo CLI de carga
+   para nunca escrever de volta em nenhum arquivo rastreado — diferente dos CLIs de regra, esse
+   carrega os catálogos sem nenhum risco dessa classe de bug.
+8. **Testes**: 11 novos nos importadores, 4 na descoberta, 4 nos repositórios NCM/NBS (isolamento
+   por organização confirmado), 7 na API, 1 de integração com a consulta unificada (Postgres-
+   gated), `test_governed_deploy_cli_fresh_database.py` estendido, 2 novos no frontend — 267 testes
+   Python (com `POSTGRES_TESTS=1`) e 23 testes de frontend passando, `ruff`/`mypy`/`pnpm lint`/
+   `pnpm typecheck`/`pnpm build` todos limpos. Validado de ponta a ponta contra um Postgres
+   descartável recriado do zero antes de tocar no banco de demonstração real.
+9. **Demonstração ao vivo** (login `analyst@example.invalid`, banco de demonstração real): busca
+   por "heparina" → localiza NCM 30019010 real → candidato RT-0004/0005 com fundamento/fonte/
+   condições reais → "Usar esta sugestão" pré-marca as duas regras; preenchendo só os fatos de
+   escopo da RT-0005 → `NECESSITA_VALIDACAO` com os 4 fatos faltantes certos, RT-0004 corretamente
+   `SCOPE_UNCONFIRMED` sem poluir a lista; busca por "construção" → resultados reais cruzando NCM e
+   NBS → NBS 1.01 → "Descoberta ainda sem cobertura suficiente para NBS 1.01." explícito. As três
+   avaliações/buscas foram confirmadas persistidas corretamente no banco de demonstração.
+10. **Auditoria de segurança** dos novos arquivos (incluindo os dois artefatos governamentais reais
+    baixados, ~3,1 MB e ~100 KB): nenhum segredo, credencial ou dado pessoal encontrado — ambos os
+    arquivos são tabelas de classificação de bens/serviços, sem CPF/e-mail/telefone. Nenhum achado
+    novo além dos dois já aceitos na Etapa 21 (nome como identidade de aprovador; senha placeholder
+    do Postgres local).
+
+### O que isso NÃO faz
+
+- Não publica nenhuma regra tributária nova nem aprova interpretação jurídica nova.
+- Não atribui CST/cClassTrib apenas pelo NCM/NBS — a descoberta só sugere famílias de regras; cada
+  regra continua exigindo seus próprios fatos para concluir.
+- Não infere relacionamento por semelhança de descrição ou modelo de linguagem — a única relação
+  com regra publicada (capítulo 30 → RT-0004/0005) usa um fato estrutural oficial da própria tabela
+  NCM, combinado ao escopo já aprovado dessas regras.
+- Não trata ausência de candidato como tributação geral — `NO_COVERAGE` é sempre explícito.
+- Não implementa descoberta para NBS nesta etapa (Anexo VIII documentado como fonte real, não
+  usado — fica pronto para quando a plataforma publicar regras de serviços).
+- Não inicia cálculo financeiro amplo, XML/EFD, ou publicação de novas regras.
+- Não altera nenhuma das 5 regras reais publicadas, seus rulesets, ou qualquer contrato/rota da
+  Etapa 21 — `/catalog-discovery/*` é inteiramente aditivo.

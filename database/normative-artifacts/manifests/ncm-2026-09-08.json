@@ -1,0 +1,21 @@
+{
+  "catalog_code": "NCM",
+  "official_title": "Nomenclatura Comum do Mercosul (NCM)",
+  "official_file_name": "nomenclatura.json",
+  "artifact_path": "database/normative-artifacts/original/ncm-2026-09-08.json",
+  "source_url": "https://portalunico.siscomex.gov.br/classif/api/publico/nomenclatura/download/json",
+  "source_listing_url": "https://www.gov.br/receitafederal/pt-br/assuntos/aduana-e-comercio-exterior/classificacao-fiscal-de-mercadorias/download-ncm-nomenclatura-comum-do-mercosul",
+  "issuing_authority": "Receita Federal do Brasil / Portal Único Siscomex",
+  "publication_date": "2026-09-08",
+  "consulted_at": "2026-09-08T18:01:04+00:00",
+  "technical_document": "Vigente em 08/09/2026 (Resolução Gecex nº 926/2026)",
+  "artifact_sha256": "3bee2080f939d65fc7565dc3ec96ea23d5cee23e0795fabcc658e8417fdee67d",
+  "normalized_sha256": "c9ced173b065cb37354a728844bd6aec70cdcdc1e60fa40fa1d7b0d95664bbdd",
+  "code_count": 15156,
+  "staging_row_count": 15156,
+  "warnings": [
+    "O feed público não publica hash oficial; artifact_sha256/normalized_sha256 são calculados nesta implantação, como já ocorre para o catálogo cClassTrib.",
+    "O feed é uma foto do estado vigente no momento da consulta (regenerado diariamente pela fonte); vigência histórica por código já vem em Data_Inicio/Data_Fim de cada entrada, mas não há função de histórico completo neste download.",
+    "A lista mistura todos os níveis hierárquicos (capítulo, posição, subposição, item, e agrupamentos intermediários) em uma única lista plana; 'level' registra o número de dígitos observado e 'is_final' marca os 10.515 códigos de 8 dígitos utilizáveis como NCM."
+  ]
+}

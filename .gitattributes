@@ -5,3 +5,13 @@
 # Windows working tree with core.autocrlf=true. -text disables all conversion so the
 # committed content is byte-identical everywhere.
 database/normative-artifacts/legal/original/*.html -text
+
+# Same reasoning, extended to every governed source artifact under
+# normative-artifacts/original/ (NCM JSON, NBS CSV, and any future addition) - these
+# are all hashed byte-for-byte by their own manifest and must never be silently
+# rewritten by a platform's line-ending conversion.
+database/normative-artifacts/original/* -text
+
+# The CLI-copied, content-addressed duplicates under ingested/ are byte-for-byte
+# the same files - same protection applies.
+database/normative-artifacts/ingested/* -text

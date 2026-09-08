@@ -136,4 +136,126 @@ describe("UnifiedConsultation", () => {
       screen.getByText(/para considerar esta hipótese, confirme: seller.establishment_zfm_relation/),
     ).toBeInTheDocument();
   });
+
+  it("searches an object and shows a candidate suggestion that pre-selects rules", async () => {
+    apiFetch.mockImplementation((path: string) => {
+      if (path.startsWith("/taxonomy")) {
+        return Promise.resolve(
+          new Response(JSON.stringify([{ id: "catalog-1", version: "2026-06-23", status: "PUBLISHED" }]), {
+            status: 200,
+            headers: { "Content-Type": "application/json" },
+          }),
+        );
+      }
+      if (path.startsWith("/catalog-discovery/search")) {
+        return Promise.resolve(
+          new Response(
+            JSON.stringify([
+              {
+                origin: "NCM",
+                code: "30019010",
+                description: "Heparina e seus sais",
+                level: 8,
+                is_final: true,
+                product_id: null,
+                internal_code: null,
+              },
+            ]),
+            { status: 200, headers: { "Content-Type": "application/json" } },
+          ),
+        );
+      }
+      if (path.startsWith("/catalog-discovery/candidates")) {
+        return Promise.resolve(
+          new Response(
+            JSON.stringify({
+              status: "CANDIDATE_WITH_RULE",
+              family: {
+                rule_codes: ["RT-IBSCBS-0004", "RT-IBSCBS-0005"],
+                fundamento: "Capítulo 30 da NCM vigente",
+                fonte: "https://portalunico.siscomex.gov.br/classif",
+                versao: "NCM vigente em 08/09/2026",
+                condicoes: "Ainda exige os fatos próprios de cada regra.",
+              },
+            }),
+            { status: 200, headers: { "Content-Type": "application/json" } },
+          ),
+        );
+      }
+      return Promise.resolve(new Response("{}", { status: 200 }));
+    });
+
+    render(<UnifiedConsultation />);
+    await screen.findByRole("option", { name: "2026-06-23" });
+
+    fireEvent.change(screen.getByLabelText("Pesquisa"), { target: { value: "heparina" } });
+    fireEvent.click(screen.getByRole("button", { name: "Pesquisar" }));
+
+    await screen.findByText("Heparina e seus sais");
+    fireEvent.click(screen.getByRole("button", { name: "Ver famílias de regras candidatas" }));
+
+    await screen.findByText(/Candidato identificado para NCM 30019010/);
+    expect(screen.getByText("Capítulo 30 da NCM vigente")).toBeInTheDocument();
+    fireEvent.click(screen.getByRole("button", { name: "Usar esta sugestão" }));
+
+    expect(screen.getByRole("button", { name: /^RT-IBSCBS-0004/ })).toHaveAttribute(
+      "aria-pressed",
+      "true",
+    );
+    expect(screen.getByRole("button", { name: /^RT-IBSCBS-0005/ })).toHaveAttribute(
+      "aria-pressed",
+      "true",
+    );
+  });
+
+  it("shows no-coverage explicitly when discovery has no governed candidate", async () => {
+    apiFetch.mockImplementation((path: string) => {
+      if (path.startsWith("/taxonomy")) {
+        return Promise.resolve(
+          new Response(JSON.stringify([{ id: "catalog-1", version: "2026-06-23", status: "PUBLISHED" }]), {
+            status: 200,
+            headers: { "Content-Type": "application/json" },
+          }),
+        );
+      }
+      if (path.startsWith("/catalog-discovery/search")) {
+        return Promise.resolve(
+          new Response(
+            JSON.stringify([
+              {
+                origin: "NBS",
+                code: "1.01",
+                description: "Serviços de construção",
+                level: 2,
+                is_final: null,
+                product_id: null,
+                internal_code: null,
+              },
+            ]),
+            { status: 200, headers: { "Content-Type": "application/json" } },
+          ),
+        );
+      }
+      if (path.startsWith("/catalog-discovery/candidates")) {
+        return Promise.resolve(
+          new Response(JSON.stringify({ status: "NO_COVERAGE", family: null }), {
+            status: 200,
+            headers: { "Content-Type": "application/json" },
+          }),
+        );
+      }
+      return Promise.resolve(new Response("{}", { status: 200 }));
+    });
+
+    render(<UnifiedConsultation />);
+    await screen.findByRole("option", { name: "2026-06-23" });
+
+    fireEvent.change(screen.getByLabelText("Pesquisa"), { target: { value: "construção" } });
+    fireEvent.click(screen.getByRole("button", { name: "Pesquisar" }));
+
+    await screen.findByText("Serviços de construção");
+    fireEvent.click(screen.getByRole("button", { name: "Ver famílias de regras candidatas" }));
+
+    await screen.findByText(/Descoberta ainda sem cobertura suficiente para NBS 1.01/);
+  });
 });

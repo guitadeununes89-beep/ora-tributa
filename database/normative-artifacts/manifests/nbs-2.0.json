@@ -1,0 +1,22 @@
+{
+  "catalog_code": "NBS",
+  "official_title": "Nomenclatura Brasileira de Serviços, Intangíveis e Outras Operações que Produzam Variações no Patrimônio (NBS)",
+  "official_file_name": "NBSa_2-0.csv",
+  "version": "2.0",
+  "artifact_path": "database/normative-artifacts/original/nbs-2.0.csv",
+  "source_url": "https://www.gov.br/mdic/pt-br/images/REPOSITORIO/scs/decos/NBS/NBSa_2-0.csv",
+  "source_listing_url": "https://www.gov.br/mdic/pt-br/assuntos/sdic/comercio-e-servicos/nbs-nomenclatura-brasileira-de-servicos",
+  "issuing_authority": "Ministério do Desenvolvimento, Indústria, Comércio e Serviços / Receita Federal do Brasil",
+  "publication_date": "2019-01-01",
+  "consulted_at": "2026-09-08T18:01:04+00:00",
+  "technical_document": "NBS versão 2.0 (Portaria Conjunta RFB/SCS nº 1.429/2018, alterada pela nº 2.000/2018)",
+  "artifact_sha256": "99c9ca66b58223d7c32af4079ee9443b5b6a172a18643017bb7ed9d75d2cf5b8",
+  "normalized_sha256": "2dac2c3c07ad9a77828a7d5422ab7881706a362d97bc24b6500d0be2d902533a",
+  "code_count": 1237,
+  "staging_row_count": 1237,
+  "warnings": [
+    "O feed público não publica hash oficial; artifact_sha256/normalized_sha256 são calculados nesta implantação, como já ocorre para o catálogo cClassTrib e para NCM.",
+    "A vigência é da tabela inteira (NBS 2.0, desde 01/01/2019), não por código individual como no NCM.",
+    "Nenhum relacionamento de descoberta (NBS → família de regra) foi carregado nesta etapa; o Anexo VIII (correlação oficial NBS/cIndOp/cClassTrib, Portal NFS-e) foi identificado como fonte real durante a pesquisa, mas nenhuma das cClassTrib que ele cita corresponde às 4 regras já publicadas — fica documentado para uma etapa futura, não usado aqui."
+  ]
+}

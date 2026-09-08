@@ -46,6 +46,9 @@ jobs:
       - run: uv run python -m tributaria_api.real_rule_deploy_cli
       - run: uv run python -m tributaria_api.real_rule_deploy_cli_p2_medicamentos
       - run: uv run python -m tributaria_api.real_rule_deploy_cli_p1_zfm
+      # Deploys the governed NCM/NBS catalogs (Etapa 22) so backend-level tests
+      # (e.g. test_catalog_discovery_unified_integration.py) exercise real data.
+      - run: uv run python -m tributaria_api.governed_ncm_nbs_load_cli
       - run: uv run ruff check .
       - run: uv run mypy backend/src tax-engine/src importers/src
       - run: uv run pytest --cov=tax_engine --cov=tributaria_api --cov-report=term-missing

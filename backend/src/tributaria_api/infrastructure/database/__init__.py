@@ -11,6 +11,8 @@ from __future__ import annotations
 from tributaria_api.infrastructure.database import (
     identity_models,
     models,
+    nbs_models,
+    ncm_models,
     product_models,
     taxonomy_models,
     territory_models,
@@ -19,6 +21,8 @@ from tributaria_api.infrastructure.database import (
 __all__ = [
     "identity_models",
     "models",
+    "nbs_models",
+    "ncm_models",
     "product_models",
     "taxonomy_models",
     "territory_models",

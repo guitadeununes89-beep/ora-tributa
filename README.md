@@ -8,9 +8,13 @@ Fundação técnica de uma plataforma auditável de inteligência, auditoria e p
 > (Zona Franca de Manaus, art. 445/448) —, cada uma em seu próprio ruleset explícito, cobrindo 4 dos
 > 164 cClassTrib (`2,44%`). Desde a Etapa 21, as 5 regras também podem ser avaliadas em conjunto
 > numa consulta unificada (`/reforma-tributaria/consulta`, `POST /tax/ibs-cbs/classify-unified`),
-> sem risco de uma hipótese não aplicável contaminar o resultado de outra (ver ADR-0025). São
-> regras piloto, não representam cobertura completa, não são default de produção e não existe
-> cálculo amplo da Reforma Tributária.
+> sem risco de uma hipótese não aplicável contaminar o resultado de outra (ver ADR-0025). Desde a
+> Etapa 22, catálogos oficiais governados de NCM (15.156 códigos) e NBS (1.237 códigos) permitem
+> pesquisar por código ou descrição direto na consulta unificada, com uma camada de descoberta
+> fail-closed que hoje só relaciona o Capítulo 30 da NCM (medicamentos) às regras já publicadas
+> (ver ADR-0026) — qualquer outro objeto pesquisado retorna "sem cobertura" de forma explícita,
+> nunca uma classificação presumida. São regras piloto, não representam cobertura completa, não
+> são default de produção e não existe cálculo amplo da Reforma Tributária.
 
 ## Princípios centrais
 

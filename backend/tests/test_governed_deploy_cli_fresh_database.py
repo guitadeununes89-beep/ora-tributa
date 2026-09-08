@@ -114,6 +114,7 @@ def test_fresh_database_reproduces_the_full_governed_deploy_without_stale_uuids(
             "tributaria_api.real_rule_deploy_cli",
             "tributaria_api.real_rule_deploy_cli_p2_medicamentos",
             "tributaria_api.real_rule_deploy_cli_p1_zfm",
+            "tributaria_api.governed_ncm_nbs_load_cli",
         ):
             result = _run(module, database_url=fresh_url)
             assert result.returncode == 0, result.stderr
@@ -136,6 +137,14 @@ def test_fresh_database_reproduces_the_full_governed_deploy_without_stale_uuids(
                 "RT-IBSCBS-0007",
                 "RT-IBSCBS-0008",
             ]
+            ncm_status = connection.execute(
+                text("SELECT status FROM ncm_catalog_versions")
+            ).scalars().all()
+            nbs_status = connection.execute(
+                text("SELECT status FROM nbs_catalog_versions")
+            ).scalars().all()
+            assert ncm_status == ["PUBLISHED"]
+            assert nbs_status == ["PUBLISHED"]
         fresh_engine.dispose()
     finally:
         with admin_engine.connect() as connection:

@@ -4,6 +4,26 @@ import { FormEvent, useEffect, useMemo, useState } from "react";
 import { apiFetch } from "@/lib/api";
 
 type Catalog = { id: string; version: string; status: string };
+type ObjectSearchResult = {
+  origin: "NCM" | "NBS" | "PRODUCT";
+  code: string;
+  description: string;
+  level: number | null;
+  is_final: boolean | null;
+  product_id: string | null;
+  internal_code: string | null;
+};
+type TaxCandidateFamilyView = {
+  rule_codes: string[];
+  fundamento: string;
+  fonte: string;
+  versao: string;
+  condicoes: string;
+};
+type DiscoveryResult = {
+  status: "CANDIDATE_WITH_RULE" | "NO_COVERAGE";
+  family: TaxCandidateFamilyView | null;
+};
 type RuleCode =
   | "RT-IBSCBS-0003"
   | "RT-IBSCBS-0004"
@@ -462,6 +482,15 @@ export function UnifiedConsultation() {
   const [result, setResult] = useState<Result | null>(null);
   const [error, setError] = useState("");
 
+  const [searchQuery, setSearchQuery] = useState("");
+  const [searchResults, setSearchResults] = useState<ObjectSearchResult[] | null>(null);
+  const [searchError, setSearchError] = useState("");
+  const [discovered, setDiscovered] = useState<{
+    code: string;
+    origin: "NCM" | "NBS";
+    result: DiscoveryResult;
+  } | null>(null);
+
   useEffect(() => {
     void apiFetch("/taxonomy/ibs-cbs/catalogs?status=PUBLISHED").then(async (response) => {
       if (response.ok) setCatalogs((await response.json()) as Catalog[]);
@@ -472,6 +501,44 @@ export function UnifiedConsultation() {
   const needsAnnexXivWindow = selected.includes("RT-IBSCBS-0004");
   const needsZfmAreaVersion = selected.includes("RT-IBSCBS-0007");
   const needsNcmSh = selected.includes("RT-IBSCBS-0004");
+
+  async function searchObject(event: FormEvent<HTMLFormElement>) {
+    event.preventDefault();
+    setDiscovered(null);
+    if (!searchQuery.trim()) {
+      setSearchResults(null);
+      setSearchError("");
+      return;
+    }
+    const response = await apiFetch(
+      `/catalog-discovery/search?q=${encodeURIComponent(searchQuery)}`,
+    );
+    if (!response.ok) {
+      setSearchError("Pesquisa indisponível.");
+      setSearchResults(null);
+      return;
+    }
+    setSearchResults((await response.json()) as ObjectSearchResult[]);
+    setSearchError("");
+  }
+
+  async function discoverCandidates(item: ObjectSearchResult) {
+    if (item.origin !== "NCM" && item.origin !== "NBS") return;
+    const param = item.origin === "NCM" ? "ncm" : "nbs";
+    const response = await apiFetch(
+      `/catalog-discovery/candidates?${param}=${encodeURIComponent(item.code)}`,
+    );
+    if (!response.ok) return;
+    const discoveryResult = (await response.json()) as DiscoveryResult;
+    setDiscovered({ code: item.code, origin: item.origin, result: discoveryResult });
+  }
+
+  function useSuggestion() {
+    if (!discovered?.result.family) return;
+    setSelected(discovered.result.family.rule_codes as RuleCode[]);
+    setResult(null);
+    setError("");
+  }
 
   function toggleRule(rule: RuleCode) {
     setSelected((current) =>
@@ -532,6 +599,46 @@ export function UnifiedConsultation() {
       lista dinâmica de medicamentos do art. 146, § 3º — RT-IBSCBS-0002) não fazem parte
       desta consulta e não são presumidas cobertas.
     </div>
+    <section className="object-kind-entry" aria-labelledby="object-search-title">
+      <header><div><span className="eyebrow">0. Pesquisar objeto</span>
+        <h2 id="object-search-title">Buscar por NCM, NBS, código interno ou descrição</h2></div>
+        <small>A busca retorna o objeto localizado e sua classificação cadastral — nunca um
+          tratamento tributário.</small>
+      </header>
+      <form className="inline-form compact-form" onSubmit={searchObject}>
+        <label>Pesquisa
+          <input
+            value={searchQuery}
+            onChange={(event) => setSearchQuery(event.target.value)}
+            placeholder="Ex.: heparina, 3001, SKU-1"
+          />
+        </label>
+        <button type="submit">Pesquisar</button>
+      </form>
+      {searchError && <p role="alert" className="curation-warning">{searchError}</p>}
+      {searchResults && (searchResults.length === 0
+        ? <p>Nenhum objeto encontrado.</p>
+        : <div className="candidate-grid">{searchResults.map((item) =>
+          <section className="candidate-card" key={`${item.origin}-${item.code}`}>
+            <strong>{item.origin} {item.code}</strong><span>{item.description}</span>
+            {(item.origin === "NCM" || item.origin === "NBS") &&
+              <button type="button" onClick={() => void discoverCandidates(item)}>
+                Ver famílias de regras candidatas
+              </button>}
+          </section>)}
+        </div>)}
+      {discovered && <div className="territorial-hint" role="status">
+        {discovered.result.status === "CANDIDATE_WITH_RULE" && discovered.result.family
+          ? <>
+            <strong>Candidato identificado para {discovered.origin} {discovered.code}</strong>
+            <p>{discovered.result.family.fundamento}</p>
+            <p><small>Fonte: {discovered.result.family.fonte} · Versão: {discovered.result.family.versao}</small></p>
+            <p><small>{discovered.result.family.condicoes}</small></p>
+            <button type="button" onClick={useSuggestion}>Usar esta sugestão</button>
+          </>
+          : <strong>Descoberta ainda sem cobertura suficiente para {discovered.origin} {discovered.code}.</strong>}
+      </div>}
+    </section>
     <section className="object-kind-entry" aria-labelledby="unified-scenario-title">
       <header><div><span className="eyebrow">1. Candidatos</span>
         <h2 id="unified-scenario-title">Quais hipóteses tributárias podem se aplicar?</h2></div>
