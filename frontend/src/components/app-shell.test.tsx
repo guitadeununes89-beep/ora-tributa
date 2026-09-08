@@ -49,6 +49,7 @@ describe("AppShell authorization-aware navigation", () => {
     await screen.findByText("Organização fictícia");
     expect(screen.queryByRole("link", { name: /Curadoria/ })).not.toBeInTheDocument();
     expect(screen.queryByRole("link", { name: /Usuários e Papéis/ })).not.toBeInTheDocument();
+    await screen.findByText("2,44%");
   });
 
   it("shows membership management only to a profile with its backend permission", async () => {
@@ -58,6 +59,7 @@ describe("AppShell authorization-aware navigation", () => {
     await waitFor(() => expect(screen.getByRole("link", { name: /Usuários e Papéis/ }))
       .toBeInTheDocument());
     expect(screen.queryByRole("link", { name: /Curadoria/ })).not.toBeInTheDocument();
+    await screen.findByText("2,44%");
   });
 
   it("groups implemented and future reform modules without fictitious links", async () => {
@@ -72,6 +74,7 @@ describe("AppShell authorization-aware navigation", () => {
     expect(screen.getByText("Imposto Seletivo").closest("a")).toBeNull();
     expect(screen.getByText("Transição 2026–2033").closest("a")).toBeNull();
     expect(screen.getByText("Simulação").closest("a")).toBeNull();
+    await screen.findByText("2,44%");
   });
 
   it("shows the real executable coverage percentage in the topbar, not a stale literal", async () => {
