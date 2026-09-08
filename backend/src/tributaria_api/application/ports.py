@@ -4,8 +4,9 @@ from collections.abc import Sequence
 from datetime import date, datetime
 from typing import Any, Protocol
 
-from tax_engine.engine import RuleSet
+from tax_engine.engine import DeterministicRule, RuleSet
 from tax_engine.evaluation import Evaluation
+from tax_engine.multi_rule_evaluation import CandidateRuleSet, MultiRuleEvaluation
 
 
 class GovernanceRepository(Protocol):
@@ -54,6 +55,27 @@ class GovernanceRepository(Protocol):
     ) -> dict[str, Any]: ...
 
     def load_executable_ruleset(self, ruleset_id: str) -> RuleSet: ...
+
+    def load_composable_rule(self, ruleset_id: str) -> DeterministicRule: ...
+
+    def load_composed_rules(self, ruleset_ids: Sequence[str]) -> CandidateRuleSet: ...
+
+    def save_composed_evaluation(
+        self,
+        result: MultiRuleEvaluation,
+        *,
+        operation_date: date,
+        facts: dict[str, Any],
+        response: dict[str, Any],
+        ruleset_ids: Sequence[str],
+        reproduced_from_id: str | None = None,
+        organization_id: str | None = None,
+        company_id: str | None = None,
+        establishment_id: str | None = None,
+        product_id: str | None = None,
+        product_version_id: str | None = None,
+        catalog_version_id: str | None = None,
+    ) -> None: ...
 
     def list_rule_versions(self) -> list[dict[str, Any]]: ...
 

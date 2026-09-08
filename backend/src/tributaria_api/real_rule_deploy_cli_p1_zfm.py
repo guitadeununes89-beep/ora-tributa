@@ -28,27 +28,30 @@ from sqlalchemy.orm import Session
 from tax_engine.rule_lifecycle import RuleLifecycleStatus
 
 from tributaria_api.application.governance import GovernanceService, SegregationOfDutiesPolicy
+from tributaria_api.governed_reference_resolution import (
+    resolve_catalog_version_id,
+    resolve_legal_source_id,
+)
 from tributaria_api.infrastructure.database.identity_models import (
     MembershipRecord,
     UserRecord,
 )
 from tributaria_api.infrastructure.database.models import (
-    LegalSourceRecord,
     RuleSetRecord,
     TaxRuleIdentityRecord,
     TaxRuleVersionRecord,
 )
 from tributaria_api.infrastructure.database.repositories import SqlAlchemyGovernanceRepository
 from tributaria_api.infrastructure.database.session import get_engine
-from tributaria_api.infrastructure.database.taxonomy_models import (
-    IbsCbsTaxClassificationRecord,
-    TaxClassificationCatalogVersionRecord,
-)
 
 ROOT = Path(__file__).resolve().parents[3]
 ORGANIZATION_ID = "dev-governance-org"
 HUMAN_ACTOR_ID = "legal-approver-guilherme-nunes"
 LC_214_COMPILADO_URL = "https://www.planalto.gov.br/ccivil_03/leis/lcp/lcp214compilado.htm"
+# Captured once from this project's own database (Etapa 21) - the content
+# actually reviewed and approved for RT-IBSCBS-0007/0008. Never added to the
+# approved specification JSON itself; see governed_reference_resolution.py.
+LC_214_COMPILADO_CONTENT_HASH = "aacfd146f2c91291c3c8675035da70cb08b359bca03b3ccc21c5b3a14e6a7719"
 SPEC_DIR = ROOT / "docs/tax/rules/specifications"
 
 # RT-IBSCBS-0007 and RT-IBSCBS-0008 describe mutually exclusive operational
@@ -133,43 +136,7 @@ def _ensure_human_actor(session: Session, now: datetime) -> None:
     session.commit()
 
 
-def _resolve_lc214_legal_source_id(session: Session) -> str:
-    source_id = session.scalar(
-        select(LegalSourceRecord.id).where(LegalSourceRecord.official_url == LC_214_COMPILADO_URL)
-    )
-    if source_id is None:
-        raise RuntimeError(
-            "LC 214/2025 (compiled) legal source not found; run governed_load_cli first"
-        )
-    return source_id
-
-
 CURRENT_CATALOG_VERSION = "2026-06-23"
-
-
-def _resolve_catalog_version_id(session: Session, cclasstrib: str) -> str:
-    # More than one catalog version can carry the same cClassTrib code (the
-    # historical 2025-12-15 snapshot and the current 2026-06-23 one both do,
-    # per ETAPA_8/9); pin to the version the approved specifications were
-    # actually reviewed against instead of taking whichever row sorts first.
-    catalog_version_id = session.scalar(
-        select(IbsCbsTaxClassificationRecord.catalog_version_id)
-        .join(
-            TaxClassificationCatalogVersionRecord,
-            TaxClassificationCatalogVersionRecord.id
-            == IbsCbsTaxClassificationRecord.catalog_version_id,
-        )
-        .where(
-            IbsCbsTaxClassificationRecord.code == cclasstrib,
-            TaxClassificationCatalogVersionRecord.version == CURRENT_CATALOG_VERSION,
-        )
-    )
-    if catalog_version_id is None:
-        raise RuntimeError(
-            f"cClassTrib {cclasstrib} not found in catalog version {CURRENT_CATALOG_VERSION}; "
-            "run governed_load_cli first"
-        )
-    return catalog_version_id
 
 
 def _deploy_rule(
@@ -193,7 +160,9 @@ def _deploy_rule(
     ):
         raise RuntimeError(f"{spec['spec_file']}: unexpected CST/cClassTrib")
 
-    catalog_version_id = _resolve_catalog_version_id(session, spec["cclasstrib"])
+    catalog_version_id = resolve_catalog_version_id(
+        session, cclasstrib=spec["cclasstrib"], catalog_version=CURRENT_CATALOG_VERSION
+    )
     specification_hash = _approval_hash(document)
 
     repository = SqlAlchemyGovernanceRepository(session)
@@ -334,7 +303,11 @@ def main() -> int:
     now = datetime.now(UTC)
     with Session(get_engine()) as session:
         _ensure_human_actor(session, now)
-        legal_source_id = _resolve_lc214_legal_source_id(session)
+        legal_source_id = resolve_legal_source_id(
+            session,
+            official_url=LC_214_COMPILADO_URL,
+            expected_content_hash=LC_214_COMPILADO_CONTENT_HASH,
+        )
         deployed = [_deploy_rule(session, now, legal_source_id, spec) for spec in RULES]
 
         repository = SqlAlchemyGovernanceRepository(session)

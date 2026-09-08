@@ -974,3 +974,78 @@ para confirmar se algo mudou, em vez de simplesmente repetir a mesma conclusão 
   ação possível além de monitorar; `0001` tem, pela primeira vez, um insumo doutrinário concreto
   que só você pode decidir se aceita como base da definição jurídica exigida.
 - Não inicia a frente de NCM/NBS nem qualquer item da visão de longo prazo do e-Auditoria.
+
+## Etapa 21 — Consulta unificada e composição segura de regras
+
+**Data:** 2026-09-08
+**Decisão arquitetural:** [ADR-0025](docs/adr/0025-avaliacao-multirregra-e-selecao-de-candidatos.md).
+**Deliverable completo:** [docs/tax/ETAPA_21_UNIFIED_RULE_EVALUATION.md](docs/tax/ETAPA_21_UNIFIED_RULE_EVALUATION.md)
+(diagnóstico, solução, testes, regras preservadas, riscos remanescentes — não repetido aqui na
+íntegra).
+
+Você apontou que o Anexo XIV (usado pela RT-IBSCBS-0004) foi revogado e substituído por uma
+classificação dinâmica, o que reabriu a questão de fundo já registrada como limitação na Etapa
+11: a plataforma só sabia avaliar "uma regra por vez" porque combinar RT-IBSCBS-0007 e
+RT-IBSCBS-0008 no mesmo ruleset sempre produzia `NECESSITA_VALIDACAO`, mesmo quando só uma das
+duas hipóteses fazia sentido para o cenário. Esta etapa resolveu essa limitação na raiz, sem
+tocar em nenhuma das 5 regras reais publicadas.
+
+1. **Diagnóstico confirmado no motor:** `TaxEngine.evaluate()` agrega `missing_facts` como união
+   de todas as regras `REQUIRES_VALIDATION` do ruleset, sem distinguir "regra errada para este
+   cenário" de "regra certa, fato faltando" — comportamento deliberado do ADR-0008, correto para
+   uma regra só, errado para hipóteses mutuamente exclusivas combinadas.
+2. **Solução:** novo módulo `tax_engine.multi_rule_evaluation` (motor duplicado, não modifica
+   `engine.py`) com `RuleCandidacyStatus` (SUPORTADA / escopo confirmado mas incompleto / escopo
+   ainda não confirmado / não aplicável), calculado a partir da `RuleDecision` já existente de
+   cada regra e de um novo registro `rule_scope_registry.py` (fail-closed, uma entrada revisada
+   por regra real). Só regras com escopo confirmado e incompleto contribuem fatos faltantes ao
+   resultado agregado — é isso que corrige o bug. `ClassificationStatus` continua com os mesmos 4
+   valores.
+3. **Backend:** migração `0008_composed_evaluations` (`ruleset_id` aceita nulo,
+   `composed_ruleset_ids` novo, aplicada tanto no banco de testes quanto no de demonstração, sem
+   perda de nenhuma das 11 avaliações já existentes), `EvaluationService.evaluate_many()`, e o
+   endpoint aditivo `POST /tax/ibs-cbs/classify-unified`. O endpoint antigo `/classify` não mudou.
+4. **Resolução de referência governada centralizada:** os 4 CLIs de implantação (que desde as
+   Etapas 10/14/15 duplicavam sua própria correção de UUID não-portável) agora importam
+   `governed_reference_resolution.py`, que também passou a validar `content_hash` de forma
+   obrigatória antes de vincular uma fonte legal — sem tocar nas especificações JSON já aprovadas
+   (isso invalidaria o hash de aprovação já registrado).
+5. **Frontend:** `/reforma-tributaria/consulta` agora serve o fluxo unificado
+   (`unified-consultation.tsx`): checkboxes das 5 regras reais, campos dinâmicos deduplicados por
+   fato, e uma seção nova mostrando o status de cada regra na composição (inclusive "para
+   considerar esta hipótese, confirme: ..." quando o escopo ainda não foi confirmado). O
+   componente antigo, exclusivo de RT-IBSCBS-0003, foi removido por estar totalmente substituído.
+   `/consulta-zfm` e `/consulta-medicamentos` continuam exatamente como estavam.
+6. **Testes:** 11 novos no tax-engine, 4 novos arquivos no backend (`test_evaluate_many.py`,
+   `test_unified_classification.py`, `test_governed_deploy_cli_fresh_database.py`,
+   `test_governed_reference_resolution.py`), 4 novos no frontend — 234 testes Python e 21 testes
+   de frontend passando, `ruff`/`mypy`/`pnpm lint`/`pnpm typecheck`/`pnpm build` todos limpos.
+7. **Demonstração ao vivo** (login `analyst@example.invalid`, banco de demonstração real): RT-0007
+   isolada → `CONCLUSIVO` limpo; RT-0007+RT-0008 compostas com só os fatos da 0007 → `CONCLUSIVO`
+   (a prova viva de que o bug da Etapa 11 está corrigido, não mais `NECESSITA_VALIDACAO`), com
+   RT-0008 explicitamente listada como pendente; RT-0003+RT-0005 compostas com só os fatos da 0003
+   → `CONCLUSIVO` com um único candidato (sem duplicar o cClassTrib 200010 compartilhado). As três
+   avaliações compostas foram persistidas corretamente no banco de demonstração.
+8. **Auditoria de segurança do repositório público** (item 8 da especificação desta etapa, agente
+   dedicado): nenhum segredo real, credencial ou dado pessoal sensível encontrado. Dois pontos
+   levantados para sua decisão, não corrigidos automaticamente: (a) seu nome completo aparece
+   como `display_name` literal em 4 CLIs e vários documentos de aprovação, como identidade do
+   aprovador jurídico governado — o e-mail correspondente nunca é hardcoded; (b) a senha
+   placeholder `tributaria` do Postgres local aparece igual em `docker-compose.yml`/CI/`.env.
+   example`, sempre apontando para `localhost`/contêiner efêmero. Detalhes completos no
+   deliverable da etapa.
+9. **CI atualizado** (`.github/workflows/ci.yml`) para também implantar as 5 regras reais no banco
+   efêmero do job antes dos testes — sem isso, os testes novos de nível serviço/API nunca
+   exerceriam as regras reais em CI, apenas fariam skip.
+
+### O que isso NÃO faz
+
+- Não cria nenhuma regra tributária nova nem aprova interpretação jurídica nova.
+- Não altera o conteúdo, a versão ou a aprovação de nenhuma das 5 regras reais publicadas, nem
+  apaga ou modifica o ruleset combinado histórico `IBSCBS-ZFM-PILOT-001`.
+- Não introduz precedência tributária entre candidatos de chaves diferentes (continua retornando
+  `POSSIBLE_MATCHES` sem desempate arbitrário).
+- Não inicia cálculo financeiro amplo da Reforma Tributária.
+- Não resolve `RT-IBSCBS-0001/0002/0006/0009` — permanecem exatamente como estavam ao final da
+  Etapa 20.
+- Não altera a visibilidade do repositório nem apaga histórico de commits.

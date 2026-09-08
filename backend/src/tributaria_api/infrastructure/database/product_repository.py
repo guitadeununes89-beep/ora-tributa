@@ -132,7 +132,7 @@ class ProductRepository:
         product_version_id: str,
         evaluation_id: str,
         catalog_version_id: str,
-        ruleset_id: str,
+        ruleset_id: str | None,
         reviewed_at: datetime,
         reviewed_by: str,
     ) -> ProductTaxReviewRecord:

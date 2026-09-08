@@ -38,23 +38,22 @@ from sqlalchemy.orm import Session
 from tax_engine.rule_lifecycle import RuleLifecycleStatus
 
 from tributaria_api.application.governance import GovernanceService, SegregationOfDutiesPolicy
+from tributaria_api.governed_reference_resolution import (
+    resolve_catalog_version_id,
+    resolve_legal_source_id,
+)
 from tributaria_api.infrastructure.database.identity_models import (
     MembershipRecord,
     UserRecord,
 )
 from tributaria_api.infrastructure.database.models import (
     AuditEventRecord,
-    LegalSourceRecord,
     RuleSetRecord,
     TaxRuleIdentityRecord,
     TaxRuleVersionRecord,
 )
 from tributaria_api.infrastructure.database.repositories import SqlAlchemyGovernanceRepository
 from tributaria_api.infrastructure.database.session import get_engine
-from tributaria_api.infrastructure.database.taxonomy_models import (
-    IbsCbsTaxClassificationRecord,
-    TaxClassificationCatalogVersionRecord,
-)
 
 ROOT = Path(__file__).resolve().parents[3]
 ORGANIZATION_ID = "dev-governance-org"
@@ -62,6 +61,19 @@ HUMAN_ACTOR_ID = "legal-approver-guilherme-nunes"
 SPEC_DIR = ROOT / "docs/tax/rules/specifications"
 CURRENT_CATALOG_VERSION = "2026-06-23"
 LC_214_COMPILADO_URL = "https://www.planalto.gov.br/ccivil_03/leis/lcp/lcp214compilado.htm"
+LC_214_ORIGINAL_URL = (
+    "https://www2.camara.leg.br/legin/fed/leicom/2025/"
+    "leicomplementar-214-16-janeiro-2025-796905-publicacaooriginal-174141-pl.html"
+)
+# Captured once from this project's own database (Etapa 21) - see
+# governed_reference_resolution.py for why these are pinned constants rather
+# than fields added to the approved specification JSON files.
+LC_214_COMPILADO_CONTENT_HASH = "aacfd146f2c91291c3c8675035da70cb08b359bca03b3ccc21c5b3a14e6a7719"
+LC_214_ORIGINAL_CONTENT_HASH = "efd06578a4789874fd277c3dbf68d424cd9b4baebc1a853735ec350b692ecd29"
+_EXPECTED_CONTENT_HASH_BY_URL = {
+    LC_214_COMPILADO_URL: LC_214_COMPILADO_CONTENT_HASH,
+    LC_214_ORIGINAL_URL: LC_214_ORIGINAL_CONTENT_HASH,
+}
 
 RULES = (
     {
@@ -76,10 +88,7 @@ RULES = (
         "title": "Fornecimento de medicamentos relacionados no Anexo XIV da redação original",
         "approval_path": ROOT / "docs/tax/rules/approvals/RT-IBSCBS-0004-v1.md",
         "ruleset_id": "IBSCBS-PILOT-0004-001",
-        "legal_source_url": (
-            "https://www2.camara.leg.br/legin/fed/leicom/2025/"
-            "leicomplementar-214-16-janeiro-2025-796905-publicacaooriginal-174141-pl.html"
-        ),
+        "legal_source_url": LC_214_ORIGINAL_URL,
     },
     {
         "spec_file": "RT-IBSCBS-0005.json",
@@ -161,38 +170,6 @@ def _ensure_human_actor(session: Session, now: datetime) -> None:
     session.commit()
 
 
-def _resolve_legal_source_id(session: Session, official_url: str) -> str:
-    source_id = session.scalar(
-        select(LegalSourceRecord.id).where(LegalSourceRecord.official_url == official_url)
-    )
-    if source_id is None:
-        raise RuntimeError(
-            f"Legal source not found for {official_url}; run governed_load_cli first"
-        )
-    return source_id
-
-
-def _resolve_catalog_version_id(session: Session, cclasstrib: str) -> str:
-    catalog_version_id = session.scalar(
-        select(IbsCbsTaxClassificationRecord.catalog_version_id)
-        .join(
-            TaxClassificationCatalogVersionRecord,
-            TaxClassificationCatalogVersionRecord.id
-            == IbsCbsTaxClassificationRecord.catalog_version_id,
-        )
-        .where(
-            IbsCbsTaxClassificationRecord.code == cclasstrib,
-            TaxClassificationCatalogVersionRecord.version == CURRENT_CATALOG_VERSION,
-        )
-    )
-    if catalog_version_id is None:
-        raise RuntimeError(
-            f"cClassTrib {cclasstrib} not found in catalog version {CURRENT_CATALOG_VERSION}; "
-            "run governed_load_cli first"
-        )
-    return catalog_version_id
-
-
 def _record_specification_events(
     session: Session, now: datetime, rule_id: str, specification_hash: str, approval_path: Path
 ) -> None:
@@ -243,8 +220,14 @@ def _deploy_rule(session: Session, now: datetime, spec: dict[str, Any]) -> dict[
     ):
         raise RuntimeError(f"{spec['spec_file']}: unexpected CST/cClassTrib")
 
-    legal_source_id = _resolve_legal_source_id(session, spec["legal_source_url"])
-    catalog_version_id = _resolve_catalog_version_id(session, spec["cclasstrib"])
+    legal_source_id = resolve_legal_source_id(
+        session,
+        official_url=spec["legal_source_url"],
+        expected_content_hash=_EXPECTED_CONTENT_HASH_BY_URL[spec["legal_source_url"]],
+    )
+    catalog_version_id = resolve_catalog_version_id(
+        session, cclasstrib=spec["cclasstrib"], catalog_version=CURRENT_CATALOG_VERSION
+    )
     specification_hash = _approval_hash(document)
     _record_specification_events(
         session, now, spec["rule_id"], specification_hash, spec["approval_path"]

@@ -18,14 +18,14 @@ from hashlib import sha256
 from pathlib import Path
 from typing import Any
 
-from sqlalchemy import select
 from sqlalchemy.orm import Session
 
+from tributaria_api.governed_reference_resolution import resolve_legal_source_id
 from tributaria_api.infrastructure.database.identity_models import (
     MembershipRecord,
     UserRecord,
 )
-from tributaria_api.infrastructure.database.models import AuditEventRecord, LegalSourceRecord
+from tributaria_api.infrastructure.database.models import AuditEventRecord
 from tributaria_api.infrastructure.database.session import get_engine
 from tributaria_api.infrastructure.database.territory_models import (
     TaxJurisdictionAreaLifecycleEventRecord,
@@ -42,6 +42,10 @@ HUMAN_ACTOR_ID = "legal-approver-guilherme-nunes"
 # against a different, earlier database instance. Resolve it dynamically by official
 # URL instead of trusting that stale literal.
 LC_214_COMPILADO_URL = "https://www.planalto.gov.br/ccivil_03/leis/lcp/lcp214compilado.htm"
+# Captured once from this project's own database (Etapa 21) - see
+# governed_reference_resolution.py for why this is a pinned constant rather
+# than a field added to the approved specification JSON.
+LC_214_COMPILADO_CONTENT_HASH = "aacfd146f2c91291c3c8675035da70cb08b359bca03b3ccc21c5b3a14e6a7719"
 SPEC_DIR = ROOT / "docs/tax/territory/specifications"
 SPEC_FILES = (
     "TJA-ZFM.json",
@@ -94,17 +98,6 @@ def _ensure_human_actor(session: Session, now: datetime) -> None:
             )
         )
     session.commit()
-
-
-def _resolve_lc214_legal_source_id(session: Session) -> str:
-    source_id = session.scalar(
-        select(LegalSourceRecord.id).where(LegalSourceRecord.official_url == LC_214_COMPILADO_URL)
-    )
-    if source_id is None:
-        raise RuntimeError(
-            "LC 214/2025 (compiled) legal source not found; run governed_load_cli first"
-        )
-    return source_id
 
 
 def _load_area(
@@ -241,7 +234,11 @@ def main() -> int:
     now = datetime.now(UTC)
     with Session(get_engine()) as session:
         _ensure_human_actor(session, now)
-        legal_source_id = _resolve_lc214_legal_source_id(session)
+        legal_source_id = resolve_legal_source_id(
+            session,
+            official_url=LC_214_COMPILADO_URL,
+            expected_content_hash=LC_214_COMPILADO_CONTENT_HASH,
+        )
         results = [
             _load_area(session, now, SPEC_DIR / name, legal_source_id) for name in SPEC_FILES
         ]

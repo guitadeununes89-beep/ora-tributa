@@ -14,23 +14,22 @@ from tax_engine.rule_lifecycle import RuleLifecycleStatus
 
 from tributaria_api.application.governance import GovernanceService, SegregationOfDutiesPolicy
 from tributaria_api.application.tax_rule_specifications import load_specification
+from tributaria_api.governed_reference_resolution import (
+    resolve_catalog_version_id,
+    resolve_legal_source_id,
+)
 from tributaria_api.infrastructure.database.identity_models import (
     MembershipRecord,
     UserRecord,
 )
 from tributaria_api.infrastructure.database.models import (
     AuditEventRecord,
-    LegalSourceRecord,
     RuleSetRecord,
     TaxRuleIdentityRecord,
     TaxRuleVersionRecord,
 )
 from tributaria_api.infrastructure.database.repositories import SqlAlchemyGovernanceRepository
 from tributaria_api.infrastructure.database.session import get_engine
-from tributaria_api.infrastructure.database.taxonomy_models import (
-    IbsCbsTaxClassificationRecord,
-    TaxClassificationCatalogVersionRecord,
-)
 
 ROOT = Path(__file__).resolve().parents[3]
 ORGANIZATION_ID = "dev-governance-org"
@@ -47,38 +46,10 @@ RULESET_ID = "IBSCBS-PILOT-001"
 # already used for RT-IBSCBS-0007/0008 - same law, same governed citation.
 LC_214_COMPILADO_URL = "https://www.planalto.gov.br/ccivil_03/leis/lcp/lcp214compilado.htm"
 CURRENT_CATALOG_VERSION = "2026-06-23"
-
-
-def _resolve_lc214_legal_source_id(session: Session) -> str:
-    source_id = session.scalar(
-        select(LegalSourceRecord.id).where(LegalSourceRecord.official_url == LC_214_COMPILADO_URL)
-    )
-    if source_id is None:
-        raise RuntimeError(
-            "LC 214/2025 (compiled) legal source not found; run governed_load_cli first"
-        )
-    return source_id
-
-
-def _resolve_catalog_version_id(session: Session, cclasstrib: str) -> str:
-    catalog_version_id = session.scalar(
-        select(IbsCbsTaxClassificationRecord.catalog_version_id)
-        .join(
-            TaxClassificationCatalogVersionRecord,
-            TaxClassificationCatalogVersionRecord.id
-            == IbsCbsTaxClassificationRecord.catalog_version_id,
-        )
-        .where(
-            IbsCbsTaxClassificationRecord.code == cclasstrib,
-            TaxClassificationCatalogVersionRecord.version == CURRENT_CATALOG_VERSION,
-        )
-    )
-    if catalog_version_id is None:
-        raise RuntimeError(
-            f"cClassTrib {cclasstrib} not found in catalog version {CURRENT_CATALOG_VERSION}; "
-            "run governed_load_cli first"
-        )
-    return catalog_version_id
+# Captured once from this project's own database (Etapa 21) - see
+# governed_reference_resolution.py for why this is a pinned constant rather
+# than a field added to the approved specification JSON.
+LC_214_COMPILADO_CONTENT_HASH = "aacfd146f2c91291c3c8675035da70cb08b359bca03b3ccc21c5b3a14e6a7719"
 
 
 def _approval_hash(document: dict[str, Any]) -> str:
@@ -193,8 +164,16 @@ def _deploy(session: Session, now: datetime) -> dict[str, Any]:
         raise RuntimeError("Governed human approval does not match the specification")
     if (document["catalog"]["cst"], document["catalog"]["cclasstrib"]) != ("200", "200010"):
         raise RuntimeError("Unexpected CST/cClassTrib in specification")
-    legal_source_id = _resolve_lc214_legal_source_id(session)
-    catalog_version_id = _resolve_catalog_version_id(session, document["catalog"]["cclasstrib"])
+    legal_source_id = resolve_legal_source_id(
+        session,
+        official_url=LC_214_COMPILADO_URL,
+        expected_content_hash=LC_214_COMPILADO_CONTENT_HASH,
+    )
+    catalog_version_id = resolve_catalog_version_id(
+        session,
+        cclasstrib=document["catalog"]["cclasstrib"],
+        catalog_version=CURRENT_CATALOG_VERSION,
+    )
     specification_hash = _approval_hash(document)
     _record_specification_events(session, now, specification_hash)
 

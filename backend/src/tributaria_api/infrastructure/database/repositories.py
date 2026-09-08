@@ -8,10 +8,12 @@ from typing import Any, cast
 from sqlalchemy import func, select
 from sqlalchemy.exc import IntegrityError
 from sqlalchemy.orm import Session, selectinload
-from tax_engine.engine import RuleSet
+from tax_engine.engine import DeterministicRule, RuleSet
 from tax_engine.evaluation import Evaluation
+from tax_engine.multi_rule_evaluation import CandidateRuleSet, MultiRuleEvaluation
 from tax_engine.rule_lifecycle import RuleLifecycle, RuleLifecycleEvent, RuleLifecycleStatus
 from tax_engine.rule_models import LegalSource, TaxRuleIdentity, TaxRuleVersion
+from tax_engine.rule_scope_registry import scope_for
 
 from tributaria_api.application.errors import ConflictError, NotFoundError
 from tributaria_api.infrastructure.database.models import (
@@ -208,6 +210,84 @@ class SqlAlchemyGovernanceRepository:
             rules=tuple(executable_rules),
         )
 
+    def load_composable_rule(self, ruleset_id: str) -> DeterministicRule:
+        """Load a single-rule, PUBLISHED ruleset's rule for multi-rule composition.
+
+        Reuses the same "exactly one rule" invariant as `_queryable_rulesets`
+        (ADR-0017) - a combined ruleset such as `IBSCBS-ZFM-PILOT-001` is
+        rejected here, so composition can never accidentally bundle a rule
+        twice under two different aggregation strategies.
+        """
+        persisted = self.get_ruleset(ruleset_id)
+        if persisted["status"] != "PUBLISHED":
+            raise ConflictError(f"Ruleset {ruleset_id} is not PUBLISHED")
+        rule_version_ids = persisted["rule_version_ids"]
+        if len(rule_version_ids) != 1:
+            raise ConflictError(
+                f"Ruleset {ruleset_id} is not composable: expected exactly one rule, "
+                f"found {len(rule_version_ids)}"
+            )
+        executable = self.load_executable_ruleset(ruleset_id)
+        return executable.rules[0]
+
+    def load_composed_rules(self, ruleset_ids: Sequence[str]) -> CandidateRuleSet:
+        rules_and_scopes = []
+        for ruleset_id in ruleset_ids:
+            rule = self.load_composable_rule(ruleset_id)
+            rules_and_scopes.append((rule, scope_for(rule.version.identity.code)))
+        composed_id = "COMPOSED:" + "+".join(sorted(ruleset_ids))
+        return CandidateRuleSet(composed_id=composed_id, rules=tuple(rules_and_scopes))
+
+    def save_composed_evaluation(
+        self,
+        result: MultiRuleEvaluation,
+        *,
+        operation_date: date,
+        facts: dict[str, Any],
+        response: dict[str, Any],
+        ruleset_ids: Sequence[str],
+        reproduced_from_id: str | None = None,
+        organization_id: str | None = None,
+        company_id: str | None = None,
+        establishment_id: str | None = None,
+        product_id: str | None = None,
+        product_version_id: str | None = None,
+        catalog_version_id: str | None = None,
+    ) -> None:
+        evaluation = result.evaluation
+        record = EvaluationRecord(
+            id=evaluation.evaluation_id,
+            evaluated_at=evaluation.evaluated_at,
+            known_at=evaluation.known_at,
+            operation_date=operation_date,
+            input_hash=evaluation.input_hash,
+            engine_version=evaluation.engine_version,
+            ruleset_id=None,
+            composed_ruleset_ids=list(ruleset_ids),
+            ruleset_fingerprint=evaluation.ruleset.content_hash,
+            input_facts=facts,
+            outcome=response,
+            decision_trace=cast(list[dict[str, Any]], response["decision_trace"]),
+            correlation_id=evaluation.correlation_id,
+            reproduced_from_id=reproduced_from_id,
+            organization_id=organization_id,
+            company_id=company_id,
+            establishment_id=establishment_id,
+            product_id=product_id,
+            product_version_id=product_version_id,
+            catalog_version_id=catalog_version_id,
+        )
+        self._session.add(record)
+        for position, reference in enumerate(evaluation.rule_versions_used, start=1):
+            self._session.add(
+                EvaluationRuleVersionRecord(
+                    evaluation_id=evaluation.evaluation_id,
+                    rule_version_id=reference.version_id,
+                    position=position,
+                )
+            )
+        self._flush()
+
     def list_rule_versions(self) -> list[dict[str, Any]]:
         statement = (
             select(TaxRuleVersionRecord)
@@ -337,6 +417,11 @@ class SqlAlchemyGovernanceRepository:
             "product_version_id": record.product_version_id,
             "catalog_version_id": record.catalog_version_id,
             "rule_versions_used": list(rule_version_ids),
+            **(
+                {"composed_ruleset_ids": record.composed_ruleset_ids}
+                if record.ruleset_id is None
+                else {}
+            ),
         }
 
     def add_audit_event(self, event: dict[str, Any]) -> None:

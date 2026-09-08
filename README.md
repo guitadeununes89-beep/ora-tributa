@@ -6,8 +6,11 @@ Fundação técnica de uma plataforma auditável de inteligência, auditoria e p
 > imutáveis e avaliações reproduzíveis. Cinco regras reais estão `PUBLISHED` — `RT-IBSCBS-0003`,
 > `RT-IBSCBS-0004`, `RT-IBSCBS-0005` (medicamentos, art. 146) e `RT-IBSCBS-0007`/`RT-IBSCBS-0008`
 > (Zona Franca de Manaus, art. 445/448) —, cada uma em seu próprio ruleset explícito, cobrindo 4 dos
-> 164 cClassTrib (`2,44%`). São regras piloto, não representam cobertura completa, não são default
-> de produção e não existe cálculo amplo da Reforma Tributária.
+> 164 cClassTrib (`2,44%`). Desde a Etapa 21, as 5 regras também podem ser avaliadas em conjunto
+> numa consulta unificada (`/reforma-tributaria/consulta`, `POST /tax/ibs-cbs/classify-unified`),
+> sem risco de uma hipótese não aplicável contaminar o resultado de outra (ver ADR-0025). São
+> regras piloto, não representam cobertura completa, não são default de produção e não existe
+> cálculo amplo da Reforma Tributária.
 
 ## Princípios centrais
 

@@ -25,6 +25,8 @@ jobs:
     env:
       DATABASE_URL: postgresql+psycopg://tributaria:tributaria@localhost:5432/tributaria_test
       POSTGRES_TESTS: "1"
+      DEV_SEED_PASSWORD: ci-only-throwaway-password-1
+      REAL_RULE_APPROVER_EMAIL: ci-approver@example.invalid
     steps:
       - uses: actions/checkout@v4
       - uses: astral-sh/setup-uv@v6
@@ -33,6 +35,17 @@ jobs:
           enable-cache: true
       - run: uv sync --all-packages --dev
       - run: uv run alembic upgrade head
+      # Deploys the 5 real, already-approved rules into CI's ephemeral database so
+      # backend-level tests (e.g. test_evaluate_many.py) exercise the real governed
+      # rules instead of skipping - mirrors docs/DEVELOPMENT_ACCESS.md's local sequence.
+      - run: uv run python database/seeds/development_governance.py
+      - run: uv run python database/seeds/development_identity.py
+      - run: uv run python database/seeds/development_synthetic.py
+      - run: uv run python -m tributaria_api.governed_load_cli
+      - run: uv run python -m tributaria_api.territory_governed_load_cli
+      - run: uv run python -m tributaria_api.real_rule_deploy_cli
+      - run: uv run python -m tributaria_api.real_rule_deploy_cli_p2_medicamentos
+      - run: uv run python -m tributaria_api.real_rule_deploy_cli_p1_zfm
       - run: uv run ruff check .
       - run: uv run mypy backend/src tax-engine/src importers/src
       - run: uv run pytest --cov=tax_engine --cov=tributaria_api --cov-report=term-missing

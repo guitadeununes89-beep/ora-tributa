@@ -1,16 +1,26 @@
+"""Unified multi-rule classification contract (Etapa 21, ADR-0025).
+
+Deliberately duplicates `AssistedClassificationRequest`'s fact fields and
+governed-value allowlist rather than importing them - the two endpoints must
+be able to evolve independently (`/classify` stays pinned to exactly one
+`ruleset_id`; this one composes several), matching this project's existing
+"duplicate, don't extract" policy for the deployment CLIs.
+"""
+
 from __future__ import annotations
 
 from datetime import date, datetime
 
-from pydantic import BaseModel, ConfigDict, Field, field_validator, model_validator
+from pydantic import BaseModel, ConfigDict, Field, field_validator
 
+from tributaria_api.contracts.assisted_classification import OfficialCandidateDetail
 from tributaria_api.contracts.classification import ClassificationEvaluationResponse
 
 
-class AssistedClassificationRequest(BaseModel):
+class UnifiedClassificationRequest(BaseModel):
     model_config = ConfigDict(extra="forbid")
     evaluation_id: str = Field(min_length=1, max_length=100)
-    ruleset_id: str = Field(min_length=1, max_length=100)
+    ruleset_ids: list[str] = Field(min_length=1, max_length=20)
     catalog_version_id: str = Field(min_length=1, max_length=100)
     product_id: str | None = Field(default=None, max_length=100)
     operation_date: date
@@ -24,6 +34,13 @@ class AssistedClassificationRequest(BaseModel):
     recipient_type: str | None = Field(default=None, max_length=100)
     taxpayer_regime: str | None = Field(default=None, max_length=100)
     product_attributes: dict[str, str] = Field(default_factory=dict)
+
+    @field_validator("ruleset_ids")
+    @classmethod
+    def unique_ruleset_ids(cls, value: list[str]) -> list[str]:
+        if len(set(value)) != len(value):
+            raise ValueError("ruleset_ids must not contain duplicates")
+        return value
 
     @field_validator("evaluated_at", "known_at")
     @classmethod
@@ -126,66 +143,22 @@ class AssistedClassificationRequest(BaseModel):
                 raise ValueError(f"unsupported governed fact or value: {key}")
         return value
 
-    @model_validator(mode="after")
-    def product_or_manual_facts(self) -> AssistedClassificationRequest:
-        pilot_facts = {
-            "product.kind",
-            "product.anvisa_registration_status",
-            "buyer.legal_nature",
-            "operation.buyer_is_acquirer",
-            "operation.origin_area_status",
-            "seller.establishment_zfm_relation",
-            "product.annex_xiv_match_status",
-            "buyer.health_entity_status",
-        }
-        if (
-            self.product_id is None
-            and self.ncm is None
-            and self.description is None
-            and not pilot_facts.intersection(self.product_attributes)
-        ):
-            raise ValueError("provide product_id or explicit manual product facts")
-        return self
+
+class RuleCandidacyResponse(BaseModel):
+    identity_id: str
+    rule_code: str
+    version_id: str
+    version: int
+    content_hash: str
+    status: str
+    missing_facts: list[str]
+    unconfirmed_scope_facts: list[str]
 
 
-class OfficialCandidateDetail(BaseModel):
-    catalog_version_id: str
-    cst: str
-    cst_description: str
-    cclasstrib: str | None
-    cclasstrib_name: str | None
-    cclasstrib_description: str | None
-    valid_from: date | None
-    valid_to: date | None
-
-
-class AssistedClassificationResponse(ClassificationEvaluationResponse):
+class UnifiedClassificationResponse(ClassificationEvaluationResponse):
     product_id: str | None
     product_version_id: str | None
     catalog_version_id: str
     official_candidates: list[OfficialCandidateDetail] = Field(default_factory=list)
-
-
-class TaxClassificationReviewRequest(BaseModel):
-    model_config = ConfigDict(extra="forbid")
-    review_id: str = Field(min_length=1, max_length=100)
-    reviewed_at: datetime
-
-    @field_validator("reviewed_at")
-    @classmethod
-    def review_timezone_required(cls, value: datetime) -> datetime:
-        if value.tzinfo is None:
-            raise ValueError("timestamp must include a timezone")
-        return value
-
-
-class TaxClassificationReviewResponse(BaseModel):
-    review_id: str
-    evaluation_id: str
-    product_id: str
-    product_version_id: str
-    catalog_version_id: str
-    ruleset_id: str | None
-    status: str
-    reviewed_at: datetime
-    reviewed_by: str
+    evaluated_ruleset_ids: list[str]
+    rule_candidacies: list[RuleCandidacyResponse] = Field(default_factory=list)

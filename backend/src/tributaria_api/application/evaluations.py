@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-from collections.abc import Callable
+from collections.abc import Callable, Sequence
 from datetime import date, datetime
 from typing import Any
 
@@ -11,6 +11,7 @@ from tax_engine.evaluation import (
     EvaluationContext,
     FactSet,
 )
+from tax_engine.multi_rule_evaluation import MultiRuleEngine, MultiRuleEvaluation
 
 from tributaria_api.application.errors import ConflictError, NotFoundError
 from tributaria_api.application.ports import GovernanceRepository
@@ -32,6 +33,7 @@ class EvaluationService:
     ) -> None:
         self.repository = repository
         self.engine = TaxEngine(engine_version=engine_version)
+        self.multi_rule_engine = MultiRuleEngine(engine_version=engine_version)
         self.organization_id = organization_id
         self.company_id = company_id
         self.establishment_id = establishment_id
@@ -69,6 +71,46 @@ class EvaluationService:
             operation_date=facts.operation_date,
             facts=facts_document,
             response=document,
+            reproduced_from_id=reproduced_from_id,
+            organization_id=self.organization_id,
+            company_id=self.company_id,
+            establishment_id=self.establishment_id,
+            product_id=self.product_id,
+            product_version_id=self.product_version_id,
+            catalog_version_id=self.catalog_version_id,
+        )
+        self.repository.commit()
+        return document
+
+    def evaluate_many(
+        self,
+        *,
+        ruleset_ids: Sequence[str],
+        facts: FactSet,
+        context: EvaluationContext,
+        facts_document: dict[str, Any],
+        reproduced_from_id: str | None = None,
+    ) -> dict[str, Any]:
+        for ruleset_id in ruleset_ids:
+            persisted = self.repository.get_ruleset(ruleset_id)
+            if (
+                self.organization_id is not None
+                and persisted.get("organization_id") != self.organization_id
+            ):
+                raise NotFoundError("Ruleset not found")
+        candidates = self.repository.load_composed_rules(ruleset_ids)
+        result = self.multi_rule_engine.evaluate(
+            facts=facts, context=context, candidates=candidates
+        )
+        if self.candidate_validator is not None:
+            self.candidate_validator(result.evaluation.outcome)
+        document = multi_rule_evaluation_document(result)
+        self.repository.save_composed_evaluation(
+            result,
+            operation_date=facts.operation_date,
+            facts=facts_document,
+            response=document,
+            ruleset_ids=ruleset_ids,
             reproduced_from_id=reproduced_from_id,
             organization_id=self.organization_id,
             company_id=self.company_id,
@@ -220,4 +262,22 @@ def evaluation_document(evaluation: Evaluation) -> dict[str, Any]:
             for step in outcome.trace
         ],
     }
+
+
+def multi_rule_evaluation_document(result: MultiRuleEvaluation) -> dict[str, Any]:
+    document = evaluation_document(result.evaluation)
+    document["rule_candidacies"] = [
+        {
+            "identity_id": candidacy.rule.identity_id,
+            "rule_code": candidacy.rule.rule_code,
+            "version_id": candidacy.rule.version_id,
+            "version": candidacy.rule.version,
+            "content_hash": candidacy.rule.content_hash,
+            "status": candidacy.status.value,
+            "missing_facts": list(candidacy.decision.missing_facts),
+            "unconfirmed_scope_facts": list(candidacy.unconfirmed_scope_facts),
+        }
+        for candidacy in result.candidacies
+    ]
+    return document
 

@@ -14,23 +14,21 @@ from tributaria_api.api.auth_dependencies import (
 from tributaria_api.api.dependencies import RepositoryDep
 from tributaria_api.api.product_dependencies import ProductRepositoryDep
 from tributaria_api.api.taxonomy_dependencies import TaxonomyRepositoryDep
-from tributaria_api.application.errors import ConflictError, GovernanceError, NotFoundError
+from tributaria_api.application.errors import ConflictError, GovernanceError
 from tributaria_api.application.evaluations import EvaluationService
 from tributaria_api.application.taxonomy import CatalogStatus
-from tributaria_api.contracts.assisted_classification import (
-    AssistedClassificationRequest,
-    AssistedClassificationResponse,
-    TaxClassificationReviewRequest,
-    TaxClassificationReviewResponse,
+from tributaria_api.contracts.unified_classification import (
+    UnifiedClassificationRequest,
+    UnifiedClassificationResponse,
 )
 
-router = APIRouter(prefix="/tax/ibs-cbs", tags=["IBS/CBS assisted classification"])
-ENGINE_VERSION = "0.6.0-rt-ibscbs-pilot"
+router = APIRouter(prefix="/tax/ibs-cbs", tags=["IBS/CBS unified classification"])
+ENGINE_VERSION = "0.7.0-rt-ibscbs-unified"
 
 
-@router.post("/classify", response_model=AssistedClassificationResponse)
-def classify(
-    request: AssistedClassificationRequest,
+@router.post("/classify-unified", response_model=UnifiedClassificationResponse)
+def classify_unified(
+    request: UnifiedClassificationRequest,
     context: AnalystContext,
     correlation_id: CorrelationId,
     repository: RepositoryDep,
@@ -40,7 +38,7 @@ def classify(
 ) -> dict[str, Any]:
     catalog = taxonomy.get_version(context.organization_id, request.catalog_version_id)
     if catalog.status != CatalogStatus.PUBLISHED:
-        raise ConflictError("Tax classification requires a PUBLISHED catalog")
+        raise ConflictError("Evaluations require a PUBLISHED catalog")
 
     snapshot: dict[str, Any] | None = None
     if request.product_id is not None:
@@ -53,7 +51,7 @@ def classify(
     def validate_candidates(outcome: ClassificationOutcome) -> None:
         if outcome.candidates:
             raise GovernanceError(
-                "Assisted classification rejects legacy candidates without catalog provenance"
+                "Unified classification rejects legacy candidates without catalog provenance"
             )
         for candidate in outcome.tax_candidates:
             if candidate.catalog_version_id != catalog.id:
@@ -79,7 +77,7 @@ def classify(
         metadata={
             "product_id": request.product_id,
             "catalog_version_id": catalog.id,
-            "ruleset_id": request.ruleset_id,
+            "ruleset_ids": request.ruleset_ids,
         },
     )
     identities.session.commit()
@@ -93,8 +91,8 @@ def classify(
         catalog_version_id=catalog.id,
         candidate_validator=validate_candidates,
     )
-    document = service.evaluate(
-        ruleset_id=request.ruleset_id,
+    document = service.evaluate_many(
+        ruleset_ids=request.ruleset_ids,
         facts=facts,
         context=EvaluationContext(
             evaluation_id=request.evaluation_id,
@@ -110,16 +108,12 @@ def classify(
         user_id=context.user_id,
         entity_type="tax_classification",
         entity_id=request.evaluation_id,
-        action=(
-            "REAL_TAX_EVALUATION_EXECUTED"
-            if request.ruleset_id == "IBSCBS-PILOT-001"
-            else "TAX_CLASSIFICATION_COMPLETED"
-        ),
+        action="TAX_CLASSIFICATION_COMPLETED",
         occurred_at=completed_at,
         correlation_id=correlation_id,
         metadata={
             "status": document["status"],
-            "ruleset_id": request.ruleset_id,
+            "ruleset_ids": request.ruleset_ids,
             "ruleset_fingerprint": document["ruleset"]["content_hash"],
         },
     )
@@ -130,67 +124,11 @@ def classify(
         "product_version_id": facts.product_version_id,
         "catalog_version_id": catalog.id,
         "official_candidates": official_candidates,
+        "evaluated_ruleset_ids": request.ruleset_ids,
     }
 
 
-@router.post(
-    "/evaluations/{evaluation_id}/review",
-    response_model=TaxClassificationReviewResponse,
-)
-def review_classification(
-    evaluation_id: str,
-    request: TaxClassificationReviewRequest,
-    context: AnalystContext,
-    correlation_id: CorrelationId,
-    repository: RepositoryDep,
-    products: ProductRepositoryDep,
-    identities: IdentityRepositoryDep,
-) -> dict[str, Any]:
-    evaluation = repository.get_evaluation(evaluation_id)
-    if evaluation.get("organization_id") != context.organization_id:
-        raise NotFoundError("Evaluation not found")
-    required = ("product_id", "product_version_id", "catalog_version_id")
-    has_ruleset_reference = bool(evaluation.get("ruleset_id")) or bool(
-        evaluation.get("composed_ruleset_ids")
-    )
-    if any(not evaluation.get(field) for field in required) or not has_ruleset_reference:
-        raise ConflictError("Only a product classification with governed snapshots can be reviewed")
-    review = products.record_tax_review(
-        review_id=request.review_id,
-        organization_id=context.organization_id,
-        product_id=str(evaluation["product_id"]),
-        product_version_id=str(evaluation["product_version_id"]),
-        evaluation_id=evaluation_id,
-        catalog_version_id=str(evaluation["catalog_version_id"]),
-        ruleset_id=evaluation["ruleset_id"],
-        reviewed_at=request.reviewed_at,
-        reviewed_by=context.user_id,
-    )
-    identities.record_audit(
-        organization_id=context.organization_id,
-        user_id=context.user_id,
-        entity_type="tax_classification",
-        entity_id=evaluation_id,
-        action="TAX_CLASSIFICATION_REVIEWED",
-        occurred_at=request.reviewed_at,
-        correlation_id=correlation_id,
-        metadata={"review_id": review.id, "status": review.status},
-    )
-    identities.session.commit()
-    return {
-        "review_id": review.id,
-        "evaluation_id": evaluation_id,
-        "product_id": review.product_id,
-        "product_version_id": review.product_version_id,
-        "catalog_version_id": review.catalog_version_id,
-        "ruleset_id": review.ruleset_id,
-        "status": review.status,
-        "reviewed_at": review.reviewed_at,
-        "reviewed_by": review.reviewed_by,
-    }
-
-
-def _facts(request: AssistedClassificationRequest, snapshot: dict[str, Any] | None) -> FactSet:
+def _facts(request: UnifiedClassificationRequest, snapshot: dict[str, Any] | None) -> FactSet:
     if snapshot is None:
         return FactSet(
             operation_date=request.operation_date,
@@ -232,4 +170,3 @@ def _facts(request: AssistedClassificationRequest, snapshot: dict[str, Any] | No
 def _reject_silent_override(field: str, provided: str | None, stored: str | None) -> None:
     if provided is not None and stored is not None and provided != stored:
         raise ConflictError(f"Manual fact conflicts with stored product field: {field}")
-
