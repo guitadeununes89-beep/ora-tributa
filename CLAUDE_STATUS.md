@@ -960,6 +960,13 @@ para confirmar se algo mudou, em vez de simplesmente repetir a mesma conclusão 
 4. Registrei as três verificações datadas em `known_conflicts` das respectivas especificações,
    para a próxima sessão não repetir a mesma pesquisa do zero. Nenhuma mudança de código; suíte
    completa (212 testes) revalidada.
+5. **CI quebrou depois do push** (`pnpm test` com `window is not defined` após o encerramento do
+   ambiente de teste) — mesmo padrão de bug já visto e corrigido na Etapa 4, agora em
+   `app-shell.test.tsx`: três dos quatro testes só esperavam a atualização de identidade, não o
+   efeito independente da porcentagem de cobertura adicionado na Etapa 17, então esse efeito podia
+   resolver depois do jsdom do arquivo já ter sido destruído. Corrigido fazendo cada teste também
+   esperar o texto da cobertura antes de terminar; não reproduzi o bug localmente (mesma
+   intermitência do episódio original), só o log do CI revelou. Novo push, CI verde de novo.
 
 ### O que isso NÃO faz
 
