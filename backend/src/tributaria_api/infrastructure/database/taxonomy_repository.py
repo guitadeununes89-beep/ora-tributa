@@ -38,6 +38,29 @@ class SqlAlchemyTaxonomyRepository:
             raise NotFoundError("Catalog version not found")
         return record
 
+    def get_published_version(
+        self, organization_id: str
+    ) -> TaxClassificationCatalogVersionRecord:
+        """Most recent PUBLISHED cClassTrib catalog version for an organization.
+
+        Mirrors `SqlAlchemyNcmRepository._published_version`/`SqlAlchemyNbsRepository`
+        (Etapa 22): batch processing (Etapa 23) needs to resolve the current
+        catalog automatically, unlike `classify_unified` where the client
+        already picks an explicit `catalog_version_id`.
+        """
+        record = self.session.scalar(
+            select(TaxClassificationCatalogVersionRecord)
+            .where(
+                TaxClassificationCatalogVersionRecord.organization_id == organization_id,
+                TaxClassificationCatalogVersionRecord.status == CatalogStatus.PUBLISHED,
+            )
+            .order_by(TaxClassificationCatalogVersionRecord.publication_date.desc())
+            .limit(1)
+        )
+        if record is None:
+            raise NotFoundError("Published cClassTrib catalog version not found")
+        return record
+
     def ingest(
         self,
         *,

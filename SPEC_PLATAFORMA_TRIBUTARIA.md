@@ -6,10 +6,12 @@
 **Escopo desta versão:** Etapa 8 — experiência visual e mapa nacional dos 164 cClassTrib; somente RT-IBSCBS-0003 executável.
 
 
-> **Leitura temporal:** as seções 1 a 21 registram decisões e estados históricos das respectivas
+> **Leitura temporal:** as seções 1 a 24 registram decisões e estados históricos das respectivas
 > etapas e não devem ser interpretadas isoladamente como estado corrente. O estado atual está
-> consolidado nas seções 22 e 23. Afirmações históricas como “nenhuma regra real executável” eram
-> verdadeiras no fechamento daquela etapa e foram superadas pela publicação piloto da Etapa 7C.
+> consolidado na seção 25 (Etapa 23) e nos relatórios `docs/tax/ETAPA_21_UNIFIED_RULE_EVALUATION.md`,
+> `docs/tax/ETAPA_22_NCM_NBS_DISCOVERY.md` e `docs/tax/ETAPA_23_BATCH_CONSULTATION.md`. Afirmações
+> históricas como "nenhuma regra real executável" eram verdadeiras no fechamento daquela etapa e
+> foram superadas pela publicação piloto da Etapa 7C e pelas etapas seguintes.
 ## 1. Visão
 
 Construir uma plataforma profissional, modular, auditável e preparada para SaaS para inteligência, auditoria e planejamento tributário no Brasil. A primeira evolução funcional será orientada à Reforma Tributária — IBS, CBS e Imposto Seletivo — preservando espaço para ICMS, ICMS-ST, PIS/COFINS e outros domínios.
@@ -515,3 +517,38 @@ efeitos e a divergência art. 456/art. 460 permanecem bloqueadores explícitos.
 A cobertura executável permanece `1/164` (`0,61%`). Aprovar os três documentos não criará execução;
 somente após aprovação, implementação, testes e publicação futura o teto potencial seria `4/164`
 (`2,44%`). Nenhuma nova TaxRuleVersion ou ruleset foi criada e o tax-engine não mudou.
+
+## 25. Etapa 21, 22 e 23 — consulta unificada, catálogos NCM/NBS e consulta em lote (estado atual)
+
+Esta seção consolida, de forma resumida, o estado real da plataforma após as três etapas mais
+recentes — os relatórios completos ficam em `docs/tax/`, não duplicados aqui. **A cobertura
+executável continua `4/164 cClassTrib` (2,44%)**: nenhuma das três etapas publicou regra
+tributária nova; todas reaproveitam as 5 regras já publicadas (`RT-IBSCBS-0003/0004/0005/0007/
+0008`).
+
+- **Etapa 21 — consulta unificada e composição segura de regras** (ADR-0025,
+  `docs/tax/ETAPA_21_UNIFIED_RULE_EVALUATION.md`): corrigiu a limitação de "uma regra por vez" —
+  `POST /tax/ibs-cbs/classify-unified` avalia várias hipóteses candidatas na mesma passagem sem
+  que uma hipótese não aplicável contamine o resultado de outra (`RuleCandidacyStatus`,
+  `rule_scope_registry`). `/reforma-tributaria/consulta` passou a servir esse fluxo.
+- **Etapa 22 — catálogos NCM/NBS e descoberta tributária assistida** (ADR-0026,
+  `docs/tax/ETAPA_22_NCM_NBS_DISCOVERY.md`): catálogos oficiais governados de NCM (Siscomex/
+  Receita Federal, 15.156 códigos) e NBS (MDIC/RFB, 1.237 códigos), com uma camada de descoberta
+  fail-closed (`tax_engine.tax_candidate_discovery`) que hoje só relaciona o Capítulo 30 da NCM
+  ("Produtos farmacêuticos") às regras RT-IBSCBS-0004/0005 já publicadas — qualquer outro NCM ou
+  qualquer NBS retorna explicitamente "sem cobertura", nunca uma classificação presumida.
+  `/catalog-discovery/search` e `/catalog-discovery/candidates` são inteiramente aditivos; o passo
+  "0. Pesquisar objeto" da consulta unificada apenas pré-marca sugestões, nunca decide sozinho.
+- **Etapa 23 — consulta tributária em lote por Excel** (ADR-0027,
+  `docs/tax/ETAPA_23_BATCH_CONSULTATION.md`): primeira funcionalidade operacional de consulta em
+  lote (`.xlsx`/`.csv`, limite inicial configurável de 500 linhas). Cada linha é processada de
+  forma independente pela mesma consulta unificada e mesma descoberta das Etapas 21/22 — sem
+  motor novo — distinguindo `CONCLUSIVO`, `POSSIVEIS_ENQUADRAMENTOS`, `NECESSITA_VALIDACAO` e
+  `SEM_COBERTURA_NORMATIVA`. Uma linha inválida nunca interrompe o lote (vira `ERROR` isolado).
+  `/reforma-tributaria/consulta-lote` cobre upload, prévia, execução, grid com filtro por status,
+  detalhe com DecisionTrace e exportação — sem armazenar o arquivo original, sem processamento
+  assíncrono nesta etapa (RNF-08 permanece reconhecimento futuro), sem implementar o `TaxObject`
+  do ADR-0019 (o campo "tipo de objeto" do lote é só um rótulo de roteamento de busca).
+
+Nenhuma das três etapas alterou `Product`, `FactSet` ou o `tax-engine` central; todas são
+estritamente aditivas sobre a base da Etapa 20.

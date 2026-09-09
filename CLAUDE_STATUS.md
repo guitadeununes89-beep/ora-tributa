@@ -1131,3 +1131,94 @@ esses identificadores em classificação tributária automática.
 - Não inicia cálculo financeiro amplo, XML/EFD, ou publicação de novas regras.
 - Não altera nenhuma das 5 regras reais publicadas, seus rulesets, ou qualquer contrato/rota da
   Etapa 21 — `/catalog-discovery/*` é inteiramente aditivo.
+
+## Etapa 23 — Consulta tributária em lote por Excel
+
+**Data:** 2026-09-09
+**Decisão arquitetural:** [ADR-0027](docs/adr/0027-consulta-tributaria-em-lote-por-excel.md).
+**Deliverable completo:** [docs/tax/ETAPA_23_BATCH_CONSULTATION.md](docs/tax/ETAPA_23_BATCH_CONSULTATION.md)
+(fontes, testes, exemplo de resultado, cobertura antes/depois, pendências — não repetido aqui na
+íntegra).
+
+Confirmei antes de iniciar (não reimplementei) que a Etapa 22 estava de fato fechada: 5 regras
+reais `PUBLISHED`, 4 cClassTrib distintos cobertos, consulta unificada e catálogos NCM/NBS
+funcionais, descoberta fail-closed operante, `pytest` (256 passaram/12 pulados sem Postgres) e CI
+verde no commit `6b19cae` — tudo confirmado por consulta direta ao banco, sem divergência real.
+Único achado: 3 regras sintéticas de teste (`TEST-PG-RULE`/`TEST-QR-RULE-1`/`TEST-QR-RULE-2`)
+ficaram `PUBLISHED` por engano no banco de demonstração (sobra de execução anterior de
+`POSTGRES_TESTS=1` no banco errado). **Tentativa de limpeza autorizada e executada nesta sessão
+foi bloqueada pelos próprios triggers de imutabilidade** (`published rulesets are immutable`,
+`rule_lifecycle_events is append-only`) — mesmo comportamento correto já precedente da Etapa 11;
+nada foi apagado, nenhuma regra real foi tocada. `tributaria_test` foi recriado do zero.
+
+O objetivo desta etapa foi a primeira consulta tributária **em lote** por planilha, sem ampliar
+cobertura jurídica e sem cálculo financeiro amplo.
+
+1. **Reuso literal do motor, sem duplicação.** Cada linha do lote chama exatamente
+   `EvaluationService.evaluate_many()` — a mesma função da consulta unificada (Etapa 21) — e a
+   mesma descoberta fail-closed (Etapa 22), via um helper compartilhado
+   (`application/catalog_discovery_service.py`) extraído de `catalog_discovery.py` sem mudar seu
+   comportamento. Resolução `rule_code`→`ruleset_id` usa `GovernanceRepository.
+   list_rule_versions()` (já existente, base de `GET /taxonomy/ibs-cbs/coverage`), nunca um
+   mapeamento hardcoded.
+2. **Quatro status de classificação, mapeados sem interpretação** a partir do
+   `ClassificationStatus` real do tax-engine (`CONCLUSIVO`/`POSSIVEIS_ENQUADRAMENTOS`/
+   `NECESSITA_VALIDACAO` idênticos; `UNCLASSIFIED` do motor também vira `SEM_COBERTURA_NORMATIVA`,
+   distinguido no campo `observacoes` de "nenhum candidato de descoberta" vs. "candidato
+   descartado pelos próprios fatos"). Um status de **processamento** separado
+   (`PENDING`/`PROCESSED`/`ERROR`) cobre falha de identificação da linha (NCM/NBS inválido ou não
+   encontrado, sem identificador, data ilegível) — nunca interrompe o lote.
+3. **`object_kind` do lote é só um rótulo de roteamento de busca** (NCM vs. NBS quando a planilha
+   não informa código), não uma implementação do `TaxObject` reservado pelo ADR-0019 — registrado
+   explicitamente como tal no ADR-0027 para não colidir com os critérios de revisão do ADR-0019/
+   0020.
+4. **Duas tabelas novas aditivas** (`classification_batches`/`classification_batch_rows`,
+   migração `0010`), imutáveis uma vez `COMPLETED`/`FAILED` (mesmo molde de
+   `protect_published_{prefix}_catalog` da Etapa 22, mas gated por estado de processamento, não
+   de governança) — reprocessar sempre cria um novo lote a partir das mesmas linhas cruas.
+5. **Arquivo original nunca é armazenado** — só o hash SHA-256, para auditoria; conteúdo parseado
+   em memória, cada linha crua persistida como JSON. Validação de upload conforme `AGENTS.md` §8:
+   tamanho e linhas máximos configuráveis (500 linhas/5 MB, explicitamente não definitivos),
+   apenas `.xlsx`/`.csv`, assinatura binária real verificada, `.xlsm`/`.xlsb`/`.xls` e qualquer
+   XLSX com macro embutida (`xl/vbaProject.bin`) rejeitados, proteção contra zip-bomb,
+   `openpyxl` sempre sem links externos/fórmula.
+6. **Frontend**: novo passo "Consulta em Lote (piloto)" em `/reforma-tributaria/consulta-lote`
+   (upload → prévia com avisos → processar → grid com filtro por status → detalhe com CST/
+   cClassTrib/fundamento legal/DecisionTrace → exportação `.xlsx` preservando colunas originais).
+   Primeiro upload de arquivo do frontend — exigiu um ajuste aditivo no wrapper `apiFetch` (não
+   forçar `Content-Type` quando o corpo é `FormData`).
+7. **Testes**: 14 novos no importador (parsing, cabeçalho tolerante, rejeição de macro/zip-bomb/
+   extensão insegura), 16 de orquestração sem Postgres (identificação, roteamento, resolução de
+   ruleset, mapeamento de status), 6 de integração real contra Postgres (candidato real chapter-
+   30 → `CONCLUSIVO` com `composed_ruleset_ids` reais persistidos; sem cobertura; erro isolado sem
+   interromper o lote; isolamento entre organizações; reprocessamento determinístico; exportação
+   real), 5 novos no frontend — **286 testes Python sem `POSTGRES_TESTS=1`, 304 com** (banco
+   recriado do zero), `ruff`/`mypy` limpos em 118 arquivos, **28 testes de frontend**, `pnpm lint`/
+   `typecheck`/`build` limpos.
+8. **Demonstração ao vivo** (login `analyst@example.invalid`, banco de demonstração real, migração
+   0010 aplicada com autorização): planilha sintética de 3 linhas — item com candidato (NCM
+   30019010, todos os fatos de RT-IBSCBS-0005) → `CONCLUSIVO`, CST 200/cClassTrib 200010, via
+   RT-IBSCBS-0005 v1; item inconclusivo (mesmo NCM, só um fato de escopo preenchido) →
+   `NECESSITA_VALIDACAO` com os 6 fatos faltantes exatos; item sem cobertura (NCM fora do
+   capítulo 30) → `SEM_COBERTURA_NORMATIVA` explícito. As três linhas foram confirmadas
+   persistidas corretamente no banco de demonstração por consulta SQL direta, e a exportação
+   `.xlsx` foi confirmada real (200 OK, ~5,7 KB, colunas originais + resultado).
+9. **Achado de ambiente registrado, não de produto**: o clique do mouse via automação de
+   navegador não disparava o `onSubmit` do formulário de upload nesta sessão (mesma classe de
+   problema já visto na Etapa 22) — contornado disparando o clique real via JavaScript no DOM
+   (`element.click()`), método já aceito como verificação legítima (eventos reais do DOM,
+   requisições HTTP reais à API real).
+
+### O que isso NÃO faz
+
+- Não publica nenhuma regra tributária nova nem aprova interpretação jurídica nova — cobertura
+  executável continua `4/164` (2,44%), antes e depois desta etapa.
+- Não cria um segundo motor — cada linha do lote usa exatamente `EvaluationService.
+  evaluate_many()`, a mesma função da consulta unificada.
+- Não atribui CST/cClassTrib apenas pelo NCM/NBS nem trata ausência de candidato/regra confirmada
+  como tributação geral — `SEM_COBERTURA_NORMATIVA` é sempre explícito.
+- Não armazena o arquivo original enviado, nem executa macro ou avalia fórmula de planilha.
+- Não implementa processamento assíncrono (RNF-08 permanece reconhecimento futuro), nem o
+  `TaxObject` do ADR-0019, nem XML/EFD, nem laudo com identidade visual, nem simulador de regime.
+- Não altera nenhuma das 5 regras reais publicadas, seus rulesets, ou qualquer contrato/rota das
+  Etapas 21/22 — `/batch-classification/*` é inteiramente aditivo.

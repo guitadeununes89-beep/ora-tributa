@@ -42,4 +42,5 @@ Decisões arquiteturais relevantes devem ser registradas **antes** da implementa
 - [ADR-0024 — Implementação do modelo de áreas territoriais tributárias governadas](0024-implementacao-de-areas-territoriais-governadas.md)
 - [ADR-0025 — Avaliação multirregra e seleção de candidatos](0025-avaliacao-multirregra-e-selecao-de-candidatos.md)
 - [ADR-0026 — Catálogos NCM/NBS e descoberta tributária assistida](0026-catalogos-ncm-nbs-e-descoberta-tributaria.md)
+- [ADR-0027 — Consulta tributária em lote por Excel](0027-consulta-tributaria-em-lote-por-excel.md)
 

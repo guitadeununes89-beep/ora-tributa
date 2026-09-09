@@ -1,12 +1,12 @@
 from __future__ import annotations
 
 from fastapi import APIRouter, Query
-from tax_engine.tax_candidate_discovery import discover_by_nbs, discover_by_ncm
 
 from tributaria_api.api.auth_dependencies import ReadContext
 from tributaria_api.api.nbs_dependencies import NbsRepositoryDep
 from tributaria_api.api.ncm_dependencies import NcmRepositoryDep
 from tributaria_api.api.product_dependencies import ProductRepositoryDep
+from tributaria_api.application.catalog_discovery_service import resolve_discovery
 from tributaria_api.application.errors import NotFoundError
 from tributaria_api.contracts.catalog_discovery import (
     DiscoveryResult,
@@ -84,7 +84,7 @@ def candidates(
     registry always comes back as `NO_COVERAGE`.
     """
     del context
-    family = discover_by_ncm(ncm) if ncm else discover_by_nbs(nbs) if nbs else None
+    family = resolve_discovery(ncm=ncm, nbs=nbs)
     if family is None:
         return DiscoveryResult(status="NO_COVERAGE")
     return DiscoveryResult(

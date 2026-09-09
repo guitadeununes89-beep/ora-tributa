@@ -9,6 +9,7 @@ from __future__ import annotations
 # effect of importing this package — guarantees that any entry point (API, CLI, seed
 # script) that touches only one module still sees the complete schema graph.
 from tributaria_api.infrastructure.database import (
+    batch_models,
     identity_models,
     models,
     nbs_models,
@@ -19,6 +20,7 @@ from tributaria_api.infrastructure.database import (
 )
 
 __all__ = [
+    "batch_models",
     "identity_models",
     "models",
     "nbs_models",

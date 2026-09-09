@@ -17,6 +17,8 @@ class Settings(BaseSettings):
     csrf_cookie_name: str = "tributaria_csrf"
     normative_artifact_root: str = "database/normative-artifacts/ingested"
     tax_rule_specification_root: str = "docs/tax/rules/specifications"
+    batch_max_rows: int = 500
+    batch_max_file_size_bytes: int = 5_000_000
 
     @property
     def is_production(self) -> bool:

@@ -129,7 +129,13 @@ button { background: var(--forest); color: white; cursor: pointer; font-weight: 
 .result-conclusivo { border-color: #17633a; background: #eef6f0; }
 .result-possiveis_enquadramentos { border-color: #8a6412; background: #fff8df; }
 .result-necessita_validacao { border-color: #aa4b2c; background: #fff1eb; }
-.result-sem_classificacao { border-color: #53655f; background: #f0f1ee; }
+.result-sem_classificacao, .result-sem_cobertura_normativa { border-color: #53655f; background: #f0f1ee; }
+.result-error { border-color: #aa4b2c; background: #fff1eb; }
+.status-conclusivo { color: #17633a; }
+.status-possiveis_enquadramentos { color: #8a6412; }
+.status-necessita_validacao { color: #aa4b2c; }
+.status-sem_cobertura_normativa { color: #53655f; }
+.status-error { color: #9a3e24; }
 .missing-facts { border: 1px solid currentColor; margin: 20px 0; padding: 18px; }
 .candidate-grid { display: grid; gap: 12px; grid-template-columns: repeat(auto-fit, minmax(230px, 1fr)); }
 .candidate-card { background: rgb(255 255 255 / 65%); border: 1px solid var(--line); display: grid; gap: 6px; min-height: 0; padding: 18px; }

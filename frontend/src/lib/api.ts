@@ -10,7 +10,10 @@ export function csrfToken(): string {
 
 export async function apiFetch(path: string, init: RequestInit = {}): Promise<Response> {
   const headers = new Headers(init.headers);
-  if (init.body) headers.set("Content-Type", "application/json");
+  // A FormData body (batch file upload, Etapa 23) must keep the browser's own
+  // multipart Content-Type with its boundary - setting it manually would drop
+  // the boundary and break parsing on the server.
+  if (init.body && !(init.body instanceof FormData)) headers.set("Content-Type", "application/json");
   const csrf = csrfToken();
   if (csrf) headers.set("X-CSRF-Token", csrf);
   return fetch(`${API_URL}${path}`, { ...init, headers, credentials: "include" });

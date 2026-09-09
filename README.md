@@ -13,8 +13,12 @@ Fundação técnica de uma plataforma auditável de inteligência, auditoria e p
 > pesquisar por código ou descrição direto na consulta unificada, com uma camada de descoberta
 > fail-closed que hoje só relaciona o Capítulo 30 da NCM (medicamentos) às regras já publicadas
 > (ver ADR-0026) — qualquer outro objeto pesquisado retorna "sem cobertura" de forma explícita,
-> nunca uma classificação presumida. São regras piloto, não representam cobertura completa, não
-> são default de produção e não existe cálculo amplo da Reforma Tributária.
+> nunca uma classificação presumida. Desde a Etapa 23, `/reforma-tributaria/consulta-lote` permite
+> enviar uma planilha (.xlsx/.csv, limite inicial configurável de 500 linhas) e processar cada
+> linha pela mesma consulta unificada e descoberta, distinguindo CONCLUSIVO, POSSÍVEIS
+> ENQUADRAMENTOS, NECESSITA VALIDAÇÃO e SEM COBERTURA NORMATIVA por item (ver ADR-0027) — nenhum
+> motor novo, nenhuma regra publicada nesta etapa. São regras piloto, não representam cobertura
+> completa, não são default de produção e não existe cálculo amplo da Reforma Tributária.
 
 ## Princípios centrais
 
