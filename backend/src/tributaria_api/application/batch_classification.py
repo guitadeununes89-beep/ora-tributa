@@ -1,4 +1,4 @@
-"""Batch tax classification orchestration (Etapa 23, ADR-0027).
+"""Batch tax classification orchestration (Etapa 23, ADR-0027; Etapa 24, ADR-0028).
 
 Processes one spreadsheet row at a time by reusing, unmodified, exactly the
 same building blocks the unified consultation (Etapa 21) and the catalog
@@ -187,7 +187,40 @@ def expand_row_result(
     was written by `process_batch_row` - so the report can never drift from
     what is actually stored.
     """
-    result: dict[str, Any] = {
+    if row.evaluation_id is None:
+        return _empty_row_expansion()
+    evaluation = governance_repository.get_evaluation(row.evaluation_id)
+    return _expand_from_evaluation(evaluation)
+
+
+def expand_row_results(
+    rows: Iterable[ClassificationBatchRowRecord],
+    *,
+    governance_repository: SqlAlchemyGovernanceRepository,
+) -> dict[str, dict[str, Any]]:
+    """Bulk variant of `expand_row_result` for rendering a whole batch at once.
+
+    Etapa 24 (ADR-0028): `GET /batch-classification/{id}` is now polled every
+    second while a batch is `PROCESSING` - fetching each row's evaluation one
+    at a time (`expand_row_result` in a loop) would issue one extra query per
+    row on every single poll. This fetches every row's evaluation in one
+    round trip (`get_evaluations`) and returns a dict keyed by `row.id`.
+    """
+    rows = list(rows)
+    evaluation_ids = [row.evaluation_id for row in rows if row.evaluation_id is not None]
+    evaluations = governance_repository.get_evaluations(evaluation_ids)
+    result: dict[str, dict[str, Any]] = {}
+    for row in rows:
+        evaluation = evaluations.get(row.evaluation_id) if row.evaluation_id else None
+        if evaluation is not None:
+            result[row.id] = _expand_from_evaluation(evaluation)
+        else:
+            result[row.id] = _empty_row_expansion()
+    return result
+
+
+def _empty_row_expansion() -> dict[str, Any]:
+    return {
         "cst": None,
         "cclasstrib": None,
         "tratamento": None,
@@ -196,9 +229,10 @@ def expand_row_result(
         "fatos_faltantes": [],
         "decision_trace": [],
     }
-    if row.evaluation_id is None:
-        return result
-    evaluation = governance_repository.get_evaluation(row.evaluation_id)
+
+
+def _expand_from_evaluation(evaluation: dict[str, Any]) -> dict[str, Any]:
+    result = _empty_row_expansion()
     outcome = evaluation["outcome"]
     result["fatos_faltantes"] = list(outcome.get("missing_facts", []))
     result["decision_trace"] = list(outcome.get("decision_trace", []))

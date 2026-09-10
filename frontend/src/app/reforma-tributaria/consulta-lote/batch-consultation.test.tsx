@@ -225,4 +225,101 @@ describe("BatchConsultation", () => {
     expect(link).toHaveAttribute("href", "http://localhost:8000/api/v1/batch-classification/batch-1/export");
     expect(screen.getByText("NCM não encontrado no catálogo NCM publicado")).toBeInTheDocument();
   });
+
+  it("shows a row still awaiting processing distinctly from an error (Etapa 24)", async () => {
+    // Regression test: while a batch is PROCESSING, rows the job has not
+    // reached yet are `processing_status: "PENDING"` with no
+    // classification_status - `rowStatusKey` must never collapse that into
+    // "ERROR".
+    apiFetch.mockImplementation((path: string) => {
+      if (path === "/batch-classification/upload") return Promise.resolve(jsonResponse(UPLOAD_RESPONSE));
+      if (path === "/batch-classification/batch-1/process") {
+        return Promise.resolve(jsonResponse({ ...UPLOAD_RESPONSE.batch, status: "PROCESSING" }));
+      }
+      return Promise.resolve(
+        jsonResponse(
+          detailWith([UPLOAD_RESPONSE.preview[0]], {
+            status: "PROCESSING",
+            processed_count: 0,
+            error_count: 0,
+          }),
+        ),
+      );
+    });
+
+    render(<BatchConsultation />);
+    await uploadFile();
+    fireEvent.click(screen.getByRole("button", { name: "3. Processar lote" }));
+
+    await screen.findByText(/Processando\.\.\. 0 de 1 linha/);
+    const row = screen.getByRole("button", { name: /Linha 1/ });
+    expect(row).toHaveTextContent("Aguardando processamento");
+    expect(row.querySelector("small")).not.toHaveClass("status-error");
+  });
+
+  it("polls GET /{id} while PROCESSING and stops once the batch COMPLETED", async () => {
+    vi.useFakeTimers();
+    try {
+      let detailCalls = 0;
+      apiFetch.mockImplementation((path: string) => {
+        if (path === "/batch-classification/upload") {
+          return Promise.resolve(jsonResponse(UPLOAD_RESPONSE));
+        }
+        if (path === "/batch-classification/batch-1/process") {
+          return Promise.resolve(jsonResponse({ ...UPLOAD_RESPONSE.batch, status: "PROCESSING" }));
+        }
+        if (path === "/batch-classification/batch-1") {
+          detailCalls += 1;
+          if (detailCalls === 1) {
+            return Promise.resolve(
+              jsonResponse(
+                detailWith([UPLOAD_RESPONSE.preview[0]], {
+                  status: "PROCESSING",
+                  processed_count: 0,
+                  error_count: 0,
+                }),
+              ),
+            );
+          }
+          return Promise.resolve(
+            jsonResponse(
+              detailWith(
+                [
+                  {
+                    ...UPLOAD_RESPONSE.preview[0],
+                    processing_status: "PROCESSED",
+                    classification_status: "CONCLUSIVO",
+                    cst: "200",
+                    cclasstrib: "200010",
+                  },
+                ],
+                { status: "COMPLETED", processed_count: 1, error_count: 0 },
+              ),
+            ),
+          );
+        }
+        return Promise.resolve(jsonResponse({}));
+      });
+
+      render(<BatchConsultation />);
+
+      const input = screen.getByLabelText("Arquivo");
+      selectFile(input, new File(["conteudo"], "lote.xlsx"));
+      fireEvent.click(screen.getByRole("button", { name: "Enviar e validar" }));
+      await vi.waitFor(() => expect(screen.getByText("lote.xlsx")).toBeInTheDocument());
+
+      fireEvent.click(screen.getByRole("button", { name: "3. Processar lote" }));
+      await vi.waitFor(() => expect(detailCalls).toBe(1));
+
+      await vi.advanceTimersByTimeAsync(1000);
+      await vi.waitFor(() => expect(screen.getByText("1 processada(s) · 0 erro(s)")).toBeInTheDocument());
+      expect(screen.getByText("CST 200")).toBeInTheDocument();
+
+      const callsAtCompletion = detailCalls;
+      await vi.advanceTimersByTimeAsync(3000);
+      expect(detailCalls).toBe(callsAtCompletion);
+    } finally {
+      vi.useRealTimers();
+    }
+  });
 });

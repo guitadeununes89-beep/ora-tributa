@@ -388,40 +388,67 @@ class SqlAlchemyGovernanceRepository:
         self._flush()
 
     def get_evaluation(self, evaluation_id: str) -> dict[str, Any]:
-        record = self._session.get(EvaluationRecord, evaluation_id)
-        if record is None:
+        found = self.get_evaluations([evaluation_id])
+        if evaluation_id not in found:
             raise NotFoundError(f"Evaluation not found: {evaluation_id}")
-        rule_version_ids = self._session.scalars(
-            select(EvaluationRuleVersionRecord.rule_version_id)
-            .where(EvaluationRuleVersionRecord.evaluation_id == evaluation_id)
-            .order_by(EvaluationRuleVersionRecord.position)
+        return found[evaluation_id]
+
+    def get_evaluations(self, evaluation_ids: Sequence[str]) -> dict[str, dict[str, Any]]:
+        """Bulk-fetch evaluations by id in a single pair of queries.
+
+        Etapa 24 (ADR-0028): the batch results view (`GET /batch-classification/
+        {id}`) is now polled every second while a batch is `PROCESSING`, so
+        looking up one `Evaluation` at a time per row (`get_evaluation` in a
+        loop) would multiply queries unnecessarily - this is the shared
+        implementation both `get_evaluation` and the batch view use.
+        """
+        if not evaluation_ids:
+            return {}
+        records = self._session.scalars(
+            select(EvaluationRecord).where(EvaluationRecord.id.in_(evaluation_ids))
         ).all()
+        rule_version_rows = self._session.execute(
+            select(
+                EvaluationRuleVersionRecord.evaluation_id,
+                EvaluationRuleVersionRecord.rule_version_id,
+            )
+            .where(EvaluationRuleVersionRecord.evaluation_id.in_(evaluation_ids))
+            .order_by(
+                EvaluationRuleVersionRecord.evaluation_id, EvaluationRuleVersionRecord.position
+            )
+        ).all()
+        rule_versions_by_evaluation: dict[str, list[str]] = {}
+        for evaluation_id, rule_version_id in rule_version_rows:
+            rule_versions_by_evaluation.setdefault(evaluation_id, []).append(rule_version_id)
         return {
-            "evaluation_id": record.id,
-            "evaluated_at": _aware(record.evaluated_at),
-            "known_at": _aware(record.known_at),
-            "operation_date": record.operation_date,
-            "input_hash": record.input_hash,
-            "engine_version": record.engine_version,
-            "ruleset_id": record.ruleset_id,
-            "ruleset_fingerprint": record.ruleset_fingerprint,
-            "facts": record.input_facts,
-            "outcome": record.outcome,
-            "decision_trace": record.decision_trace,
-            "correlation_id": record.correlation_id,
-            "reproduced_from_id": record.reproduced_from_id,
-            "organization_id": record.organization_id,
-            "company_id": record.company_id,
-            "establishment_id": record.establishment_id,
-            "product_id": record.product_id,
-            "product_version_id": record.product_version_id,
-            "catalog_version_id": record.catalog_version_id,
-            "rule_versions_used": list(rule_version_ids),
-            **(
-                {"composed_ruleset_ids": record.composed_ruleset_ids}
-                if record.ruleset_id is None
-                else {}
-            ),
+            record.id: {
+                "evaluation_id": record.id,
+                "evaluated_at": _aware(record.evaluated_at),
+                "known_at": _aware(record.known_at),
+                "operation_date": record.operation_date,
+                "input_hash": record.input_hash,
+                "engine_version": record.engine_version,
+                "ruleset_id": record.ruleset_id,
+                "ruleset_fingerprint": record.ruleset_fingerprint,
+                "facts": record.input_facts,
+                "outcome": record.outcome,
+                "decision_trace": record.decision_trace,
+                "correlation_id": record.correlation_id,
+                "reproduced_from_id": record.reproduced_from_id,
+                "organization_id": record.organization_id,
+                "company_id": record.company_id,
+                "establishment_id": record.establishment_id,
+                "product_id": record.product_id,
+                "product_version_id": record.product_version_id,
+                "catalog_version_id": record.catalog_version_id,
+                "rule_versions_used": rule_versions_by_evaluation.get(record.id, []),
+                **(
+                    {"composed_ruleset_ids": record.composed_ruleset_ids}
+                    if record.ruleset_id is None
+                    else {}
+                ),
+            }
+            for record in records
         }
 
     def add_audit_event(self, event: dict[str, Any]) -> None:

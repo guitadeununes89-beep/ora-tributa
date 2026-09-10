@@ -17,7 +17,10 @@ Fundação técnica de uma plataforma auditável de inteligência, auditoria e p
 > enviar uma planilha (.xlsx/.csv, limite inicial configurável de 500 linhas) e processar cada
 > linha pela mesma consulta unificada e descoberta, distinguindo CONCLUSIVO, POSSÍVEIS
 > ENQUADRAMENTOS, NECESSITA VALIDAÇÃO e SEM COBERTURA NORMATIVA por item (ver ADR-0027) — nenhum
-> motor novo, nenhuma regra publicada nesta etapa. São regras piloto, não representam cobertura
+> motor novo, nenhuma regra publicada nesta etapa. Desde a Etapa 24, esse processamento em lote é
+> assíncrono (`fastapi.BackgroundTasks`, sem infraestrutura nova) — a resposta chega imediatamente
+> e a interface acompanha o progresso real por polling até concluir (ver ADR-0028). São regras
+> piloto, não representam cobertura
 > completa, não são default de produção e não existe cálculo amplo da Reforma Tributária.
 
 ## Princípios centrais

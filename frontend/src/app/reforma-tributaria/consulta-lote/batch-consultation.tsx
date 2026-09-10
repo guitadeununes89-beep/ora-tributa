@@ -1,6 +1,6 @@
 "use client";
 
-import { ChangeEvent, FormEvent, useMemo, useState } from "react";
+import { ChangeEvent, FormEvent, useEffect, useMemo, useRef, useState } from "react";
 import { API_URL, apiFetch } from "@/lib/api";
 
 type ObjectKind = "GOOD" | "SERVICE" | "OTHER";
@@ -71,6 +71,7 @@ type BatchDetailResponse = {
 };
 
 const STATUS_LABELS: Record<string, string> = {
+  PENDING: "Aguardando processamento",
   CONCLUSIVO: "Conclusivo",
   POSSIVEIS_ENQUADRAMENTOS: "Possíveis enquadramentos",
   NECESSITA_VALIDACAO: "Necessita validação",
@@ -78,8 +79,12 @@ const STATUS_LABELS: Record<string, string> = {
   ERROR: "Erro na linha",
 };
 
+const POLL_INTERVAL_MS = 1000;
+
 function rowStatusKey(row: BatchRowResult): string {
-  return row.processing_status === "ERROR" ? "ERROR" : (row.classification_status ?? "ERROR");
+  if (row.processing_status === "ERROR") return "ERROR";
+  if (row.processing_status === "PENDING") return "PENDING";
+  return row.classification_status ?? "ERROR";
 }
 
 async function readProblemDetail(response: Response, fallback: string): Promise<string> {
@@ -102,20 +107,46 @@ export function BatchConsultation() {
   const [detail, setDetail] = useState<BatchDetailResponse | null>(null);
 
   const [statusFilter, setStatusFilter] = useState("");
-  const [selectedRow, setSelectedRow] = useState<BatchRowResult | null>(null);
+  const [selectedRowNumber, setSelectedRowNumber] = useState<number | null>(null);
+
+  const pollIntervalRef = useRef<ReturnType<typeof setInterval> | null>(null);
+
+  function stopPolling() {
+    if (pollIntervalRef.current !== null) {
+      clearInterval(pollIntervalRef.current);
+      pollIntervalRef.current = null;
+    }
+  }
+
+  // Never leave a timer running behind - on unmount, and whenever a new
+  // file is uploaded while a previous batch was still being polled.
+  useEffect(() => stopPolling, []);
 
   function handleFileChange(event: ChangeEvent<HTMLInputElement>) {
     setFile(event.target.files?.[0] ?? null);
   }
 
+  async function refreshDetail(batchId: string): Promise<BatchDetailResponse | null> {
+    const response = await apiFetch(`/batch-classification/${batchId}`);
+    if (!response.ok) return null;
+    const data = (await response.json()) as BatchDetailResponse;
+    setDetail(data);
+    if (data.batch.status !== "PROCESSING") {
+      stopPolling();
+      setProcessing(false);
+    }
+    return data;
+  }
+
   async function handleUpload(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
     if (!file) return;
+    stopPolling();
     setUploading(true);
     setUploadError("");
     setUpload(null);
     setDetail(null);
-    setSelectedRow(null);
+    setSelectedRowNumber(null);
     const formData = new FormData();
     formData.append("file", file);
     const response = await apiFetch("/batch-classification/upload", {
@@ -132,28 +163,37 @@ export function BatchConsultation() {
 
   async function handleProcess() {
     if (!upload) return;
+    const batchId = upload.batch.batch_id;
     setProcessing(true);
     setProcessError("");
-    const response = await apiFetch(`/batch-classification/${upload.batch.batch_id}/process`, {
+    // POST /process only enqueues the work and returns immediately
+    // (Etapa 24) - the real result comes from polling GET below.
+    const response = await apiFetch(`/batch-classification/${batchId}/process`, {
       method: "POST",
     });
-    setProcessing(false);
     if (!response.ok) {
+      setProcessing(false);
       setProcessError(await readProblemDetail(response, "Falha ao processar o lote."));
       return;
     }
-    const data = (await response.json()) as BatchDetailResponse;
-    setDetail(data);
-    setSelectedRow(data.rows[0] ?? null);
+    const initial = await refreshDetail(batchId);
+    setSelectedRowNumber(initial?.rows[0]?.row_number ?? null);
+    if (initial?.batch.status === "PROCESSING") {
+      pollIntervalRef.current = setInterval(() => void refreshDetail(batchId), POLL_INTERVAL_MS);
+    }
   }
 
   const filteredRows = useMemo(() => {
     const rows = detail?.rows ?? [];
     return statusFilter ? rows.filter((row) => rowStatusKey(row) === statusFilter) : rows;
   }, [detail, statusFilter]);
+  const selectedRow = detail?.rows.find((row) => row.row_number === selectedRowNumber) ?? null;
   const exportUrl = detail
     ? `${API_URL}/batch-classification/${detail.batch.batch_id}/export`
     : null;
+  const progressTotal = detail?.batch.row_count ?? 0;
+  const progressDone = (detail?.batch.processed_count ?? 0) + (detail?.batch.error_count ?? 0);
+  const progressPercent = progressTotal > 0 ? Math.round((progressDone / progressTotal) * 100) : 0;
 
   return (
     <section>
@@ -231,14 +271,32 @@ export function BatchConsultation() {
               </tbody>
             </table>
           </div>
-          <button
-            type="button"
-            onClick={() => void handleProcess()}
-            disabled={processing}
-            aria-busy={processing}
-          >
-            {processing ? "Processando lote..." : "3. Processar lote"}
-          </button>
+          {detail?.batch.status !== "PROCESSING" && (
+            <button
+              type="button"
+              onClick={() => void handleProcess()}
+              disabled={processing}
+              aria-busy={processing}
+            >
+              {processing ? "Iniciando..." : "3. Processar lote"}
+            </button>
+          )}
+          {detail?.batch.status === "PROCESSING" && (
+            <div className="batch-progress" role="status" aria-live="polite">
+              <p>
+                Processando... {progressDone} de {progressTotal} linha(s)
+              </p>
+              <div
+                className="coverage-progress"
+                role="progressbar"
+                aria-valuenow={progressPercent}
+                aria-valuemin={0}
+                aria-valuemax={100}
+              >
+                <span style={{ width: `${progressPercent}%` }} />
+              </div>
+            </div>
+          )}
           {processError && (
             <p role="alert" className="curation-warning">
               {processError}
@@ -253,10 +311,12 @@ export function BatchConsultation() {
             <div>
               <span className="eyebrow">4. Resultado</span>
               <h2 id="batch-results-title">
-                {detail.batch.processed_count} processada(s) · {detail.batch.error_count} erro(s)
+                {detail.batch.status === "PROCESSING"
+                  ? "Processamento em andamento"
+                  : `${detail.batch.processed_count} processada(s) · ${detail.batch.error_count} erro(s)`}
               </h2>
             </div>
-            {exportUrl && (
+            {exportUrl && detail.batch.status !== "PROCESSING" && (
               <a href={exportUrl} target="_blank" rel="noreferrer">
                 Exportar resultado (.xlsx)
               </a>
@@ -284,8 +344,8 @@ export function BatchConsultation() {
                   <button
                     key={row.row_number}
                     type="button"
-                    className={selectedRow?.row_number === row.row_number ? "selected" : ""}
-                    onClick={() => setSelectedRow(row)}
+                    className={selectedRowNumber === row.row_number ? "selected" : ""}
+                    onClick={() => setSelectedRowNumber(row.row_number)}
                   >
                     <span>
                       <strong>Linha {row.row_number}</strong> ·{" "}
@@ -304,9 +364,13 @@ export function BatchConsultation() {
               >
                 <span className="eyebrow">Linha {selectedRow.row_number}</span>
                 <h2>{STATUS_LABELS[rowStatusKey(selectedRow)] ?? rowStatusKey(selectedRow)}</h2>
-                {selectedRow.processing_status === "ERROR" ? (
+                {selectedRow.processing_status === "ERROR" && (
                   <p role="alert">{selectedRow.error_message}</p>
-                ) : (
+                )}
+                {selectedRow.processing_status === "PENDING" && (
+                  <p>Esta linha ainda não foi alcançada pelo processamento.</p>
+                )}
+                {selectedRow.processing_status === "PROCESSED" && (
                   <>
                     {selectedRow.fatos_faltantes.length > 0 && (
                       <div className="missing-facts">

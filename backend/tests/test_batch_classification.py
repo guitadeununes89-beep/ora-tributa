@@ -15,6 +15,7 @@ from typing import Any, cast
 
 from tributaria_api.application.batch_classification import (
     expand_row_result,
+    expand_row_results,
     process_batch_row,
     resolve_ruleset_ids_for_rule_codes,
 )
@@ -383,3 +384,62 @@ def test_expand_row_result_coerces_an_integer_rule_version_to_string() -> None:
     result = expand_row_result(row, governance_repository=governance_repository)
 
     assert result["regra"] == {"rule_code": "RT-IBSCBS-0004", "version": "1"}
+
+
+def test_expand_row_results_fetches_all_evaluations_in_a_single_call() -> None:
+    """Etapa 24 (ADR-0028): polling GET /{batch_id} every second must not
+    issue one query per row - `get_evaluations` should be called exactly
+    once for the whole batch, not once per row with an evaluation_id."""
+    rows = [
+        SimpleNamespace(id="row-1", evaluation_id="eval-1"),
+        SimpleNamespace(id="row-2", evaluation_id="eval-2"),
+        SimpleNamespace(id="row-3", evaluation_id=None),
+    ]
+    calls: list[list[str]] = []
+
+    def get_evaluations(evaluation_ids: list[str]) -> dict[str, Any]:
+        calls.append(list(evaluation_ids))
+        return {
+            "eval-1": {
+                "outcome": {
+                    "missing_facts": [],
+                    "tax_candidates": [
+                        {
+                            "cst": "200",
+                            "cclasstrib": "200010",
+                            "rule": {"rule_code": "RT-IBSCBS-0005", "version": 1},
+                            "legal_references": [],
+                        }
+                    ],
+                }
+            },
+            "eval-2": {"outcome": {"missing_facts": ["buyer.health_entity_status"]}},
+        }
+
+    governance_repository = cast(Any, SimpleNamespace(get_evaluations=get_evaluations))
+
+    results = expand_row_results(rows, governance_repository=governance_repository)
+
+    assert len(calls) == 1
+    assert sorted(calls[0]) == ["eval-1", "eval-2"]
+    assert results["row-1"]["cclasstrib"] == "200010"
+    assert results["row-2"]["fatos_faltantes"] == ["buyer.health_entity_status"]
+    assert results["row-3"] == {
+        "cst": None,
+        "cclasstrib": None,
+        "tratamento": None,
+        "fundamento_legal": [],
+        "regra": None,
+        "fatos_faltantes": [],
+        "decision_trace": [],
+    }
+
+
+def test_expand_row_results_of_empty_batch_returns_empty_dict() -> None:
+    governance_repository = cast(
+        Any, SimpleNamespace(get_evaluations=lambda evaluation_ids: {})
+    )
+
+    results = expand_row_results([], governance_repository=governance_repository)
+
+    assert results == {}

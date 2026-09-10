@@ -8,10 +8,11 @@
 
 > **Leitura temporal:** as seções 1 a 24 registram decisões e estados históricos das respectivas
 > etapas e não devem ser interpretadas isoladamente como estado corrente. O estado atual está
-> consolidado na seção 25 (Etapa 23) e nos relatórios `docs/tax/ETAPA_21_UNIFIED_RULE_EVALUATION.md`,
-> `docs/tax/ETAPA_22_NCM_NBS_DISCOVERY.md` e `docs/tax/ETAPA_23_BATCH_CONSULTATION.md`. Afirmações
-> históricas como "nenhuma regra real executável" eram verdadeiras no fechamento daquela etapa e
-> foram superadas pela publicação piloto da Etapa 7C e pelas etapas seguintes.
+> consolidado na seção 25 (Etapas 21-24) e nos relatórios `docs/tax/ETAPA_21_UNIFIED_RULE_
+> EVALUATION.md`, `docs/tax/ETAPA_22_NCM_NBS_DISCOVERY.md`, `docs/tax/ETAPA_23_BATCH_
+> CONSULTATION.md` e `docs/tax/ETAPA_24_ASYNC_BATCH_PROCESSING.md`. Afirmações históricas como
+> "nenhuma regra real executável" eram verdadeiras no fechamento daquela etapa e foram superadas
+> pela publicação piloto da Etapa 7C e pelas etapas seguintes.
 ## 1. Visão
 
 Construir uma plataforma profissional, modular, auditável e preparada para SaaS para inteligência, auditoria e planejamento tributário no Brasil. A primeira evolução funcional será orientada à Reforma Tributária — IBS, CBS e Imposto Seletivo — preservando espaço para ICMS, ICMS-ST, PIS/COFINS e outros domínios.
@@ -518,11 +519,11 @@ A cobertura executável permanece `1/164` (`0,61%`). Aprovar os três documentos
 somente após aprovação, implementação, testes e publicação futura o teto potencial seria `4/164`
 (`2,44%`). Nenhuma nova TaxRuleVersion ou ruleset foi criada e o tax-engine não mudou.
 
-## 25. Etapa 21, 22 e 23 — consulta unificada, catálogos NCM/NBS e consulta em lote (estado atual)
+## 25. Etapas 21 a 24 — consulta unificada, catálogos NCM/NBS, lote e seu processamento assíncrono (estado atual)
 
-Esta seção consolida, de forma resumida, o estado real da plataforma após as três etapas mais
+Esta seção consolida, de forma resumida, o estado real da plataforma após as quatro etapas mais
 recentes — os relatórios completos ficam em `docs/tax/`, não duplicados aqui. **A cobertura
-executável continua `4/164 cClassTrib` (2,44%)**: nenhuma das três etapas publicou regra
+executável continua `4/164 cClassTrib` (2,44%)**: nenhuma das quatro etapas publicou regra
 tributária nova; todas reaproveitam as 5 regras já publicadas (`RT-IBSCBS-0003/0004/0005/0007/
 0008`).
 
@@ -546,9 +547,15 @@ tributária nova; todas reaproveitam as 5 regras já publicadas (`RT-IBSCBS-0003
   motor novo — distinguindo `CONCLUSIVO`, `POSSIVEIS_ENQUADRAMENTOS`, `NECESSITA_VALIDACAO` e
   `SEM_COBERTURA_NORMATIVA`. Uma linha inválida nunca interrompe o lote (vira `ERROR` isolado).
   `/reforma-tributaria/consulta-lote` cobre upload, prévia, execução, grid com filtro por status,
-  detalhe com DecisionTrace e exportação — sem armazenar o arquivo original, sem processamento
-  assíncrono nesta etapa (RNF-08 permanece reconhecimento futuro), sem implementar o `TaxObject`
-  do ADR-0019 (o campo "tipo de objeto" do lote é só um rótulo de roteamento de busca).
+  detalhe com DecisionTrace e exportação — sem armazenar o arquivo original, sem implementar o
+  `TaxObject` do ADR-0019 (o campo "tipo de objeto" do lote é só um rótulo de roteamento de
+  busca).
+- **Etapa 24 — processamento assíncrono do lote (RNF-08)** (ADR-0028,
+  `docs/tax/ETAPA_24_ASYNC_BATCH_PROCESSING.md`): `POST /process`/`POST /reprocess` passam a
+  enfileirar o processamento (`fastapi.BackgroundTasks`, sem infraestrutura nova) e responder
+  imediatamente; o frontend faz polling em `GET /{id}` para mostrar progresso real e parar
+  sozinho ao concluir. `FAILED` passa a ser de fato alcançável quando algo dá errado no meio do
+  processamento, em vez de um lote ficar preso silenciosamente.
 
-Nenhuma das três etapas alterou `Product`, `FactSet` ou o `tax-engine` central; todas são
+Nenhuma das quatro etapas alterou `Product`, `FactSet` ou o `tax-engine` central; todas são
 estritamente aditivas sobre a base da Etapa 20.

@@ -1222,3 +1222,81 @@ cobertura jurídica e sem cálculo financeiro amplo.
   `TaxObject` do ADR-0019, nem XML/EFD, nem laudo com identidade visual, nem simulador de regime.
 - Não altera nenhuma das 5 regras reais publicadas, seus rulesets, ou qualquer contrato/rota das
   Etapas 21/22 — `/batch-classification/*` é inteiramente aditivo.
+
+## Etapa 24 — Processamento assíncrono do lote (RNF-08)
+
+**Data:** 2026-09-10
+**Decisão arquitetural:** [ADR-0028](docs/adr/0028-processamento-assincrono-de-lote.md).
+**Deliverable completo:** [docs/tax/ETAPA_24_ASYNC_BATCH_PROCESSING.md](docs/tax/ETAPA_24_ASYNC_BATCH_PROCESSING.md)
+(testes, demonstração ao vivo, cobertura antes/depois, pendências — não repetido aqui na íntegra).
+
+Ao final da Etapa 23, apontei duas frentes independentes como próximo passo: processamento
+assíncrono (RNF-08) ou leitura de XML de NF-e/CT-e (e-Auditoria). Você escolheu a primeira — a
+segunda segue exigindo autorização própria, como sempre.
+
+1. **`fastapi.BackgroundTasks`, sem nova dependência nem novo serviço de infraestrutura.**
+   Pesquisei antes de decidir: não há hoje nenhuma fila/broker (Redis, RabbitMQ) nem biblioteca de
+   tarefas em background (Celery, RQ, arq, dramatiq, huey) em nenhum `pyproject.toml`, e
+   `docker-compose.yml` só define Postgres. `POST /process`/`POST /reprocess` agora transicionam o
+   lote para `PROCESSING` de forma síncrona e devolvem `BatchSummary` imediatamente; o
+   processamento de fato roda em `run_batch_job`, com sua própria sessão de banco
+   (`get_session_factory()`), chamando linha a linha exatamente o mesmo `process_batch_row` da
+   Etapa 23 — nenhuma lógica tributária nova.
+2. **Progresso real via commit por linha.** `update_row_result` passou a `commit()` (era só
+   `flush()`), e um novo `update_progress` committado a cada linha permite que um `GET /{id}`
+   concorrente (o polling do frontend) veja a contagem crescente em tempo real, não só o
+   resultado final. Nenhuma migração nova — `PROCESSING` já não era bloqueado pelo trigger de
+   imutabilidade da Etapa 23, só `COMPLETED`/`FAILED` são.
+3. **`FAILED` passa a ser de fato alcançável** — existia no schema desde a migração 0010 mas nunca
+   era acionado. Qualquer exceção não tratada na tarefa em segundo plano agora marca o lote
+   `FAILED` (com `completed_at`) em vez de deixá-lo preso silenciosamente em `PROCESSING`.
+4. **Primeiro polling do frontend deste projeto**: `/reforma-tributaria/consulta-lote` chama
+   `GET /{id}` a cada 1s enquanto `PROCESSING`, mostra uma barra de progresso real e para sozinho
+   ao concluir — decisão explícita de não introduzir WebSocket/SSE para um progresso já servido
+   por um `GET` existente.
+5. **Otimização motivada diretamente pela mudança**: como o polling passaria a chamar `GET /{id}`
+   repetidamente durante o processamento, uma consulta por linha (`get_evaluation`) se tornaria
+   cara sem necessidade. Adicionei `get_evaluations` (uma única consulta em lote) e
+   `expand_row_results`, usados por `GET /{id}` e `export()`.
+6. **Bug real encontrado e corrigido durante a implementação, não só na revisão**: `mark_processing`
+   só fazia `flush()`, nunca `commit()`. Isso teria duas consequências reais em produção — a
+   transição para `PROCESSING` seria perdida ao fechar a sessão da requisição, e o bloqueio de
+   linha nunca liberado travaria a tarefa em segundo plano tentando atualizar a mesma linha.
+   **Confirmado ao vivo**: um teste de integração contra o Postgres real expôs exatamente esse
+   deadlock (duas sessões reais, uma travada esperando a outra) antes da correção — não foi um
+   erro teórico, foi reproduzido e observado via `pg_locks` antes de eu corrigir o método para
+   `commit()`.
+7. **Testes**: 2 novos unitários (`expand_row_results` chama o repositório uma única vez, não uma
+   por linha), 9 de integração real contra Postgres (6 reescritos para o novo fluxo em duas
+   etapas — chamar a rota, depois `run_batch_job` diretamente, o padrão que o próprio FastAPI
+   recomenda para testar `BackgroundTasks` — + 3 novos: resposta imediata sem tocar nenhuma
+   linha, falha não tratada vira `FAILED` sem propagar exceção, escrita tardia num lote já
+   `COMPLETED` é rejeitada pelo trigger real), 2 novos no frontend (linha `PENDING` nunca
+   aparece como erro — bug de exibição corrigido nesta etapa; polling mostra progresso e para ao
+   concluir, usando `vi.useFakeTimers()` para controle explícito do tempo) — **288 testes Python
+   sem `POSTGRES_TESTS=1`, 309 com** (banco recriado do zero), `ruff`/`mypy` limpos; **30 testes
+   de frontend**, `pnpm lint`/`typecheck`/`build` limpos.
+8. **Demonstração ao vivo** (login `analyst@example.invalid`, banco de demonstração real):
+   planilha sintética de 41 linhas, sem nenhum `sleep()` adicionado ao código só para alongar a
+   demo. `POST /process` respondeu imediatamente com `PROCESSING` (confirmado pelo log da API);
+   o log mostrou exatamente 2 chamadas a `GET /{id}` — a primeira ainda `PROCESSING` (ativando o
+   polling), a segunda já `COMPLETED` (parando-o), sem nenhuma terceira chamada depois. Resultado
+   final: 40 linhas `SEM_COBERTURA_NORMATIVA` (fora do capítulo 30) e 1 linha com candidato de
+   descoberta encontrado mas nenhum fato de contexto informado — mapeada corretamente para
+   `SEM_COBERTURA_NORMATIVA` com a observação "candidato descartado pelos próprios fatos", a
+   distinção do ADR-0028 nunca antes exercitada ao vivo. Persistência e exportação confirmadas
+   reais no banco de demonstração.
+
+### O que isso NÃO faz
+
+- Não publica nenhuma regra tributária nova nem aprova interpretação jurídica nova — cobertura
+  executável continua `4/164` (2,44%), antes e depois desta etapa.
+- Não introduz nenhuma infraestrutura nova (sem Redis, sem Celery/RQ, sem worker separado, sem
+  WebSocket/SSE) e nenhuma migração de banco nova.
+- Não resolve escala além de uma única instância da API — aceito e documentado (ADR-0028), não
+  escondido; revisitar quando houver múltiplas instâncias ou hospedagem compartilhada.
+- Não inicia leitura de XML de NF-e/CT-e nem cálculo financeiro amplo — seguem exigindo
+  autorização própria.
+- Não altera nenhuma das 5 regras reais publicadas, a descoberta fail-closed da Etapa 22, ou os
+  contratos de `GET /{id}`/`GET /`/`export` — só `process`/`reprocess` mudam de contrato
+  (`BatchDetailResponse` → `BatchSummary`), numa API que nasceu na etapa imediatamente anterior.

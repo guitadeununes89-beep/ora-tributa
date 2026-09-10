@@ -176,7 +176,13 @@ class SqlAlchemyBatchRepository:
         record.nbs_catalog_version_id = nbs_catalog_version_id
         record.taxonomy_catalog_version_id = taxonomy_catalog_version_id
         record.engine_version = engine_version
-        self._flush()
+        # Committed (Etapa 24), not just flushed: this runs on the request's
+        # own session, synchronously, before the background job (a separate
+        # session/connection) is enqueued. A flush alone is invisible outside
+        # this session and - worse - leaves the row's lock held until the
+        # request's session is torn down, which would deadlock against the
+        # background job trying to update the same row.
+        self.commit()
 
     def update_row_result(
         self,
@@ -198,7 +204,17 @@ class SqlAlchemyBatchRepository:
         record.evaluation_id = evaluation_id
         record.discovery_rule_codes = list(discovery_rule_codes) if discovery_rule_codes else None
         record.observations = observations
-        self._flush()
+        # Committed (not just flushed) so a concurrent GET /{batch_id} - a different
+        # session, the frontend's polling (Etapa 24, ADR-0028) - observes this row's
+        # result as soon as it lands, not only once the whole batch finishes.
+        self.commit()
+
+    def update_progress(self, batch_id: str, *, processed_count: int, error_count: int) -> None:
+        """Committed per-row progress update (Etapa 24) for polling clients to observe."""
+        record = self._record(batch_id)
+        record.processed_count = processed_count
+        record.error_count = error_count
+        self.commit()
 
     def mark_completed(
         self, batch_id: str, *, processed_count: int, error_count: int, occurred_at: datetime
@@ -207,6 +223,19 @@ class SqlAlchemyBatchRepository:
         record.status = "COMPLETED"
         record.processed_count = processed_count
         record.error_count = error_count
+        record.completed_at = occurred_at
+        self.commit()
+        return record
+
+    def mark_failed(self, batch_id: str, *, occurred_at: datetime) -> ClassificationBatchRecord:
+        """Mark a batch FAILED after an unhandled error in its background job.
+
+        Etapa 24: `FAILED` existed in the CHECK constraint since migration 0010
+        but was never actually reachable - a background job that raises must
+        never leave a batch stuck silently in PROCESSING forever.
+        """
+        record = self._record(batch_id)
+        record.status = "FAILED"
         record.completed_at = occurred_at
         self.commit()
         return record
